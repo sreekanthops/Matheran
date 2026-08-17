@@ -433,11 +433,87 @@ body{
   padding:2px 8px;border-radius:12px;font-size:10px;
   font-weight:800;margin-left:6px;
 }
+/* ── LOGIN SCREEN ─────────────────────────────────────── */
+.login-screen{
+  position:fixed;inset:0;z-index:500;
+  background:linear-gradient(135deg,var(--primary-dark) 0%,#1e3a5f 100%);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.login-box{
+  background:#fff;border-radius:24px;padding:36px 28px;
+  width:100%;max-width:360px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.login-logo{font-size:52px;margin-bottom:12px;}
+.login-title{font-size:22px;font-weight:900;color:var(--txt);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.5;}
+.login-input{
+  width:100%;padding:14px 16px;border:2px solid var(--border);
+  border-radius:12px;font-size:16px;font-family:inherit;
+  outline:none;text-align:center;margin-bottom:14px;
+  transition:border-color .2s;
+}
+.login-input:focus{border-color:var(--primary);}
+.login-btn{
+  width:100%;padding:14px;background:var(--primary);color:#fff;
+  border:none;border-radius:12px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.login-btn:hover{background:var(--primary-dark);}
+.login-err{
+  color:var(--red);font-size:13px;font-weight:600;
+  margin-top:10px;min-height:20px;
+}
+.login-hint{font-size:12px;color:var(--muted);margin-top:16px;}
+
+/* ── USER BADGE in sidebar ───────────────────────────── */
+.sb-user{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 18px;border-top:1px solid rgba(255,255,255,.1);
+  cursor:pointer;
+}
+.sb-user-av{
+  width:32px;height:32px;border-radius:50%;
+  color:#fff;font-size:13px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sb-user-name{font-size:13px;font-weight:700;color:#fff;flex:1;}
+.sb-user-out{font-size:11px;color:rgba(255,255,255,.5);}
+
+/* ── ACTIVITY LOG ────────────────────────────────────── */
+.act-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid #f1f5f9;
+}
+.act-row:last-child{border-bottom:none;}
+.act-av{
+  width:30px;height:30px;border-radius:50%;
+  color:#fff;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.act-body{flex:1;min-width:0;}
+.act-who{font-size:13px;font-weight:700;color:var(--txt);}
+.act-what{font-size:13px;color:var(--muted);margin-top:1px;}
+.act-detail{font-size:12px;color:var(--muted-light);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.act-time{font-size:11px;color:var(--muted-light);white-space:nowrap;margin-top:2px;}
 </style>
 </head>
 <body>
 
-<div class="layout">
+<!-- ── LOGIN SCREEN ── -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🏔️</div>
+    <div class="login-title">Matheran Trek 2025</div>
+    <div class="login-sub">Gang of 13 · Redwood Resort<br/>Enter your name to continue</div>
+    <input class="login-input" id="loginInput" type="text" placeholder="Your name (e.g. Sreekanth)" autocomplete="off" autocapitalize="words"/>
+    <button class="login-btn" id="loginBtn">Let's Go! 🚀</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-hint">No password needed — just your name</div>
+  </div>
+</div>
+
+<div class="layout" id="appLayout" style="display:none;">
 
 <!-- Hamburger toggle (mobile only) -->
 <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()">☰</button>
@@ -470,9 +546,16 @@ body{
     <button class="tab" onclick="goTab('tips',this)"><span class="tab-icon">💡</span><span class="tab-label">Tips</span></button>
   </div>
   <div class="sb-footer">
-    <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank" style="color:rgba(255,255,255,.5);text-decoration:none;display:flex;align-items:center;gap:6px;">
+    <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank" style="color:rgba(255,255,255,.5);text-decoration:none;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
       📍 View on Maps
     </a>
+  </div>
+  <div class="sb-user" id="sbUser" onclick="doLogout()">
+    <div class="sb-user-av" id="sbUserAv">?</div>
+    <div>
+      <div class="sb-user-name" id="sbUserName">Not logged in</div>
+      <div class="sb-user-out">Tap to logout</div>
+    </div>
   </div>
 </nav>
 
@@ -558,6 +641,11 @@ body{
   <div class="card">
     <div class="ch">🕐 Recent Expenses</div>
     <div class="cb" id="recentList"><div class="loading">Loading…</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch">🕒 Recent Activity <span style="margin-left:auto;font-size:11px;font-weight:600;color:var(--muted);">who did what</span></div>
+    <div class="cb" id="activityList"><div class="loading">Loading…</div></div>
   </div>
 </div>
 
@@ -865,6 +953,7 @@ var EXPENSES = [];
 var CHECKLIST = [];
 var FOLDERS = [];
 var CURRENT_FOLDER = null;
+var CURRENT_USER = null; // {id, name}
 
 // ── HELPERS ───────────────────────────────────────────────
 var PAL=['#0f766e','#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#0891b2','#be123c','#4338ca','#7e22ce'];
@@ -917,6 +1006,59 @@ async function api(method,url,body){
   return json;
 }
 
+// ── LOGIN ─────────────────────────────────────────────────
+var LOGIN_KEY = 'matheran_user';
+
+function initLogin(){
+  var saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(LOGIN_KEY)); }catch(_){}
+  if(saved && saved.name){
+    CURRENT_USER = saved;
+    showApp();
+  } else {
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('appLayout').style.display='none';
+    document.getElementById('loginInput').focus();
+  }
+}
+
+async function doLogin(){
+  var name = document.getElementById('loginInput').value.trim();
+  if(!name){ document.getElementById('loginErr').textContent='Please enter your name'; return; }
+  document.getElementById('loginBtn').textContent='Checking…';
+  document.getElementById('loginErr').textContent='';
+  try{
+    var user = await api('POST','/api/login',{name:name});
+    CURRENT_USER = user;
+    localStorage.setItem(LOGIN_KEY, JSON.stringify(user));
+    showApp();
+  }catch(e){
+    document.getElementById('loginErr').textContent = e.message;
+    document.getElementById('loginBtn').textContent = "Let's Go! 🚀";
+  }
+}
+
+function doLogout(){
+  if(!confirm('Logout as '+CURRENT_USER.name+'?')) return;
+  CURRENT_USER = null;
+  localStorage.removeItem(LOGIN_KEY);
+  document.getElementById('appLayout').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginInput').value='';
+  document.getElementById('loginBtn').textContent="Let's Go! 🚀";
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appLayout').style.display='flex';
+  // update sidebar badge
+  var u = CURRENT_USER;
+  document.getElementById('sbUserAv').textContent = aInit(u.name);
+  document.getElementById('sbUserAv').style.background = aColor(u.name);
+  document.getElementById('sbUserName').textContent = u.name;
+  boot();
+}
+
 // ── BOOT ──────────────────────────────────────────────────
 async function boot(){
   try{
@@ -928,13 +1070,13 @@ async function boot(){
     ]);
     MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders;
     renderAll();
+    renderActivity();
   }catch(err){
     console.error('Boot failed:',err);
     ['sTotal','sPer','sCnt','sMem'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.textContent='—';
+      var el=document.getElementById(id); if(el) el.textContent='—';
     });
-    ['catChart','recentList','allList','balList','settleList','memberWrap','memSummary','packLists','foldersList'].forEach(function(id){
+    ['catChart','recentList','allList','balList','settleList','memberWrap','memSummary','packLists','foldersList','activityList'].forEach(function(id){
       var el=document.getElementById(id);
       if(el) el.innerHTML='<div style="text-align:center;color:#dc2626;padding:20px;font-size:13px;">⚠️ Could not connect to server. Please restart the server and refresh.<br><small>'+err.message+'</small></div>';
     });
@@ -952,6 +1094,34 @@ function renderAll(){
   renderMembers();
   renderMemSummary();
   renderPacking();
+}
+
+// ── ACTIVITY ──────────────────────────────────────────────
+var ACT_ICONS = {
+  'logged in':'🔑','added expense':'💸','edited expense':'✏️','deleted expense':'🗑️',
+  'added packing item':'➕','removed packing item':'🗑️',
+  'checked packing item':'✅','unchecked packing item':'◻️',
+  'uploaded photos':'📸','deleted photo':'🗑️'
+};
+async function renderActivity(){
+  var el = document.getElementById('activityList');
+  if(!el) return;
+  try{
+    var logs = await api('GET','/api/activity');
+    if(!logs.length){ el.innerHTML='<div class="empty">No activity yet</div>'; return; }
+    el.innerHTML = logs.map(function(l){
+      var icon = ACT_ICONS[l.action] || '📝';
+      return '<div class="act-row">'+
+        '<div class="act-av" style="background:'+aColor(l.user_name)+'">'+aInit(l.user_name)+'</div>'+
+        '<div class="act-body">'+
+          '<div><span class="act-who">'+l.user_name+'</span> '+
+          '<span class="act-what">'+icon+' '+l.action+'</span></div>'+
+          (l.detail?'<div class="act-detail">'+l.detail+'</div>':'')+
+          '<div class="act-time">'+l.ts+'</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty">Could not load activity</div>'; }
 }
 
 // ── PAYER SELECTS ─────────────────────────────────────────
@@ -1051,11 +1221,11 @@ document.getElementById('addExpBtn').addEventListener('click',async function(){
   if(!desc){toast('Enter a description');return;}
   if(!amount||amount<=0){toast('Enter a valid amount');return;}
   try{
-    var row=await api('POST','/api/expenses',{payer_id,desc,amount,category});
+    var row=await api('POST','/api/expenses',{payer_id,desc,amount,category,logged_by:CURRENT_USER?.name});
     EXPENSES.unshift(row);
     document.getElementById('qDesc').value='';
     document.getElementById('qAmt').value='';
-    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();renderActivity();
     toast('Added! '+inr(amount)+' split → '+inr((amount/MEMBERS.length).toFixed(2))+'/person');
   }catch(e){toast(e.message);}
 });
@@ -1083,11 +1253,11 @@ document.getElementById('saveEditBtn').addEventListener('click',async function()
   var category=document.getElementById('eCat').value;
   if(!desc||!amount){toast('Fill all fields');return;}
   try{
-    var row=await api('PUT','/api/expenses/'+id,{payer_id,desc,amount,category});
+    var row=await api('PUT','/api/expenses/'+id,{payer_id,desc,amount,category,logged_by:CURRENT_USER?.name});
     var idx=EXPENSES.findIndex(function(x){return x.id===id;});
     if(idx>-1)EXPENSES[idx]=row;
     document.getElementById('editOv').classList.remove('on');
-    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();renderActivity();
     toast('Expense updated!');
   }catch(e){toast(e.message);}
 });
@@ -1096,9 +1266,9 @@ document.getElementById('saveEditBtn').addEventListener('click',async function()
 async function delExp(id){
   if(!confirm('Delete this expense?'))return;
   try{
-    await api('DELETE','/api/expenses/'+id);
+    await api('DELETE','/api/expenses/'+id,{logged_by:CURRENT_USER?.name});
     EXPENSES=EXPENSES.filter(function(e){return e.id!==id;});
-    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();renderActivity();
     toast('Expense deleted');
   }catch(e){toast(e.message);}
 }
@@ -1275,7 +1445,7 @@ async function loadPhotos(){
         var pid=+this.getAttribute('data-delp');
         if(!confirm('Delete this photo?'))return;
         try{
-          await api('DELETE','/api/photos/'+pid);
+          await api('DELETE','/api/photos/'+pid,{logged_by:CURRENT_USER?.name});
           toast('Photo deleted');
           loadPhotos();
           renderFolders();
@@ -1346,7 +1516,7 @@ function renderPacking(){
     cb.addEventListener('change',async function(){
       var id=+this.getAttribute('data-cid');
       var done=this.checked;
-      await api('PUT','/api/checklist/'+id,{done:done});
+      await api('PUT','/api/checklist/'+id,{done:done,logged_by:CURRENT_USER?.name});
       var item=CHECKLIST.find(function(x){return x.id===id;});
       if(item)item.done=done?1:0;
       renderPacking();
@@ -1356,7 +1526,7 @@ function renderPacking(){
     b.addEventListener('click',async function(){
       var id=+this.getAttribute('data-did');
       if(!confirm('Remove this item?'))return;
-      await api('DELETE','/api/checklist/'+id);
+      await api('DELETE','/api/checklist/'+id,{logged_by:CURRENT_USER?.name});
       CHECKLIST=CHECKLIST.filter(function(x){return x.id!==id;});
       renderPacking();
       toast('Item removed');
@@ -1369,7 +1539,7 @@ document.getElementById('addItemBtn').addEventListener('click',async function(){
   var item=document.getElementById('newItem').value.trim();
   if(!item){toast('Enter item name');return;}
   try{
-    var row=await api('POST','/api/checklist',{category:cat,item:item});
+    var row=await api('POST','/api/checklist',{category:cat,item:item,logged_by:CURRENT_USER?.name});
     CHECKLIST.push(row);
     document.getElementById('newItem').value='';
     renderPacking();
@@ -1586,7 +1756,11 @@ function escHtml(s) {
 }
 
 // ── KICK OFF ──────────────────────────────────────────────
-boot();
+// Wire up login
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+initLogin();
 renderItinerary();
 </script>
 </body>

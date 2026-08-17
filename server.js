@@ -69,6 +69,13 @@ async function openDB() {
       orig_name  TEXT NOT NULL,
       uploaded_at TEXT NOT NULL DEFAULT (strftime('%d/%m/%Y %H:%M', 'now'))
     );
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_name  TEXT NOT NULL,
+      action     TEXT NOT NULL,
+      detail     TEXT NOT NULL DEFAULT '',
+      ts         TEXT NOT NULL DEFAULT (strftime('%d/%m/%Y %H:%M', 'now'))
+    );
   `);
 
   // Seed members
@@ -133,6 +140,29 @@ function get(sql, params = []) { return all(sql, params)[0] || null; }
 function run(sql, params = []) { db.run(sql, params); save(); }
 
 // ═══════════════════════════════════════════════════════════
+//  LOGIN
+// ═══════════════════════════════════════════════════════════
+app.post('/api/login', (req, res) => {
+  const name = (req.body.name || '').trim();
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const member = get('SELECT * FROM members WHERE LOWER(name)=LOWER(?)', [name]);
+  if (!member) return res.status(404).json({ error: 'Name not found. Ask the trip organiser to add you.' });
+  logActivity(member.name, 'logged in', '');
+  res.json({ id: member.id, name: member.name });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  ACTIVITY LOG
+// ═══════════════════════════════════════════════════════════
+function logActivity(user, action, detail) {
+  try { run('INSERT INTO activity_log (user_name,action,detail) VALUES (?,?,?)', [user, action, detail]); } catch(_) {}
+}
+
+app.get('/api/activity', (_req, res) => {
+  res.json(all('SELECT * FROM activity_log ORDER BY id DESC LIMIT 50'));
+});
+
+// ═══════════════════════════════════════════════════════════
 //  MEMBERS
 // ═══════════════════════════════════════════════════════════
 app.get('/api/members', (_req, res) => res.json(all('SELECT * FROM members ORDER BY id')));
@@ -159,22 +189,28 @@ const EXP_SEL = `SELECT e.id,e.desc,e.amount,e.category,e.created_at,m.id as pay
 app.get('/api/expenses', (_req, res) => res.json(all(EXP_SEL + ' ORDER BY e.id DESC')));
 
 app.post('/api/expenses', (req, res) => {
-  const { payer_id, desc, amount, category } = req.body;
+  const { payer_id, desc, amount, category, logged_by } = req.body;
   if (!payer_id || !desc || !amount) return res.status(400).json({ error: 'Missing fields' });
   run('INSERT INTO expenses (payer_id,desc,amount,category) VALUES (?,?,?,?)',
       [+payer_id, desc.trim(), parseFloat(amount), category || 'Misc']);
-  res.json(all(EXP_SEL + ' ORDER BY e.id DESC LIMIT 1')[0]);
+  const row = all(EXP_SEL + ' ORDER BY e.id DESC LIMIT 1')[0];
+  if (logged_by) logActivity(logged_by, 'added expense', `${desc} ₹${amount}`);
+  res.json(row);
 });
 
 app.put('/api/expenses/:id', (req, res) => {
-  const { payer_id, desc, amount, category } = req.body;
+  const { payer_id, desc, amount, category, logged_by } = req.body;
   run('UPDATE expenses SET payer_id=?,desc=?,amount=?,category=? WHERE id=?',
       [+payer_id, desc.trim(), parseFloat(amount), category, +req.params.id]);
+  if (logged_by) logActivity(logged_by, 'edited expense', `${desc} ₹${amount}`);
   res.json(get(EXP_SEL + ' WHERE e.id=?', [+req.params.id]));
 });
 
 app.delete('/api/expenses/:id', (req, res) => {
+  const { logged_by } = req.body || {};
+  const e = get('SELECT desc,amount FROM expenses WHERE id=?', [+req.params.id]);
   run('DELETE FROM expenses WHERE id=?', [+req.params.id]);
+  if (logged_by && e) logActivity(logged_by, 'deleted expense', `${e.desc} ₹${e.amount}`);
   res.json({ ok: true });
 });
 
@@ -184,19 +220,27 @@ app.delete('/api/expenses/:id', (req, res) => {
 app.get('/api/checklist', (_req, res) => res.json(all('SELECT * FROM checklist ORDER BY category,id')));
 
 app.post('/api/checklist', (req, res) => {
-  const { category, item } = req.body;
+  const { category, item, logged_by } = req.body;
   if (!category || !item) return res.status(400).json({ error: 'Missing fields' });
   run('INSERT INTO checklist (category,item) VALUES (?,?)', [category, item.trim()]);
+  if (logged_by) logActivity(logged_by, 'added packing item', item.trim());
   res.json(all('SELECT * FROM checklist ORDER BY id DESC LIMIT 1')[0]);
 });
 
 app.put('/api/checklist/:id', (req, res) => {
-  run('UPDATE checklist SET done=? WHERE id=?', [req.body.done ? 1 : 0, +req.params.id]);
+  const done = req.body.done ? 1 : 0;
+  const { logged_by } = req.body;
+  const it = get('SELECT item FROM checklist WHERE id=?', [+req.params.id]);
+  run('UPDATE checklist SET done=? WHERE id=?', [done, +req.params.id]);
+  if (logged_by && it) logActivity(logged_by, done ? 'checked packing item' : 'unchecked packing item', it.item);
   res.json({ ok: true });
 });
 
 app.delete('/api/checklist/:id', (req, res) => {
+  const { logged_by } = req.body || {};
+  const it = get('SELECT item FROM checklist WHERE id=?', [+req.params.id]);
   run('DELETE FROM checklist WHERE id=?', [+req.params.id]);
+  if (logged_by && it) logActivity(logged_by, 'removed packing item', it.item);
   res.json({ ok: true });
 });
 
@@ -244,6 +288,7 @@ app.post('/api/folders/:folder/upload', (req, res, next) => {
   upload.array('photos', 30)(req, res, err => {
     if (err) return res.status(400).json({ error: err.message });
     const folderName = req.params.folder;
+    const logged_by = req.query.logged_by || '';
     let frow = get('SELECT * FROM folders WHERE name=?', [folderName]);
     if (!frow) {
       run('INSERT OR IGNORE INTO folders (name) VALUES (?)', [folderName]);
@@ -255,16 +300,19 @@ app.post('/api/folders/:folder/upload', (req, res, next) => {
           [frow.id, f.filename, f.originalname]);
       inserted.push(all('SELECT * FROM photos ORDER BY id DESC LIMIT 1')[0]);
     });
+    if (logged_by && inserted.length) logActivity(logged_by, 'uploaded photos', `${inserted.length} photo(s) to "${folderName}"`);
     res.json(inserted);
   });
 });
 
 app.delete('/api/photos/:id', (req, res) => {
+  const { logged_by } = req.body || {};
   const p = get('SELECT p.*,f.name as folder_name FROM photos p JOIN folders f ON p.folder_id=f.id WHERE p.id=?', [+req.params.id]);
   if (p) {
     const fp = path.join(UPLOADS_DIR, p.folder_name, p.filename);
     if (fs.existsSync(fp)) fs.unlinkSync(fp);
     run('DELETE FROM photos WHERE id=?', [+req.params.id]);
+    if (logged_by) logActivity(logged_by, 'deleted photo', p.orig_name);
   }
   res.json({ ok: true });
 });
