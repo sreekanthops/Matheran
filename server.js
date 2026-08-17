@@ -280,32 +280,61 @@ app.delete('/api/expenses/:id', (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
-//  CHECKLIST
+//  CHECKLIST  (items are shared; done-state is per-user)
 // ═══════════════════════════════════════════════════════════
-app.get('/api/checklist', (_req, res) => res.json(all('SELECT * FROM checklist ORDER BY category,id')));
+
+// Ensure per-user done table exists (migration-safe)
+function ensureChecklistDone() {
+  db.run(`CREATE TABLE IF NOT EXISTS checklist_done (
+    item_id   INTEGER NOT NULL,
+    member_id INTEGER NOT NULL,
+    PRIMARY KEY (item_id, member_id)
+  );`);
+}
+ensureChecklistDone();
+
+// GET — returns items, done=1 only if THIS member checked it
+app.get('/api/checklist', (req, res) => {
+  ensureChecklistDone();
+  const mid = parseInt(req.query.member_id) || 0;
+  const items = all('SELECT * FROM checklist ORDER BY category,id');
+  if (mid) {
+    const doneSet = new Set(
+      all('SELECT item_id FROM checklist_done WHERE member_id=?', [mid]).map(r => r.item_id)
+    );
+    items.forEach(it => { it.done = doneSet.has(it.id) ? 1 : 0; });
+  }
+  res.json(items);
+});
 
 app.post('/api/checklist', (req, res) => {
   const { category, item, logged_by } = req.body;
   if (!category || !item) return res.status(400).json({ error: 'Missing fields' });
   run('INSERT INTO checklist (category,item) VALUES (?,?)', [category, item.trim()]);
-  if (logged_by) logActivity(logged_by, 'added packing item', item.trim());
+  if (logged_by) logActivity(logged_by, 'added item to packing list', '');
   res.json(all('SELECT * FROM checklist ORDER BY id DESC LIMIT 1')[0]);
 });
 
+// PUT — toggle done for this member only
 app.put('/api/checklist/:id', (req, res) => {
+  ensureChecklistDone();
   const done = req.body.done ? 1 : 0;
-  const { logged_by } = req.body;
-  const it = get('SELECT item FROM checklist WHERE id=?', [+req.params.id]);
-  run('UPDATE checklist SET done=? WHERE id=?', [done, +req.params.id]);
-  if (logged_by && it) logActivity(logged_by, done ? 'checked packing item' : 'unchecked packing item', it.item);
+  const { member_id, logged_by } = req.body;
+  if (!member_id) return res.status(400).json({ error: 'member_id required' });
+  if (done) {
+    run('INSERT OR IGNORE INTO checklist_done (item_id,member_id) VALUES (?,?)', [+req.params.id, +member_id]);
+  } else {
+    run('DELETE FROM checklist_done WHERE item_id=? AND member_id=?', [+req.params.id, +member_id]);
+  }
+  if (logged_by) logActivity(logged_by, 'updated packing list', '');
   res.json({ ok: true });
 });
 
 app.delete('/api/checklist/:id', (req, res) => {
   const { logged_by } = req.body || {};
-  const it = get('SELECT item FROM checklist WHERE id=?', [+req.params.id]);
   run('DELETE FROM checklist WHERE id=?', [+req.params.id]);
-  if (logged_by && it) logActivity(logged_by, 'removed packing item', it.item);
+  run('DELETE FROM checklist_done WHERE item_id=?', [+req.params.id]);
+  if (logged_by) logActivity(logged_by, 'removed item from packing list', '');
   res.json({ ok: true });
 });
 

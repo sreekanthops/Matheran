@@ -1565,10 +1565,11 @@ function showApp(){
 // ── BOOT ──────────────────────────────────────────────────
 async function boot(){
   try{
+    var mid = CURRENT_USER ? CURRENT_USER.id : 0;
     var [members,expenses,checklist,folders,locs]=await Promise.all([
       api('GET','/api/members'),
       api('GET','/api/expenses'),
-      api('GET','/api/checklist'),
+      api('GET','/api/checklist?member_id='+mid),
       api('GET','/api/folders'),
       api('GET','/api/locations')
     ]);
@@ -2072,7 +2073,9 @@ var CAT_ORDER=['clothing','toiletries','trekking','electronics','food','docs','f
 function renderPacking(){
   var done=CHECKLIST.filter(function(x){return x.done;}).length;
   var total=CHECKLIST.length;
-  document.getElementById('progTxt').textContent=done+' / '+total;
+  // Header: show whose list this is
+  var nameLabel = CURRENT_USER ? ' — '+CURRENT_USER.name : '';
+  document.getElementById('progTxt').textContent=done+' / '+total+nameLabel;
   var pct=total>0?Math.round(done/total*100):0;
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
@@ -2085,7 +2088,7 @@ function renderPacking(){
     items.forEach(function(item){
       html+='<div class="cr">'+
         '<input type="checkbox" id="cb'+item.id+'" '+(item.done?'checked':'')+' data-cid="'+item.id+'"/>'+
-        '<label class="cl'+(item.done?' done':'')+'" for="cb'+item.id+'">'+item.item+'</label>'+
+        '<label class="cl'+(item.done?' done':'')+'" for="cb'+item.id+'">'+escHtml(item.item)+'</label>'+
         '<button class="xbtn" data-did="'+item.id+'">✕</button>'+
       '</div>';
     });
@@ -2096,7 +2099,7 @@ function renderPacking(){
     cb.addEventListener('change',async function(){
       var id=+this.getAttribute('data-cid');
       var done=this.checked;
-      await api('PUT','/api/checklist/'+id,{done:done,logged_by:CURRENT_USER?.name});
+      await api('PUT','/api/checklist/'+id,{done:done,member_id:CURRENT_USER?.id,logged_by:CURRENT_USER?.name});
       var item=CHECKLIST.find(function(x){return x.id===id;});
       if(item)item.done=done?1:0;
       renderPacking();
@@ -2105,7 +2108,7 @@ function renderPacking(){
   document.querySelectorAll('[data-did]').forEach(function(b){
     b.addEventListener('click',async function(){
       var id=+this.getAttribute('data-did');
-      if(!confirm('Remove this item?'))return;
+      if(!confirm('Remove this item from the shared list?'))return;
       await api('DELETE','/api/checklist/'+id,{logged_by:CURRENT_USER?.name});
       CHECKLIST=CHECKLIST.filter(function(x){return x.id!==id;});
       renderPacking();
@@ -2120,6 +2123,7 @@ document.getElementById('addItemBtn').addEventListener('click',async function(){
   if(!item){toast('Enter item name');return;}
   try{
     var row=await api('POST','/api/checklist',{category:cat,item:item,logged_by:CURRENT_USER?.name});
+    row.done=0; // new item always starts unchecked for current user
     CHECKLIST.push(row);
     document.getElementById('newItem').value='';
     renderPacking();
