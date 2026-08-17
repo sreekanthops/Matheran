@@ -3062,15 +3062,13 @@ async function spInit(){
       spAutoUnlock();
       return;
     } else {
-      // Not yet — show countdown, hide password form
-      document.getElementById('spLockTitle').textContent='💝 Something special awaits you…';
-      document.getElementById('spLockSub').textContent='Hold on, it\'s almost time ✨';
-      document.getElementById('spPwWrap').style.display='none';
-      document.getElementById('spCountdownWrap').style.display='block';
-      var unlockDate = new Date(SP_SETTINGS.unlock_at);
-      document.getElementById('spUnlockAtLabel').textContent =
-        'Unlocks at ' + unlockDate.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
-      spStartCountdown(unlockMs);
+      // Not yet — show plain locked screen, NO hints, NO timer visible
+      // Just silently wait and auto-open when the time comes
+      document.getElementById('spLockTitle').textContent = '🔒 Page Locked';
+      document.getElementById('spLockSub').textContent = 'This page is not available right now.';
+      document.getElementById('spPwWrap').style.display = 'none';
+      document.getElementById('spCountdownWrap').style.display = 'none';
+      spStartCountdown(unlockMs); // silent background check
       return;
     }
   }
@@ -3082,24 +3080,15 @@ async function spInit(){
 }
 
 function spStartCountdown(unlockMs){
+  // Silent background check — no UI updates until it fires
   if(SP_COUNTDOWN_T) clearInterval(SP_COUNTDOWN_T);
-  function tick(){
-    var diff = unlockMs - Date.now();
-    if(diff <= 0){
+  SP_COUNTDOWN_T = setInterval(function(){
+    if(Date.now() >= unlockMs){
       clearInterval(SP_COUNTDOWN_T);
-      // Auto-unlock!
       SP_AUTO = true;
       spAutoUnlock();
-      return;
     }
-    var h = Math.floor(diff/3600000);
-    var m = Math.floor((diff%3600000)/60000);
-    var s = Math.floor((diff%60000)/1000);
-    document.getElementById('spCountdown').textContent =
-      String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  }
-  tick();
-  SP_COUNTDOWN_T = setInterval(tick, 1000);
+  }, 1000);
 }
 
 async function spAutoUnlock(){
