@@ -134,6 +134,7 @@ async function openDB() {
       .forEach(n => db.run('INSERT OR IGNORE INTO folders (name) VALUES (?)', [n]));
   }
 
+  ensureChecklistDone();
   save();
 }
 
@@ -283,7 +284,7 @@ app.delete('/api/expenses/:id', (req, res) => {
 //  CHECKLIST  (items are shared; done-state is per-user)
 // ═══════════════════════════════════════════════════════════
 
-// Ensure per-user done table exists (migration-safe)
+// Ensure per-user done table exists (called inside openDB, not at module load)
 function ensureChecklistDone() {
   db.run(`CREATE TABLE IF NOT EXISTS checklist_done (
     item_id   INTEGER NOT NULL,
@@ -291,7 +292,6 @@ function ensureChecklistDone() {
     PRIMARY KEY (item_id, member_id)
   );`);
 }
-ensureChecklistDone();
 
 // GET — returns items, done=1 only if THIS member checked it
 app.get('/api/checklist', (req, res) => {
