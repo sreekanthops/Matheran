@@ -559,9 +559,20 @@ body{
           • Updates every 3 minutes
         </div>
       </div>
-      <button class="login-btn" id="allowLocBtn" style="margin-bottom:10px;">✅ Allow Location &amp; Enter App</button>
+      <button class="login-btn" id="allowLocBtn" style="margin-bottom:10px;">📍 Allow Location &amp; Enter App</button>
       <button id="skipLocBtn" style="width:100%;padding:12px;background:transparent;color:var(--muted);border:2px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Skip for now</button>
       <div class="login-err" id="locErr"></div>
+      <!-- shown only when browser denies -->
+      <div id="locDeniedHelp" style="display:none;margin-top:14px;background:#fef9c3;border:1.5px solid #fde047;border-radius:12px;padding:12px 14px;text-align:left;">
+        <div style="font-size:12px;font-weight:800;color:#713f12;margin-bottom:6px;">🔒 Location blocked — how to fix:</div>
+        <div style="font-size:12px;color:#78350f;line-height:1.8;">
+          <strong>Chrome Android:</strong> Tap 🔒 in address bar → Site settings → Location → Allow<br/>
+          <strong>Safari iPhone:</strong> Settings → Safari → Location → Allow<br/>
+          <strong>Desktop Chrome:</strong> Click 🔒 in URL bar → Location → Allow<br/>
+          Then tap <em>"Allow Location & Enter App"</em> again.
+        </div>
+        <button id="enterAnywayBtn" style="margin-top:10px;width:100%;padding:10px;background:#0f766e;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Enter App without Location →</button>
+      </div>
     </div>
 
   </div>
@@ -799,6 +810,8 @@ body{
 
 <!-- ══ MEMBERS ════════════════════════════════════════════ -->
 <div id="pg-members" class="pg">
+  <!-- Location status banner -->
+  <div id="myLocBanner" class="card" style="padding:0;overflow:hidden;"></div>
   <div class="card">
     <div class="ch">👥 Gang of <span id="gangCountMem">13</span></div>
     <div class="cb">
@@ -1038,6 +1051,7 @@ function goTab(id,el){
   if(id==='gallery') renderFolders();
   if(id==='itinerary') renderItinerary();
   if(id==='medical') renderMedical();
+  if(id==='members') renderLocBanner();
   // close sidebar on mobile after picking a page
   if(window.innerWidth<=768) closeSidebar();
 }
@@ -2140,16 +2154,22 @@ document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
 
 // ── Location permission step buttons ──────────────────────
-document.getElementById('allowLocBtn').addEventListener('click', function(){
-  if(!navigator.geolocation){
-    document.getElementById('locErr').textContent = 'Location not supported on this device.';
-    return;
-  }
-  var btn = this;
-  btn.textContent = 'Requesting permission…';
+function requestLocationAndEnter(onSuccess, onDenied) {
+  if(!navigator.geolocation){ onDenied('unsupported'); return; }
   navigator.geolocation.getCurrentPosition(
+    function(pos){ onSuccess(pos); },
+    function(err){ onDenied(err.code); },
+    {enableHighAccuracy:false, timeout:15000}
+  );
+}
+
+document.getElementById('allowLocBtn').addEventListener('click', function(){
+  var btn = this;
+  btn.textContent = '⏳ Requesting…';
+  btn.disabled = true;
+  requestLocationAndEnter(
     function(pos){
-      // Permission granted — immediately post first location
+      // Granted
       if(inLocationWindow() && CURRENT_USER){
         api('POST','/api/location',{
           member_id: CURRENT_USER.id,
@@ -2158,22 +2178,122 @@ document.getElementById('allowLocBtn').addEventListener('click', function(){
           accuracy: pos.coords.accuracy
         }).catch(function(){});
       }
+      btn.textContent = '📍 Allow Location & Enter App';
+      btn.disabled = false;
       showApp();
     },
-    function(err){
-      // User denied or error — still let them in, just warn
-      document.getElementById('locErr').textContent =
-        err.code===1 ? '⚠️ Location denied. You can enable it later in browser settings.' : '⚠️ Could not get location. Entering anyway…';
-      btn.textContent = '✅ Allow Location & Enter App';
-      setTimeout(showApp, 1500);
-    },
-    {enableHighAccuracy:false, timeout:15000}
+    function(code){
+      // Denied or unsupported
+      btn.textContent = '📍 Allow Location & Enter App';
+      btn.disabled = false;
+      if(code === 'unsupported'){
+        document.getElementById('locErr').textContent = 'Location not supported on this device.';
+        setTimeout(showApp, 1500);
+      } else if(code === 1){
+        // Permission denied — show how-to-fix panel
+        document.getElementById('locErr').textContent = '';
+        document.getElementById('locDeniedHelp').style.display = 'block';
+      } else {
+        document.getElementById('locErr').textContent = '⚠️ Could not get location. Entering anyway…';
+        setTimeout(showApp, 1500);
+      }
+    }
   );
 });
 
 document.getElementById('skipLocBtn').addEventListener('click', function(){
   showApp();
 });
+
+document.getElementById('enterAnywayBtn').addEventListener('click', function(){
+  showApp();
+});
+
+// ── Members page location banner ──────────────────────────
+function renderLocBanner(){
+  var banner = document.getElementById('myLocBanner');
+  if(!banner || !CURRENT_USER) return;
+
+  // Check if we already have a location for current user
+  var myLoc = LOCATIONS.find(function(l){ return l.member_id === CURRENT_USER.id; });
+
+  if(!inLocationWindow()){
+    banner.style.display = 'none';
+    return;
+  }
+  banner.style.display = '';
+
+  if(myLoc){
+    // Location is live
+    banner.innerHTML =
+      '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-bottom:2px solid #bbf7d0;">' +
+        '<div style="font-size:22px;">📍</div>' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:13px;font-weight:800;color:#166534;">Your location is LIVE ✅</div>' +
+          '<div style="font-size:12px;color:#16a34a;margin-top:2px;">Last shared: '+myLoc.updated_at+' · Updates every 3 min</div>' +
+        '</div>' +
+        '<button onclick="retryShareLocation()" style="background:#16a34a;color:#fff;border:none;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;">↺ Refresh</button>' +
+      '</div>';
+  } else {
+    // No location yet — show enable button
+    banner.innerHTML =
+      '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#fef9c3,#fef3c7);border-bottom:2px solid #fde047;">' +
+        '<div style="font-size:22px;">📍</div>' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:13px;font-weight:800;color:#713f12;">Location not shared yet</div>' +
+          '<div style="font-size:12px;color:#92400e;margin-top:2px;">Active 28 Aug – 30 Aug 11 PM · Tap to enable</div>' +
+        '</div>' +
+        '<button onclick="retryShareLocation()" style="background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;">📍 Enable</button>' +
+      '</div>' +
+      '<div id="locBannerHelp" style="display:none;padding:12px 16px;background:#fef9c3;border-top:1px solid #fde047;">' +
+        '<div style="font-size:12px;font-weight:800;color:#713f12;margin-bottom:6px;">🔒 If location is blocked in browser:</div>' +
+        '<div style="font-size:12px;color:#78350f;line-height:1.8;">' +
+          '<strong>Chrome Android:</strong> Tap 🔒 address bar → Site settings → Location → Allow<br/>' +
+          '<strong>Safari iPhone:</strong> Settings → Safari → Location → Allow<br/>' +
+          '<strong>Desktop Chrome:</strong> Click 🔒 URL bar → Location → Allow' +
+        '</div>' +
+      '</div>';
+  }
+}
+
+function retryShareLocation(){
+  var btn = document.querySelector('#myLocBanner button');
+  if(btn){ btn.textContent='⏳…'; btn.disabled=true; }
+
+  requestLocationAndEnter(
+    function(pos){
+      if(CURRENT_USER){
+        api('POST','/api/location',{
+          member_id: CURRENT_USER.id,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        }).then(function(){
+          return api('GET','/api/locations');
+        }).then(function(locs){
+          LOCATIONS = locs;
+          renderLocBanner();
+          renderMembers();
+          toast('📍 Location shared!');
+          shareMyLocation(); // start interval
+        }).catch(function(){});
+      }
+    },
+    function(code){
+      if(code === 1){
+        // Show instructions panel inside banner
+        var help = document.getElementById('locBannerHelp');
+        if(help) help.style.display = 'block';
+        toast('⚠️ Location blocked — see instructions below');
+      } else if(code === 'unsupported'){
+        toast('Location not supported on this device');
+      } else {
+        toast('⚠️ Could not get location');
+      }
+      if(btn){ btn.textContent='📍 Enable'; btn.disabled=false; }
+    }
+  );
+}
 
 initLogin();
 renderItinerary();
