@@ -1287,23 +1287,53 @@ body{
 
 <!-- ══ SECRET PAGE ════════════════════════════════════════ -->
 <div id="pg-secret" class="pg">
-  <!-- Lock screen -->
+
+  <!-- ── LOCK SCREEN (password or countdown) ── -->
   <div class="sp-lock" id="spLock">
     <div class="sp-lock-box">
       <span class="sp-heart">💝</span>
-      <div class="sp-lock-title">This page is just for you</div>
-      <div class="sp-lock-sub">Enter the password to open</div>
-      <input class="sp-pw-input" id="spPwInput" type="password" placeholder="password…" autocomplete="off"/>
-      <button class="sp-unlock-btn" id="spUnlockBtn">Open 💝</button>
+      <div class="sp-lock-title" id="spLockTitle">This page is just for you</div>
+      <div class="sp-lock-sub" id="spLockSub">Enter the password to open</div>
+
+      <!-- countdown (shown when recipient + future unlock_at) -->
+      <div id="spCountdownWrap" style="display:none;margin-bottom:16px;">
+        <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;">Opens automatically in</div>
+        <div id="spCountdown" style="font-size:32px;font-weight:900;color:#f9a8d4;letter-spacing:2px;">--:--:--</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;" id="spUnlockAtLabel"></div>
+      </div>
+
+      <!-- password form (shown for Sreekanth, or if no recipient/time set) -->
+      <div id="spPwWrap">
+        <input class="sp-pw-input" id="spPwInput" type="password" placeholder="password…" autocomplete="off"/>
+        <button class="sp-unlock-btn" id="spUnlockBtn">Open 💝</button>
+      </div>
       <div class="sp-err" id="spErr"></div>
     </div>
   </div>
-  <!-- Content (hidden until unlocked) -->
+
+  <!-- ── CONTENT (after unlock) ── -->
   <div class="sp-page" id="spContent" style="display:none;">
     <div class="sp-header">
       <div style="font-size:40px;margin-bottom:10px;">💝</div>
       <div class="sp-header-title">Give Me One Chance</div>
       <div class="sp-header-sub">Written from the heart · Just for you</div>
+    </div>
+
+    <!-- Sreekanth-only admin panel -->
+    <div id="spAdminPanel" style="display:none;margin:16px 16px 0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px;">
+      <div style="font-size:13px;font-weight:800;color:#f9a8d4;margin-bottom:12px;">⚙️ Who can see this + when it auto-opens</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;">Recipient name (exact, case-insensitive)</div>
+          <input id="spRecipient" type="text" placeholder="e.g. pooja" style="width:100%;padding:9px 12px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font-size:14px;font-family:inherit;outline:none;"/>
+        </div>
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;">Auto-unlock date &amp; time (IST)</div>
+          <input id="spUnlockAt" type="datetime-local" style="width:100%;padding:9px 12px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font-size:14px;font-family:inherit;outline:none;"/>
+        </div>
+        <button id="spSaveSettings" style="padding:10px;background:linear-gradient(135deg,#be185d,#9d174d);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">💾 Save Settings</button>
+        <div id="spSettingsStatus" style="font-size:12px;color:rgba(255,255,255,.5);text-align:center;"></div>
+      </div>
     </div>
 
     <!-- Player card -->
@@ -1316,7 +1346,7 @@ body{
       </div>
       <div class="sp-player-btns">
         <a id="spDlBtn" class="sp-dl-btn" style="display:none;" download>⬇️ Download Song</a>
-        <label class="sp-upload-label">
+        <label class="sp-upload-label" id="spUploadLabel">
           🎵 Upload Song
           <input type="file" id="spSongFile" accept="audio/*" style="display:none;"/>
         </label>
@@ -1337,6 +1367,7 @@ body{
       </div>
     </div>
   </div>
+
 </div>
 
 <!-- ══ CHAT ═══════════════════════════════════════════════ -->
@@ -1445,6 +1476,7 @@ function goTab(id,el){
   if(id==='medical') renderMedical();
   if(id==='members') renderLocBanner();
   if(id==='chat'){ chatMarkRead(); renderChatBody(); }
+  if(id==='secret') spInit();
   // close sidebar on mobile after picking a page
   if(window.innerWidth<=768) closeSidebar();
 }
@@ -1515,9 +1547,17 @@ function showApp(){
   document.getElementById('sbUserAv').textContent = aInit(u.name);
   document.getElementById('sbUserAv').style.background = aColor(u.name);
   document.getElementById('sbUserName').textContent = u.name;
-  // show secret tab only for Sreekanth
+  // show secret tab for Sreekanth always; for others check if they are the recipient
   if(u.name && u.name.toLowerCase() === 'sreekanth'){
     document.getElementById('secretTabBtn').style.display = 'flex';
+  } else {
+    // fetch settings to see if this user is the recipient
+    fetch('/api/secret/settings').then(function(r){return r.json();}).then(function(s){
+      if(s.recipient_name && u.name && u.name.trim().toLowerCase() === s.recipient_name.trim().toLowerCase()){
+        document.getElementById('secretTabBtn').style.display = 'flex';
+        document.getElementById('secretTabBtn').querySelector('.tab-label').textContent = '💌 For You';
+      }
+    }).catch(function(){});
   }
   boot();
 }
@@ -2809,8 +2849,12 @@ document.getElementById('chatFullInput').addEventListener('input', function(){
 });
 
 // ── SECRET PAGE ───────────────────────────────────────────
-var SP_PW = null; // stored after unlock
+var SP_PW = null;        // set after password unlock
+var SP_AUTO = false;     // set if auto-unlocked as recipient
+var SP_IS_SREEKANTH = false;
 var SP_EDITING = false;
+var SP_COUNTDOWN_T = null;
+var SP_SETTINGS = { recipient_name:'', unlock_at:'' };
 
 var SP_DEFAULT_LYRICS = `Almost two years ago…
 I saw a girl.
@@ -2967,6 +3011,124 @@ The best days ever…
 The best days ever…
 The best days ever…`;
 
+// ── called when pg-secret tab is opened ───────────────────
+async function spInit(){
+  SP_IS_SREEKANTH = CURRENT_USER && CURRENT_USER.name.toLowerCase() === 'sreekanth';
+
+  // Load settings first
+  try{
+    SP_SETTINGS = await api('GET','/api/secret/settings');
+  } catch(_){ SP_SETTINGS = {recipient_name:'', unlock_at:''}; }
+
+  // Sreekanth: show password form + load content directly
+  if(SP_IS_SREEKANTH){
+    document.getElementById('spPwWrap').style.display='block';
+    document.getElementById('spCountdownWrap').style.display='none';
+    if(SP_PW){
+      spShowContent();
+    }
+    // Pre-fill admin panel inputs
+    document.getElementById('spRecipient').value = SP_SETTINGS.recipient_name || '';
+    if(SP_SETTINGS.unlock_at){
+      // convert stored ISO to local datetime-local value
+      try{
+        var d = new Date(SP_SETTINGS.unlock_at);
+        var iso = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+        document.getElementById('spUnlockAt').value = iso;
+      } catch(_){}
+    }
+    return;
+  }
+
+  // Recipient: check if it's time to auto-unlock
+  var isRecipient = SP_SETTINGS.recipient_name &&
+    CURRENT_USER.name.trim().toLowerCase() === SP_SETTINGS.recipient_name.trim().toLowerCase();
+
+  if(!isRecipient){
+    // Not recipient — shouldn't even be here, show generic lock
+    document.getElementById('spLockTitle').textContent='🔒 Private Page';
+    document.getElementById('spLockSub').textContent='You don\'t have access to this page.';
+    document.getElementById('spPwWrap').style.display='none';
+    return;
+  }
+
+  // Is recipient — check time
+  if(SP_SETTINGS.unlock_at){
+    var unlockMs = new Date(SP_SETTINGS.unlock_at).getTime();
+    var nowMs = Date.now();
+    if(nowMs >= unlockMs){
+      // Already time — auto-unlock!
+      SP_AUTO = true;
+      spAutoUnlock();
+      return;
+    } else {
+      // Not yet — show countdown, hide password form
+      document.getElementById('spLockTitle').textContent='💝 Something special awaits you…';
+      document.getElementById('spLockSub').textContent='Hold on, it\'s almost time ✨';
+      document.getElementById('spPwWrap').style.display='none';
+      document.getElementById('spCountdownWrap').style.display='block';
+      var unlockDate = new Date(SP_SETTINGS.unlock_at);
+      document.getElementById('spUnlockAtLabel').textContent =
+        'Unlocks at ' + unlockDate.toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+      spStartCountdown(unlockMs);
+      return;
+    }
+  }
+
+  // Recipient but no time set — show password form
+  document.getElementById('spLockTitle').textContent = '💝 This is for you';
+  document.getElementById('spLockSub').textContent = 'Enter the password to open';
+  document.getElementById('spPwWrap').style.display='block';
+}
+
+function spStartCountdown(unlockMs){
+  if(SP_COUNTDOWN_T) clearInterval(SP_COUNTDOWN_T);
+  function tick(){
+    var diff = unlockMs - Date.now();
+    if(diff <= 0){
+      clearInterval(SP_COUNTDOWN_T);
+      // Auto-unlock!
+      SP_AUTO = true;
+      spAutoUnlock();
+      return;
+    }
+    var h = Math.floor(diff/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    document.getElementById('spCountdown').textContent =
+      String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  tick();
+  SP_COUNTDOWN_T = setInterval(tick, 1000);
+}
+
+async function spAutoUnlock(){
+  // Burst hearts
+  for(var i=0;i<12;i++) setTimeout(spFloatHeart, i*120);
+  // Fetch content as recipient
+  try{
+    var data = await fetch('/api/secret?member_name='+encodeURIComponent(CURRENT_USER.name));
+    var json = await data.json();
+    if(!data.ok) throw new Error(json.error);
+    spSetLyrics(json.lyrics || SP_DEFAULT_LYRICS);
+    spSetSong(json.song_url || '');
+    // Hide upload/edit for recipient
+    document.getElementById('spUploadLabel').style.display='none';
+    document.getElementById('spEditBtn').style.display='none';
+    document.getElementById('spAdminPanel').style.display='none';
+    spShowContent();
+  } catch(e){
+    document.getElementById('spLockSub').textContent='Something went wrong. Try refreshing.';
+  }
+}
+
+function spShowContent(){
+  if(SP_COUNTDOWN_T) clearInterval(SP_COUNTDOWN_T);
+  document.getElementById('spLock').style.display='none';
+  document.getElementById('spContent').style.display='block';
+  if(SP_IS_SREEKANTH) document.getElementById('spAdminPanel').style.display='block';
+}
+
 function spSetLyrics(text){
   var el = document.getElementById('spLyricsDisplay');
   if(!el) return;
@@ -3010,7 +3172,6 @@ function spUnlock(){
   if(pw.toLowerCase() !== 'sripooja'){
     err.textContent='✗ Wrong password';
     document.getElementById('spPwInput').value='';
-    // shake animation
     var box = document.querySelector('.sp-lock-box');
     box.style.transform='translateX(-8px)';
     setTimeout(function(){ box.style.transform='translateX(8px)'; },80);
@@ -3019,11 +3180,9 @@ function spUnlock(){
   }
   SP_PW = pw;
   err.textContent='';
-  document.getElementById('spLock').style.display='none';
-  document.getElementById('spContent').style.display='block';
   spLoad();
-  // burst hearts on unlock
   for(var i=0;i<8;i++) spFloatHeart();
+  spShowContent();
 }
 
 function spFloatHeart(){
@@ -3088,6 +3247,25 @@ document.getElementById('spSongFile').addEventListener('change', async function(
     spFloatHeart();
   } catch(e){ status.textContent='✗ '+e.message; }
   this.value='';
+});
+
+// save settings (Sreekanth admin)
+document.getElementById('spSaveSettings').addEventListener('click', async function(){
+  var recipient = document.getElementById('spRecipient').value.trim();
+  var unlockAtVal = document.getElementById('spUnlockAt').value; // local datetime string
+  // convert local datetime to ISO string for storage (server treats as IST)
+  var unlockIso = unlockAtVal ? new Date(unlockAtVal).toISOString() : '';
+  var status = document.getElementById('spSettingsStatus');
+  this.textContent = 'Saving…'; this.disabled = true;
+  try{
+    await api('PUT','/api/secret/settings',{pw:SP_PW, recipient_name:recipient, unlock_at:unlockIso});
+    SP_SETTINGS.recipient_name = recipient.toLowerCase();
+    SP_SETTINGS.unlock_at = unlockIso;
+    status.textContent = '✓ Saved! '+(recipient ? recipient+' will see the tab' : 'No recipient set')+
+      (unlockIso ? ' · Auto-unlocks '+new Date(unlockIso).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : '');
+    toast('Settings saved 💾');
+  } catch(e){ status.textContent='✗ '+e.message; }
+  this.textContent = '💾 Save Settings'; this.disabled = false;
 });
 
 // wire unlock button + enter key

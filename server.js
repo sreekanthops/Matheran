@@ -456,23 +456,56 @@ const songUpload = multer({
 
 function ensureSecret() {
   db.run(`CREATE TABLE IF NOT EXISTS secret_page (
-    id       INTEGER PRIMARY KEY,
-    lyrics   TEXT NOT NULL DEFAULT '',
-    song_url TEXT NOT NULL DEFAULT ''
+    id             INTEGER PRIMARY KEY,
+    lyrics         TEXT NOT NULL DEFAULT '',
+    song_url       TEXT NOT NULL DEFAULT '',
+    recipient_name TEXT NOT NULL DEFAULT '',
+    unlock_at      TEXT NOT NULL DEFAULT ''
   );`);
   try {
     const row = get('SELECT id FROM secret_page WHERE id=1');
-    if (!row) run('INSERT INTO secret_page (id,lyrics,song_url) VALUES (1,?,?)', ['', '']);
+    if (!row) run('INSERT INTO secret_page (id,lyrics,song_url,recipient_name,unlock_at) VALUES (1,?,?,?,?)', ['','','','']);
+    // migrate existing rows
+    try { db.run(`ALTER TABLE secret_page ADD COLUMN recipient_name TEXT NOT NULL DEFAULT ''`); save(); } catch(_) {}
+    try { db.run(`ALTER TABLE secret_page ADD COLUMN unlock_at TEXT NOT NULL DEFAULT ''`); save(); } catch(_) {}
     save();
   } catch(_) {}
 }
 
-// GET lyrics + song
-app.get('/api/secret', (req, res) => {
-  const { pw } = req.query;
+// GET secret settings (public — only returns recipient_name + unlock_at, no content)
+// Used by recipient to know if they should see the tab
+app.get('/api/secret/settings', (_req, res) => {
+  ensureSecret();
+  const row = get('SELECT recipient_name, unlock_at FROM secret_page WHERE id=1');
+  res.json(row || { recipient_name:'', unlock_at:'' });
+});
+
+// PUT settings (Sreekanth-only: set recipient + unlock time)
+app.put('/api/secret/settings', (req, res) => {
+  const { pw, recipient_name, unlock_at } = req.body;
   if (pw !== 'sripooja') return res.status(403).json({ error: 'wrong' });
   ensureSecret();
-  res.json(get('SELECT * FROM secret_page WHERE id=1') || { id:1, lyrics:'', song_url:'' });
+  run('UPDATE secret_page SET recipient_name=?, unlock_at=? WHERE id=1',
+      [(recipient_name||'').trim().toLowerCase(), unlock_at||'']);
+  res.json({ ok: true });
+});
+
+// GET lyrics + song (password OR auto-unlock)
+app.get('/api/secret', (req, res) => {
+  const { pw, member_name } = req.query;
+  ensureSecret();
+  const row = get('SELECT * FROM secret_page WHERE id=1') || { id:1, lyrics:'', song_url:'', recipient_name:'', unlock_at:'' };
+
+  // Allow if: correct password OR (recipient matches AND unlock_at is in the past)
+  const pwOk = pw === 'sripooja';
+  const isRecipient = member_name && row.recipient_name &&
+    member_name.trim().toLowerCase() === row.recipient_name.trim().toLowerCase();
+  const now = new Date(new Date().getTime() + 5.5*60*60*1000); // IST
+  const unlockDate = row.unlock_at ? new Date(row.unlock_at) : null;
+  const autoUnlocked = isRecipient && unlockDate && now >= unlockDate;
+
+  if (!pwOk && !autoUnlocked) return res.status(403).json({ error: 'locked' });
+  res.json(row);
 });
 
 // PUT lyrics
