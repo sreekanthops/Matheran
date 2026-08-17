@@ -140,6 +140,26 @@ async function openDB() {
 function save() {
   fs.writeFileSync(DB_FILE, Buffer.from(db.export()));
 }
+
+// Returns current time as "dd/mm/yyyy HH:MM" in IST (UTC+5:30)
+function istNow() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const dd = String(ist.getUTCDate()).padStart(2,'0');
+  const mm = String(ist.getUTCMonth()+1).padStart(2,'0');
+  const yyyy = ist.getUTCFullYear();
+  const hh = String(ist.getUTCHours()).padStart(2,'0');
+  const min = String(ist.getUTCMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
+function istDate() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const dd = String(ist.getUTCDate()).padStart(2,'0');
+  const mm = String(ist.getUTCMonth()+1).padStart(2,'0');
+  return `${dd}/${mm}/${ist.getUTCFullYear()}`;
+}
+
 function all(sql, params = []) {
   const [res] = db.exec(sql, params);
   if (!res) return [];
@@ -166,7 +186,7 @@ app.post('/api/login', (req, res) => {
 //  ACTIVITY LOG
 // ═══════════════════════════════════════════════════════════
 function logActivity(user, action, detail) {
-  try { run('INSERT INTO activity_log (user_name,action,detail) VALUES (?,?,?)', [user, action, detail]); } catch(_) {}
+  try { run('INSERT INTO activity_log (user_name,action,detail,ts) VALUES (?,?,?,?)', [user, action, detail, istNow()]); } catch(_) {}
 }
 
 app.get('/api/activity', (_req, res) => {
@@ -205,11 +225,12 @@ app.delete('/api/members/:id', (req, res) => {
 app.post('/api/location', (req, res) => {
   const { member_id, lat, lng, accuracy } = req.body;
   if (!member_id || lat == null || lng == null) return res.status(400).json({ error: 'Missing fields' });
+  const ts = istNow();
   run(`INSERT INTO locations (member_id, lat, lng, accuracy, updated_at)
-       VALUES (?,?,?,?,strftime('%d/%m/%Y %H:%M','now'))
+       VALUES (?,?,?,?,?)
        ON CONFLICT(member_id) DO UPDATE SET lat=excluded.lat, lng=excluded.lng,
          accuracy=excluded.accuracy, updated_at=excluded.updated_at`,
-      [+member_id, parseFloat(lat), parseFloat(lng), parseFloat(accuracy || 0)]);
+      [+member_id, parseFloat(lat), parseFloat(lng), parseFloat(accuracy || 0), ts]);
   res.json({ ok: true });
 });
 
@@ -227,8 +248,8 @@ app.get('/api/expenses', (_req, res) => res.json(all(EXP_SEL + ' ORDER BY e.id D
 app.post('/api/expenses', (req, res) => {
   const { payer_id, desc, amount, category, logged_by } = req.body;
   if (!payer_id || !desc || !amount) return res.status(400).json({ error: 'Missing fields' });
-  run('INSERT INTO expenses (payer_id,desc,amount,category) VALUES (?,?,?,?)',
-      [+payer_id, desc.trim(), parseFloat(amount), category || 'Misc']);
+  run('INSERT INTO expenses (payer_id,desc,amount,category,created_at) VALUES (?,?,?,?,?)',
+      [+payer_id, desc.trim(), parseFloat(amount), category || 'Misc', istDate()]);
   const row = all(EXP_SEL + ' ORDER BY e.id DESC LIMIT 1')[0];
   if (logged_by) logActivity(logged_by, 'added expense', `${desc} ₹${amount}`);
   res.json(row);
@@ -332,8 +353,8 @@ app.post('/api/folders/:folder/upload', (req, res, next) => {
     }
     const inserted = [];
     (req.files || []).forEach(f => {
-      run('INSERT INTO photos (folder_id,filename,orig_name) VALUES (?,?,?)',
-          [frow.id, f.filename, f.originalname]);
+      run('INSERT INTO photos (folder_id,filename,orig_name,uploaded_at) VALUES (?,?,?,?)',
+          [frow.id, f.filename, f.originalname, istNow()]);
       inserted.push(all('SELECT * FROM photos ORDER BY id DESC LIMIT 1')[0]);
     });
     if (logged_by && inserted.length) logActivity(logged_by, 'uploaded photos', `${inserted.length} photo(s) to "${folderName}"`);
