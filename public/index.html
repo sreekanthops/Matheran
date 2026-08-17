@@ -3,144 +3,361 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Matheran Trek 2025</title>
+<title>Matheran Trek Aug 2025</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --g1:#1a7a4a;--g2:#25a066;--g3:#d0f5e4;
-  --bg:#f0f4f8;--white:#fff;--border:#dde3ec;
-  --txt:#1a202c;--muted:#64748b;
-  --red:#dc2626;--redBg:#fef2f2;
-  --blue:#1d4ed8;--blueBg:#eff6ff;
-  --orange:#c2410c;--orangeBg:#fff7ed;
-  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --primary:#0f766e;--primary-light:#14b8a6;--primary-dark:#134e4a;
+  --accent:#f59e0b;--accent-light:#fbbf24;
+  --bg:#f8fafc;--white:#fff;--border:#e2e8f0;
+  --txt:#0f172a;--muted:#64748b;--muted-light:#94a3b8;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --green:#16a34a;--green-bg:#f0fdf4;
+  --orange:#ea580c;--orange-bg:#fff7ed;
+  --shadow:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.12);
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
 }
-body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.55;-webkit-tap-highlight-color:transparent;min-height:100vh;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Inter",sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:var(--txt);font-size:15px;line-height:1.6;
+  -webkit-tap-highlight-color:transparent;min-height:100vh;
+  padding-bottom:60px;
+}
 
 /* HEADER */
-.hdr{background:var(--g1);color:#fff;padding:16px 16px 12px;text-align:center;}
-.hdr-title{font-size:21px;font-weight:800;}
-.hdr-sub{font-size:12px;opacity:.85;margin-top:3px;}
-.hdr-pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;}
-.hpill{background:rgba(255,255,255,.18);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.hdr{
+  background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+  color:#fff;padding:24px 20px 18px;text-align:center;
+  box-shadow:var(--shadow-lg);position:relative;overflow:hidden;
+}
+.hdr::before{
+  content:'';position:absolute;top:-50%;right:-20%;
+  width:200px;height:200px;background:rgba(255,255,255,.1);
+  border-radius:50%;
+}
+.hdr-title{font-size:26px;font-weight:900;letter-spacing:-.5px;text-shadow:0 2px 8px rgba(0,0,0,.2);}
+.hdr-sub{font-size:13px;opacity:.9;margin-top:6px;font-weight:500;}
+.hdr-date{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.2);backdrop-filter:blur(10px);
+  padding:8px 16px;border-radius:24px;margin-top:12px;
+  font-size:13px;font-weight:700;
+}
+.hdr-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px;}
+.hpill{
+  background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
+  padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;
+  border:1px solid rgba(255,255,255,.2);
+}
+.map-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--accent);color:#fff;
+  padding:10px 20px;border-radius:24px;margin-top:14px;
+  font-size:13px;font-weight:700;text-decoration:none;
+  box-shadow:0 4px 12px rgba(245,158,11,.3);
+  transition:all .2s;
+}
+.map-btn:active{transform:scale(.95);}
 
 /* TABS */
-.tabs{display:flex;overflow-x:auto;background:var(--white);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:40;scrollbar-width:none;}
+.tabs{
+  display:flex;overflow-x:auto;background:var(--white);
+  border-bottom:2px solid var(--border);position:sticky;top:0;z-index:40;
+  scrollbar-width:none;box-shadow:var(--shadow);
+}
 .tabs::-webkit-scrollbar{display:none;}
-.tab{flex:0 0 auto;padding:11px 13px;font-size:12px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;}
-.tab.on{color:var(--g1);border-bottom-color:var(--g1);}
+.tab{
+  flex:0 0 auto;padding:14px 16px;font-size:13px;font-weight:700;
+  color:var(--muted);border:none;background:none;cursor:pointer;
+  white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;
+  transition:all .2s;
+}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary);}
+
+/* CONTAINER */
+.container{max-width:800px;margin:0 auto;padding:16px 14px 40px;}
 
 /* PAGES */
-.pg{display:none;padding:14px 12px 40px;}
+.pg{display:none;}
 .pg.on{display:block;}
 
 /* CARD */
-.card{background:var(--white);border-radius:16px;border:1px solid var(--border);margin-bottom:14px;box-shadow:var(--shadow);}
-.ch{padding:13px 15px 6px;font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;}
-.cb{padding:4px 15px 15px;}
+.card{
+  background:var(--white);border-radius:var(--radius);
+  border:1px solid var(--border);margin-bottom:16px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.ch{
+  padding:16px 18px;font-size:15px;font-weight:800;
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);
+  border-bottom:1px solid var(--border);
+}
+.cb{padding:18px;}
 
 /* STATS */
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.st{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:14px;text-align:center;box-shadow:var(--shadow);}
-.sv{font-size:22px;font-weight:800;color:var(--g1);}
-.sl{font-size:11px;color:var(--muted);margin-top:1px;font-weight:600;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.st{
+  background:var(--white);border-radius:var(--radius);
+  border:1px solid var(--border);padding:18px;text-align:center;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.st::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:4px;background:linear-gradient(90deg,var(--primary),var(--accent));
+}
+.sv{font-size:24px;font-weight:900;color:var(--primary);margin-bottom:4px;}
+.sl{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
 
 /* FORM */
-.fg{margin-bottom:11px;}
-.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
-.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--txt);background:var(--white);outline:none;-webkit-appearance:none;appearance:none;}
-.fg input:focus,.fg select:focus{border-color:var(--g1);box-shadow:0 0 0 3px rgba(26,122,74,.1);}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fg{margin-bottom:14px;}
+.fg label{
+  display:block;font-size:12px;font-weight:700;
+  color:var(--muted);margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:12px 14px;
+  border:2px solid var(--border);border-radius:var(--radius-sm);
+  font-size:14px;font-family:inherit;color:var(--txt);
+  background:var(--white);outline:none;transition:all .2s;
+}
+.fg input:focus,.fg select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(15,118,110,.1);
+}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:11px 18px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn:active{opacity:.75;}
-.btn-g{background:var(--g1);color:#fff;width:100%;padding:13px;}
-.btn-e{background:var(--blueBg);color:var(--blue);}
-.btn-d{background:var(--redBg);color:var(--red);}
-.btn-sm{padding:7px 11px;font-size:12px;border-radius:8px;}
-.btn-ghost{background:#f1f5f9;color:var(--txt);border:1.5px solid var(--border);}
-.btn-add{background:var(--g3);color:var(--g1);font-size:13px;font-weight:700;padding:9px 15px;border:none;border-radius:9px;cursor:pointer;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:6px;padding:12px 20px;border:none;
+  border-radius:var(--radius-sm);font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.btn:active{transform:scale(.95);}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(15,118,110,.3);}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-g{background:var(--primary);color:#fff;width:100%;padding:14px;}
+.btn-e{background:var(--blue-bg);color:var(--blue);}
+.btn-d{background:var(--red-bg);color:var(--red);}
+.btn-success{background:var(--green-bg);color:var(--green);}
+.btn-sm{padding:8px 12px;font-size:12px;border-radius:var(--radius-sm);}
+.btn-ghost{background:#f1f5f9;color:var(--txt);border:2px solid var(--border);}
+.btn-add{
+  background:var(--accent);color:#fff;
+  font-size:13px;font-weight:700;padding:10px 16px;
+  border:none;border-radius:var(--radius-sm);cursor:pointer;
+}
 
 /* EXPENSE ITEM */
-.ei{border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff;}
+.ei{
+  border:2px solid var(--border);border-radius:var(--radius);
+  padding:14px;margin-bottom:12px;background:#fff;
+  transition:all .2s;
+}
+.ei:hover{box-shadow:var(--shadow);}
 .et{display:flex;justify-content:space-between;align-items:flex-start;}
-.en{font-weight:700;font-size:15px;}
-.ec{font-size:11px;color:var(--muted);margin-top:1px;}
-.ea{font-size:18px;font-weight:800;color:var(--g1);white-space:nowrap;margin-left:8px;}
-.em{display:flex;align-items:center;gap:7px;margin-top:8px;flex-wrap:wrap;}
-.pill{background:var(--g3);color:var(--g1);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
-.pill-b{background:var(--blueBg);color:var(--blue);}
-.eact{display:flex;gap:7px;margin-top:10px;}
+.en{font-weight:700;font-size:16px;}
+.ec{font-size:12px;color:var(--muted);margin-top:2px;}
+.ea{font-size:20px;font-weight:900;color:var(--primary);white-space:nowrap;margin-left:10px;}
+.em{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.pill{
+  background:var(--green-bg);color:var(--green);
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;
+}
+.pill-b{background:var(--blue-bg);color:var(--blue);}
+.eact{display:flex;gap:8px;margin-top:12px;}
 
 /* MEMBER CHIP */
-.mwrap{display:flex;flex-wrap:wrap;gap:6px;}
-.mc{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px solid var(--border);border-radius:22px;padding:5px 10px 5px 5px;font-size:13px;font-weight:600;}
-.av{width:26px;height:26px;border-radius:50%;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.xbtn{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;}
+.mwrap{display:flex;flex-wrap:wrap;gap:8px;}
+.mc{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#f8fafc;border:2px solid var(--border);
+  border-radius:24px;padding:6px 14px 6px 6px;
+  font-size:14px;font-weight:600;
+}
+.av{
+  width:28px;height:28px;border-radius:50%;color:#fff;
+  font-size:12px;font-weight:800;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.xbtn{
+  background:none;border:none;color:var(--red);
+  cursor:pointer;font-size:18px;line-height:1;padding:0 2px;
+}
 
 /* ADD ROW */
-.arow{display:flex;gap:8px;align-items:center;margin-top:11px;}
-.arow input{flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;font-family:inherit;}
-.arow input:focus{border-color:var(--g1);}
+.arow{display:flex;gap:10px;align-items:center;margin-top:14px;}
+.arow input{
+  flex:1;padding:12px 14px;
+  border:2px solid var(--border);border-radius:var(--radius-sm);
+  font-size:14px;outline:none;font-family:inherit;
+}
+.arow input:focus{border-color:var(--primary);}
 
 /* CHECKLIST */
-.cst{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:12px 0 6px;}
-.cr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9;}
+.cst{
+  font-size:12px;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px;
+  padding:14px 0 8px;
+}
+.cr{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid #f1f5f9;
+}
 .cr:last-child{border-bottom:none;}
-.cr input[type=checkbox]{width:20px;height:20px;accent-color:var(--g1);flex-shrink:0;cursor:pointer;}
+.cr input[type=checkbox]{
+  width:22px;height:22px;accent-color:var(--primary);
+  flex-shrink:0;cursor:pointer;
+}
 .cl{flex:1;font-size:14px;cursor:pointer;}
-.cl.done{text-decoration:line-through;color:#94a3b8;}
-.pb{background:#e2e8f0;border-radius:8px;height:8px;margin:8px 0 3px;}
-.pf{background:var(--g1);border-radius:8px;height:8px;transition:width .3s;}
-.pt{font-size:12px;color:var(--muted);font-weight:600;text-align:right;margin-top:2px;}
+.cl.done{text-decoration:line-through;color:var(--muted-light);}
+.pb{background:#e2e8f0;border-radius:8px;height:10px;margin:10px 0 4px;}
+.pf{
+  background:linear-gradient(90deg,var(--primary),var(--accent));
+  border-radius:8px;height:10px;transition:width .3s;
+}
+.pt{font-size:13px;color:var(--muted);font-weight:600;text-align:right;margin-top:4px;}
 
 /* BALANCE */
-.br{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f1f5f9;}
+.br{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 0;border-bottom:1px solid #f1f5f9;
+}
 .br:last-child{border-bottom:none;}
-.bname{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;}
-.pos{color:#166534;font-weight:700;font-size:13px;}
-.neg{color:var(--red);font-weight:700;font-size:13px;}
-.zero{color:var(--muted);font-size:13px;}
-.sr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px;}
+.bname{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;}
+.pos{color:var(--green);font-weight:700;font-size:14px;}
+.neg{color:var(--red);font-weight:700;font-size:14px;}
+.zero{color:var(--muted);font-size:14px;}
+.sr{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 0;border-bottom:1px solid #f1f5f9;font-size:14px;
+}
 .sr:last-child{border-bottom:none;}
 
 /* RESORT */
-.ag{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.ai{background:#f0fdf6;border:1.5px solid #bbf7d0;border-radius:10px;padding:9px 10px;font-size:13px;color:#166534;font-weight:600;display:flex;align-items:center;gap:6px;}
-.ip{display:inline-flex;align-items:center;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;margin:2px;}
-.ipg{background:var(--g3);color:var(--g1);}
-.ipb{background:var(--blueBg);color:var(--blue);}
-.ipo{background:var(--orangeBg);color:var(--orange);}
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ai{
+  background:var(--green-bg);border:2px solid #bbf7d0;
+  border-radius:var(--radius-sm);padding:12px;
+  font-size:13px;color:var(--green);font-weight:600;
+  display:flex;align-items:center;gap:8px;
+}
+.ip{
+  display:inline-flex;align-items:center;
+  padding:6px 14px;border-radius:20px;
+  font-size:12px;font-weight:700;margin:2px;
+}
+.ipg{background:var(--green-bg);color:var(--green);}
+.ipb{background:var(--blue-bg);color:var(--blue);}
+.ipo{background:var(--orange-bg);color:var(--orange);}
 
 /* TIMELINE */
-.tl{padding-left:14px;border-left:3px solid var(--g1);margin-left:8px;}
-.tli{position:relative;padding:0 0 16px 18px;}
-.tld{position:absolute;left:-9px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--g1);border:2px solid #fff;box-shadow:0 0 0 2px var(--g1);}
-.tlt{font-size:11px;font-weight:800;color:var(--g1);text-transform:uppercase;letter-spacing:.4px;}
-.tlx{font-size:13px;color:#4a5568;margin-top:2px;}
+.tl{padding-left:16px;border-left:3px solid var(--primary);margin-left:10px;}
+.tli{position:relative;padding:0 0 18px 20px;}
+.tld{
+  position:absolute;left:-10px;top:5px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--primary);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--primary);
+}
+.tlt{
+  font-size:12px;font-weight:800;color:var(--primary);
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.tlx{font-size:14px;color:#4a5568;margin-top:3px;}
 
 /* TIP */
-.tr{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;}
+.tr{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;}
 .tr:last-child{border-bottom:none;}
-.ti{font-size:19px;flex-shrink:0;margin-top:1px;}
-.tx{font-size:13px;color:#4a5568;}
+.ti{font-size:22px;flex-shrink:0;margin-top:2px;}
+.tx{font-size:14px;color:#4a5568;line-height:1.5;}
+
+/* GALLERY */
+.folder-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.folder-card{
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  color:#fff;border-radius:var(--radius);padding:20px;
+  cursor:pointer;transition:all .2s;position:relative;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.folder-card::before{
+  content:'';position:absolute;top:-20%;right:-20%;
+  width:100px;height:100px;background:rgba(255,255,255,.15);
+  border-radius:50%;
+}
+.folder-card:active{transform:scale(.97);}
+.folder-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.folder-count{font-size:12px;opacity:.85;}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.photo-item{
+  position:relative;border-radius:var(--radius-sm);
+  overflow:hidden;aspect-ratio:1;background:#f1f5f9;
+}
+.photo-item img{width:100%;height:100%;object-fit:cover;}
+.photo-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(0,0,0,.7));
+  padding:8px;display:flex;gap:6px;justify-content:flex-end;
+  opacity:0;transition:opacity .2s;
+}
+.photo-item:active .photo-overlay{opacity:1;}
+.photo-btn{
+  background:rgba(255,255,255,.9);border:none;
+  padding:6px 10px;border-radius:6px;cursor:pointer;
+  font-size:11px;font-weight:700;
+}
 
 /* MODAL */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
+.ov{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.6);z-index:200;
+  align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(4px);
+}
 .ov.on{display:flex;}
-.mo{background:#fff;border-radius:20px 20px 0 0;padding:22px 18px 36px;width:100%;max-height:88vh;overflow-y:auto;}
-.mt{font-size:17px;font-weight:800;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
-.mc-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
+.mo{
+  background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  padding:24px 20px 40px;width:100%;max-height:90vh;
+  overflow-y:auto;animation:slideUp .3s;
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.mt{
+  font-size:18px;font-weight:800;margin-bottom:18px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.mc-btn{
+  background:none;border:none;font-size:24px;
+  cursor:pointer;color:var(--muted);
+}
 
 /* TOAST */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:22px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#0f172a;color:#fff;padding:12px 24px;
+  border-radius:24px;font-size:13px;font-weight:700;
+  z-index:999;opacity:0;transition:opacity .2s;
+  pointer-events:none;white-space:nowrap;
+  box-shadow:var(--shadow-lg);
+}
 .toast.on{opacity:1;}
 
 /* LOADING */
-.loading{text-align:center;color:var(--muted);padding:24px;font-size:13px;}
-.empty{text-align:center;color:var(--muted);font-size:13px;padding:16px 0;}
-.divider{height:1px;background:var(--border);margin:12px 0;}
+.loading{text-align:center;color:var(--muted);padding:30px;font-size:14px;}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:20px 0;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+
+/* FIRST AID BADGE */
+.fa-urgent{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--red-bg);color:var(--red);
+  padding:2px 8px;border-radius:12px;font-size:10px;
+  font-weight:800;margin-left:6px;
+}
 </style>
 </head>
 <body>
@@ -148,28 +365,37 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-title">🏔️ Matheran Trek 2025</div>
-  <div class="hdr-sub">Gang of 13 · Redwood Resort</div>
+  <div class="hdr-sub">Gang of <span id="gangCount">13</span> · Redwood Resort, Matheran</div>
+  <div class="hdr-date">📅 29th - 30th August 2025</div>
   <div class="hdr-pills">
-    <span class="hpill">Check-in 11 AM</span>
-    <span class="hpill">Check-out 10 AM</span>
-    <span class="hpill">Pure Veg</span>
+    <span class="hpill">🕐 Check-in 11 AM</span>
+    <span class="hpill">🕙 Check-out 10 AM</span>
+    <span class="hpill">🌿 Pure Veg</span>
   </div>
+  <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank" class="map-btn">
+    📍 View Location on Maps
+  </a>
 </div>
 
 <!-- TABS -->
 <div class="tabs" id="tabBar">
-  <button class="tab on"  onclick="goTab('home',this)">🏠 Home</button>
-  <button class="tab"     onclick="goTab('expenses',this)">💸 Expenses</button>
-  <button class="tab"     onclick="goTab('balance',this)">⚖️ Balance</button>
-  <button class="tab"     onclick="goTab('members',this)">👥 Members</button>
-  <button class="tab"     onclick="goTab('packing',this)">🎒 Packing</button>
-  <button class="tab"     onclick="goTab('resort',this)">🏨 Resort</button>
-  <button class="tab"     onclick="goTab('itinerary',this)">📅 Plan</button>
-  <button class="tab"     onclick="goTab('tips',this)">💡 Tips</button>
+  <button class="tab on" onclick="goTab('home',this)">🏠 Home</button>
+  <button class="tab" onclick="goTab('spots',this)">🏔️ Spots</button>
+  <button class="tab" onclick="goTab('expenses',this)">💸 Expenses</button>
+  <button class="tab" onclick="goTab('balance',this)">⚖️ Balance</button>
+  <button class="tab" onclick="goTab('members',this)">👥 Members</button>
+  <button class="tab" onclick="goTab('gallery',this)">📸 Photos</button>
+  <button class="tab" onclick="goTab('packing',this)">🎒 Packing</button>
+  <button class="tab" onclick="goTab('resort',this)">🏨 Resort</button>
+  <button class="tab" onclick="goTab('itinerary',this)">📅 Plan</button>
+  <button class="tab" onclick="goTab('medical',this)">🩹 Medical</button>
+  <button class="tab" onclick="goTab('tips',this)">💡 Tips</button>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<div class="container">
 
 <!-- EDIT EXPENSE MODAL -->
 <div class="ov" id="editOv">
@@ -187,6 +413,26 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
       </select></div>
     </div>
     <button class="btn btn-g" id="saveEditBtn">Save Changes</button>
+  </div>
+</div>
+
+<!-- FOLDER PHOTOS MODAL -->
+<div class="ov" id="photosOv">
+  <div class="mo">
+    <div class="mt">
+      <span id="folderTitle">📂 Photos</span>
+      <button class="mc-btn" id="closePhotosBtn">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <label class="btn btn-primary" style="flex:1;cursor:pointer;">
+        📤 Upload Photos
+        <input type="file" id="photoUpload" multiple accept="image/*" style="display:none;"/>
+      </label>
+      <button class="btn btn-d" id="deleteAllPhotos">🗑️ Delete All</button>
+    </div>
+    <div class="photo-grid" id="photoGrid">
+      <div class="loading">Loading...</div>
+    </div>
   </div>
 </div>
 
@@ -227,6 +473,67 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
   </div>
 </div>
 
+<!-- ══ SPOTS ═════════════════════════════════════════════ -->
+<div id="pg-spots" class="pg">
+  <div class="card">
+    <div class="ch">🏔️ Must-Visit Spots</div>
+    <div class="cb">
+      <div class="tr">
+        <div class="ti">🌅</div>
+        <div class="tx">
+          <strong>Panorama Point</strong> — Best spot for sunrise &amp; 360° panoramic views of the Sahyadri ranges. A must-do early morning walk.
+        </div>
+      </div>
+      <div class="tr">
+        <div class="ti">🔊</div>
+        <div class="tx">
+          <strong>Echo Point</strong> — Stand at the edge and shout — your voice echoes back from the valley! A fun &amp; thrilling experience.
+        </div>
+      </div>
+      <div class="tr">
+        <div class="ti">💙</div>
+        <div class="tx">
+          <strong>Charlotte Lake</strong> — Matheran's main water reservoir. Serene early-morning walk through red mud trails surrounded by forest.
+        </div>
+      </div>
+      <div class="tr">
+        <div class="ti">🌄</div>
+        <div class="tx">
+          <strong>Louisa Point</strong> — Stunning sunset viewpoint, less crowded than Panorama. Overlooks the Prabal &amp; Matheran valley.
+        </div>
+      </div>
+      <div class="tr">
+        <div class="ti">🦅</div>
+        <div class="tx">
+          <strong>One Tree Hill Point</strong> — Short easy trek, great valley views. Named after the lone tree standing at the hilltop.
+        </div>
+      </div>
+      <div class="tr">
+        <div class="ti">🌿</div>
+        <div class="tx">
+          <strong>Hart Point</strong> — Quiet &amp; offbeat viewpoint with sweeping views. Best in early morning with light mist.
+        </div>
+      </div>
+      <div class="tr">
+        <div class="ti">🏞️</div>
+        <div class="tx">
+          <strong>Alexander Point</strong> — Great for photography, overlooks the valley with lush green cover during monsoon.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch">🚶 Trek Tips for Spots</div>
+    <div class="cb">
+      <div class="tr"><div class="ti">⏰</div><div class="tx">Start treks by <strong>6–7 AM</strong> — cooler, misty &amp; less crowded. Sunset spots best by 5:30 PM.</div></div>
+      <div class="tr"><div class="ti">👟</div><div class="tx">Wear <strong>trekking shoes</strong> — red mud trails get very slippery in monsoon.</div></div>
+      <div class="tr"><div class="ti">💧</div><div class="tx">Carry <strong>water &amp; energy snacks</strong> — no stalls midway on most trails.</div></div>
+      <div class="tr"><div class="ti">🧂</div><div class="tx">Keep <strong>salt handy</strong> — leeches are active on all forest trails in August.</div></div>
+      <div class="tr"><div class="ti">📵</div><div class="tx"><strong>No signal</strong> on most trails — download offline maps before leaving resort.</div></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ EXPENSES ══════════════════════════════════════════ -->
 <div id="pg-expenses" class="pg">
   <div class="card">
@@ -250,7 +557,7 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
 <!-- ══ MEMBERS ════════════════════════════════════════════ -->
 <div id="pg-members" class="pg">
   <div class="card">
-    <div class="ch">👥 Gang of 13</div>
+    <div class="ch">👥 Gang of <span id="gangCountMem">13</span></div>
     <div class="cb">
       <div class="mwrap" id="memberWrap"><div class="loading">Loading…</div></div>
       <div class="arow">
@@ -265,10 +572,24 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
   </div>
 </div>
 
+<!-- ══ GALLERY ════════════════════════════════════════════ -->
+<div id="pg-gallery" class="pg">
+  <div class="card">
+    <div class="ch">📸 Photo Gallery</div>
+    <div class="cb">
+      <div class="arow">
+        <input type="text" id="newFolder" placeholder="New folder name"/>
+        <button class="btn-add" id="addFolderBtn">+ Create</button>
+      </div>
+    </div>
+  </div>
+  <div id="foldersList"><div class="loading">Loading folders...</div></div>
+</div>
+
 <!-- ══ PACKING ════════════════════════════════════════════ -->
 <div id="pg-packing" class="pg">
   <div class="card">
-    <div class="ch">🎒 Packing List <span id="progTxt" style="margin-left:auto;font-size:12px;font-weight:700;color:var(--g1)">0 / 0</span></div>
+    <div class="ch">🎒 Packing List <span id="progTxt" style="margin-left:auto;font-size:13px;font-weight:700;color:var(--primary)">0 / 0</span></div>
     <div class="cb">
       <div class="pb"><div class="pf" id="progFill" style="width:0%"></div></div>
       <div class="pt" id="progPct">0%</div>
@@ -286,6 +607,7 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
           <option value="electronics">📱 Electronics</option>
           <option value="food">🍎 Snacks</option>
           <option value="docs">📄 Documents</option>
+          <option value="firstaid">🩹 First Aid</option>
         </select>
       </div>
       <div class="arow">
@@ -301,81 +623,112 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
   <div class="card">
     <div class="ch">🏨 Redwood Resort, Matheran</div>
     <div class="cb">
-      <div style="margin-bottom:10px;">
+      <div style="margin-bottom:14px;line-height:1.7;">
+        <p style="font-size:14px;color:#4a5568;margin-bottom:10px;">
+          <strong>Redwood Resort</strong> is a premium property nestled in the scenic hills of Matheran, 
+          offering breathtaking valley views and a serene escape from city life. The resort features 
+          spacious rooms, modern amenities, and extensive recreational facilities.
+        </p>
         <span class="ip ipg">🌿 Pure Veg Food</span>
         <span class="ip ipb">⏰ Check-in 11 AM</span>
         <span class="ip ipo">🚪 Check-out 10 AM</span>
       </div>
       <div class="divider"></div>
-      <div class="cst">🍽️ Meals Included</div>
+      <div class="cst">⏰ Timings</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <div style="flex:1;background:#eff6ff;border:2px solid #bfdbfe;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:900;color:#2563eb;">11:00 AM</div>
+          <div style="font-size:12px;font-weight:700;color:#64748b;margin-top:2px;">CHECK-IN</div>
+        </div>
+        <div style="flex:1;background:#fff7ed;border:2px solid #fed7aa;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:900;color:#ea580c;">10:00 AM</div>
+          <div style="font-size:12px;font-weight:700;color:#64748b;margin-top:2px;">CHECK-OUT</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="cst">🍽️ Meals Included (All Pure Veg)</div>
       <div class="ag">
         <div class="ai">☀️ Breakfast</div>
         <div class="ai">🌞 Lunch</div>
         <div class="ai">🌙 Dinner</div>
         <div class="ai">☕ Evening Tea</div>
-        <div class="ai">🍪 Biscuits</div>
+        <div class="ai">🍪 Snacks</div>
         <div class="ai">☕ Coffee</div>
       </div>
       <div class="divider"></div>
-      <div class="cst">🎉 Activities</div>
+      <div class="cst">🏊 Resort Facilities</div>
       <div class="ag">
         <div class="ai">🏊 Swimming Pool</div>
         <div class="ai">🎵 Night DJ</div>
-        <div class="ai">🎯 Carrom</div>
+        <div class="ai">🎯 Carrom Board</div>
         <div class="ai">🏸 Badminton</div>
-        <div class="ai">🏏 Cricket</div>
-        <div class="ai">🏐 Volleyball</div>
+        <div class="ai">🏏 Cricket Pitch</div>
+        <div class="ai">🏐 Volleyball Court</div>
         <div class="ai">🎮 Indoor Games</div>
-        <div class="ai">🌳 Children Garden</div>
+        <div class="ai">🌳 Garden Area</div>
         <div class="ai">🎠 Swings</div>
-        <div class="ai">🛝 Slides</div>
+        <div class="ai">🛝 Kids Slides</div>
         <div class="ai">🌄 Trekking Paths</div>
         <div class="ai">📸 Viewpoints</div>
       </div>
       <div class="divider"></div>
-      <p style="font-size:13px;color:#4a5568;line-height:1.6;">Matheran is Asia's only automobile-free hill station at 800m above sea level. Famous for Echo Point, Panorama Point, Charlotte Lake and its iconic red mud trails.</p>
+      <div class="cst">🏔️ About Matheran</div>
+      <p style="font-size:14px;color:#4a5568;line-height:1.7;">
+        Matheran is <strong>Asia's only automobile-free hill station</strong>, situated at 800m above sea level 
+        in the Western Ghats. Known for its pristine environment, it offers 38 designated lookout points with 
+        panoramic views of the Sahyadri mountain range. Famous spots include <strong>Echo Point, Panorama Point, 
+        Charlotte Lake, and Louisa Point</strong>. The town is characterized by its iconic red laterite mud trails 
+        and colonial-era charm. Best time to visit: October to May (pleasant weather), June to September (lush monsoon).
+      </p>
     </div>
   </div>
 </div>
 
 <!-- ══ ITINERARY ══════════════════════════════════════════ -->
 <div id="pg-itinerary" class="pg">
+  <div id="itinerary-root"></div>
+</div>
+
+<!-- ══ MEDICAL ════════════════════════════════════════════ -->
+<div id="pg-medical" class="pg">
   <div class="card">
-    <div class="ch">📅 Day 1 — Arrival</div>
-    <div class="cb"><div class="tl">
-      <div class="tli"><div class="tld"></div><div class="tlt">6:00 AM</div><div class="tlx">Assemble &amp; depart from meeting point</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">~9:30 AM</div><div class="tlx">Reach Neral — mini train or horse ride up to Matheran</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">11:00 AM</div><div class="tlx">✅ Check-in at Redwood Resort</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">12:30 PM</div><div class="tlx">🍽️ Lunch (Pure Veg)</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">2:30 PM</div><div class="tlx">🏊 Pool session &amp; chill time</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">4:00 PM</div><div class="tlx">☕ Evening tea, coffee &amp; biscuits</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">5:00 PM</div><div class="tlx">🌄 Trek to Panorama Point — watch the sunset!</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">8:00 PM</div><div class="tlx">🌙 Dinner</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">9:30 PM</div><div class="tlx">🎵 Night DJ Party! 🎉</div></div>
-    </div></div>
+    <div class="ch">🩹 First Aid Kit</div>
+    <div class="cb">
+      <div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#991b1b;font-weight:600;">
+        ⚠️ Pack these before leaving — don't rely on finding them in Matheran!
+      </div>
+      <div class="cst">💊 Medicines</div>
+      <div class="tr"><div class="ti">💊</div><div class="tx"><strong>Paracetamol (Crocin 500mg)</strong> — fever, headache, body pain <span class="fa-urgent">MUST</span></div></div>
+      <div class="tr"><div class="ti">🤢</div><div class="tx"><strong>Antacid (Gelusil / Digene)</strong> — acidity, indigestion</div></div>
+      <div class="tr"><div class="ti">🤮</div><div class="tx"><strong>Motion sickness (Avomine)</strong> — take before journey if prone</div></div>
+      <div class="tr"><div class="ti">🤧</div><div class="tx"><strong>Antihistamine (Cetirizine)</strong> — allergies, insect bites, rashes</div></div>
+      <div class="tr"><div class="ti">💩</div><div class="tx"><strong>Anti-diarrhea (Norflox / Imodium)</strong> — stomach upset, food poisoning</div></div>
+      <div class="divider"></div>
+      <div class="cst">🩹 Wound Care</div>
+      <div class="tr"><div class="ti">🩹</div><div class="tx"><strong>Band-aids (assorted)</strong> — cuts, scrapes, blisters on feet</div></div>
+      <div class="tr"><div class="ti">🟠</div><div class="tx"><strong>Betadine antiseptic</strong> — clean wounds before bandaging</div></div>
+      <div class="tr"><div class="ti">🌀</div><div class="tx"><strong>Crepe bandage</strong> — sprains, ankle support on uneven trails</div></div>
+      <div class="tr"><div class="ti">✂️</div><div class="tx"><strong>Scissors + Safety pins</strong> — cutting tape, securing bandage</div></div>
+      <div class="divider"></div>
+      <div class="cst">💪 Pain &amp; Energy Relief</div>
+      <div class="tr"><div class="ti">💪</div><div class="tx"><strong>Moov / Volini spray</strong> — muscle pain &amp; joint relief after trekking</div></div>
+      <div class="tr"><div class="ti">💧</div><div class="tx"><strong>ORS sachets (5–6)</strong> — rehydrate after heavy trekking or heat <span class="fa-urgent">MUST</span></div></div>
+      <div class="tr"><div class="ti">🍬</div><div class="tx"><strong>Glucose-D sachets</strong> — instant energy during long treks</div></div>
+      <div class="divider"></div>
+      <div class="cst">🐛 Monsoon Specific</div>
+      <div class="tr"><div class="ti">🧂</div><div class="tx"><strong>Salt packet</strong> — pour on leeches to remove instantly <span class="fa-urgent">MUST</span></div></div>
+      <div class="tr"><div class="ti">🍋</div><div class="tx"><strong>Lemon / lime</strong> — alternate leech remedy</div></div>
+      <div class="tr"><div class="ti">🧴</div><div class="tx"><strong>Odomos / insect repellent</strong> — apply before every trek in monsoon</div></div>
+    </div>
   </div>
   <div class="card">
-    <div class="ch">📅 Day 2 — Trek &amp; Games</div>
-    <div class="cb"><div class="tl">
-      <div class="tli"><div class="tld"></div><div class="tlt">7:00 AM</div><div class="tlx">☀️ Morning breakfast</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">8:00 AM</div><div class="tlx">🥾 Morning trek — Charlotte Lake / Echo Point</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">11:00 AM</div><div class="tlx">🏸 Badminton · 🏏 Cricket · 🏐 Volleyball</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">1:00 PM</div><div class="tlx">🍽️ Lunch</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">2:30 PM</div><div class="tlx">🎯 Carrom · Indoor games · Children garden</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">4:00 PM</div><div class="tlx">☕ Evening tea &amp; snacks</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">5:30 PM</div><div class="tlx">🏊 Pool party / Free time</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">8:00 PM</div><div class="tlx">🌙 Dinner &amp; bonfire / group games</div></div>
-    </div></div>
-  </div>
-  <div class="card">
-    <div class="ch">📅 Day 3 — Checkout</div>
-    <div class="cb"><div class="tl">
-      <div class="tli"><div class="tld"></div><div class="tlt">7:00 AM</div><div class="tlx">☀️ Last breakfast together</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">8:00 AM</div><div class="tlx">📸 Group photos · souvenir shopping</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">9:30 AM</div><div class="tlx">🧳 Pack up &amp; settle all bills</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">10:00 AM</div><div class="tlx">🚪 Check-out from Redwood Resort</div></div>
-      <div class="tli"><div class="tld"></div><div class="tlt">11:00 AM</div><div class="tlx">🚌 Head back. Safe journey everyone! 🙏</div></div>
-    </div></div>
+    <div class="ch">🚨 Emergency Contacts</div>
+    <div class="cb">
+      <div class="tr"><div class="ti">🚑</div><div class="tx"><strong>Ambulance:</strong> 108</div></div>
+      <div class="tr"><div class="ti">🏥</div><div class="tx"><strong>Nearest Hospital:</strong> Karjat / Khopoli (30–40 min from Neral)</div></div>
+      <div class="tr"><div class="ti">🚓</div><div class="tx"><strong>Police:</strong> 100 · Matheran Police Station: 02148-230033</div></div>
+      <div class="tr"><div class="ti">🏨</div><div class="tx"><strong>Redwood Resort:</strong> Keep resort number saved in your phone</div></div>
+    </div>
   </div>
 </div>
 
@@ -384,51 +737,45 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:var(--
   <div class="card">
     <div class="ch">🌤️ Essential Tips</div>
     <div class="cb">
-      <div class="tr"><div class="ti">🌡️</div><div class="tx"><strong>Temperature:</strong> 15–30°C. Carry a light jacket for evenings.</div></div>
-      <div class="tr"><div class="ti">🌧️</div><div class="tx"><strong>Monsoon (Jun–Sep):</strong> Heavy rains. Waterproof bags + raincoat essential.</div></div>
-      <div class="tr"><div class="ti">🐛</div><div class="tx"><strong>Leeches:</strong> Active in monsoon on trails. Carry salt or lemon.</div></div>
+      <div class="tr"><div class="ti">🌡️</div><div class="tx"><strong>Temperature:</strong> 15–30°C in Aug. Carry light jacket for evenings.</div></div>
+      <div class="tr"><div class="ti">🌧️</div><div class="tx"><strong>August = Monsoon Peak:</strong> Heavy rains likely. Waterproof bags + raincoat essential.</div></div>
+      <div class="tr"><div class="ti">🐛</div><div class="tx"><strong>Leeches Alert!</strong> Very active in monsoon. Carry salt/lemon &amp; wear full pants.</div></div>
       <div class="tr"><div class="ti">🚗</div><div class="tx"><strong>No Vehicles:</strong> Matheran is auto-free. Walk, horse, or toy train only.</div></div>
-      <div class="tr"><div class="ti">💧</div><div class="tx"><strong>Hydration:</strong> Carry 2L water/person for treks.</div></div>
-      <div class="tr"><div class="ti">📵</div><div class="tx"><strong>Network:</strong> Weak signal. Download offline maps before arriving.</div></div>
-      <div class="tr"><div class="ti">💵</div><div class="tx"><strong>Cash:</strong> Most stalls don't accept UPI. Carry ₹2,000–3,000/person.</div></div>
-      <div class="tr"><div class="ti">🐒</div><div class="tx"><strong>Monkeys:</strong> Keep food inside bags — they snatch fast!</div></div>
+      <div class="tr"><div class="ti">💧</div><div class="tx"><strong>Hydration:</strong> Carry 2L water/person for treks. Refill at resort.</div></div>
+      <div class="tr"><div class="ti">📵</div><div class="tx"><strong>Network:</strong> Weak mobile signal. Download offline maps &amp; OTT content before.</div></div>
+      <div class="tr"><div class="ti">💵</div><div class="tx"><strong>Cash:</strong> Most stalls cash-only. Carry ₹2,000–3,000/person.</div></div>
+      <div class="tr"><div class="ti">🐒</div><div class="tx"><strong>Monkeys:</strong> Keep food in bags — they snatch very fast!</div></div>
     </div>
   </div>
-  <div class="card">
-    <div class="ch">🏔️ Must-Visit Spots</div>
-    <div class="cb">
-      <div class="tr"><div class="ti">🌅</div><div class="tx"><strong>Panorama Point</strong> — Best sunrise &amp; 360° Sahyadri views</div></div>
-      <div class="tr"><div class="ti">🔊</div><div class="tx"><strong>Echo Point</strong> — Shout and hear your echo from the valley!</div></div>
-      <div class="tr"><div class="ti">💙</div><div class="tx"><strong>Charlotte Lake</strong> — Scenic early-morning walk</div></div>
-      <div class="tr"><div class="ti">🌄</div><div class="tx"><strong>Louisa Point</strong> — Stunning sunset, less crowded</div></div>
-      <div class="tr"><div class="ti">🦅</div><div class="tx"><strong>One Tree Hill</strong> — Short trek, great valley views</div></div>
-    </div>
-  </div>
+  
   <div class="card">
     <div class="ch">🎯 Fun Gang Ideas</div>
     <div class="cb">
-      <div class="tr"><div class="ti">📸</div><div class="tx">Photo challenge — group pic at every viewpoint!</div></div>
-      <div class="tr"><div class="ti">🎤</div><div class="tx">Antakshari / dumb charades after dinner</div></div>
-      <div class="tr"><div class="ti">🏆</div><div class="tx">Trek race — loser buys chai for everyone!</div></div>
-      <div class="tr"><div class="ti">📓</div><div class="tx">Memory book — everyone writes a trip memory</div></div>
-      <div class="tr"><div class="ti">🧘</div><div class="tx">Optional sunrise yoga on the resort lawn</div></div>
+      <div class="tr"><div class="ti">📸</div><div class="tx">Photo challenge — creative group pic at every viewpoint!</div></div>
+      <div class="tr"><div class="ti">🎤</div><div class="tx">Antakshari / dumb charades / mafia after dinner</div></div>
+      <div class="tr"><div class="ti">🏆</div><div class="tx">Trek race — last one buys chai for everyone!</div></div>
+      <div class="tr"><div class="ti">📓</div><div class="tx">Memory book — everyone writes one trip memory to share</div></div>
+      <div class="tr"><div class="ti">🧘</div><div class="tx">Optional sunrise yoga or meditation on resort lawn</div></div>
     </div>
   </div>
 </div>
 
-<div style="text-align:center;padding:20px 0 8px;font-size:11px;color:#94a3b8;border-top:1px solid var(--border);margin-top:4px;">Made with IBM Bob</div>
+</div>
 
-<!-- ══════════════════════════════════════════════════════
-     APP LOGIC
-══════════════════════════════════════════════════════ -->
+<div style="text-align:center;padding:24px 0 12px;font-size:12px;color:rgba(255,255,255,.6);background:transparent;">
+  Made with ❤️ by IBM Bob
+</div>
+
 <script>
 // ── STATE ─────────────────────────────────────────────────
 var MEMBERS = [];
 var EXPENSES = [];
 var CHECKLIST = [];
+var FOLDERS = [];
+var CURRENT_FOLDER = null;
 
 // ── HELPERS ───────────────────────────────────────────────
-var PAL=['#1a7a4a','#1d4ed8','#6d28d9','#c2410c','#0e7490','#9f1239','#166534','#92400e','#1e3a5f','#3b0764'];
+var PAL=['#0f766e','#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#0891b2','#be123c','#4338ca','#7e22ce'];
 function aColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%PAL.length;return PAL[h];}
 function aInit(n){return n.substring(0,2).toUpperCase();}
 function inr(v){return '₹'+Number(v).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});}
@@ -438,7 +785,7 @@ function toast(msg){
   var t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('on');
   clearTimeout(toastT);
-  toastT=setTimeout(function(){t.classList.remove('on');},2400);
+  toastT=setTimeout(function(){t.classList.remove('on');},2800);
 }
 
 function goTab(id,el){
@@ -446,6 +793,8 @@ function goTab(id,el){
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pg-'+id).classList.add('on');
   el.classList.add('on');
+  if(id==='gallery') renderFolders();
+  if(id==='itinerary') renderItinerary();
 }
 
 // ── API ───────────────────────────────────────────────────
@@ -453,20 +802,37 @@ async function api(method,url,body){
   var opts={method:method,headers:{'Content-Type':'application/json'}};
   if(body) opts.body=JSON.stringify(body);
   var r=await fetch(url,opts);
-  var json=await r.json();
+  var text=await r.text();
+  var json;
+  try{ json=JSON.parse(text); }
+  catch(e){ throw new Error('Server error: unexpected response from '+url); }
   if(!r.ok) throw new Error(json.error||'Error');
   return json;
 }
 
 // ── BOOT ──────────────────────────────────────────────────
 async function boot(){
-  var [members,expenses,checklist]=await Promise.all([
-    api('GET','/api/members'),
-    api('GET','/api/expenses'),
-    api('GET','/api/checklist')
-  ]);
-  MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist;
-  renderAll();
+  try{
+    var [members,expenses,checklist,folders]=await Promise.all([
+      api('GET','/api/members'),
+      api('GET','/api/expenses'),
+      api('GET','/api/checklist'),
+      api('GET','/api/folders')
+    ]);
+    MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders;
+    renderAll();
+  }catch(err){
+    console.error('Boot failed:',err);
+    ['sTotal','sPer','sCnt','sMem'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.textContent='—';
+    });
+    ['catChart','recentList','allList','balList','settleList','memberWrap','memSummary','packLists','foldersList'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.innerHTML='<div style="text-align:center;color:#dc2626;padding:20px;font-size:13px;">⚠️ Could not connect to server. Please restart the server and refresh.<br><small>'+err.message+'</small></div>';
+    });
+    toast('⚠️ Server connection failed — please restart server');
+  }
 }
 
 function renderAll(){
@@ -493,6 +859,8 @@ function fillPayerSelects(){
   });
   document.getElementById('splitN').textContent=MEMBERS.length;
   document.getElementById('sMem').textContent=MEMBERS.length;
+  document.getElementById('gangCount').textContent=MEMBERS.length;
+  document.getElementById('gangCountMem').textContent=MEMBERS.length;
 }
 
 // ── STATS ─────────────────────────────────────────────────
@@ -513,10 +881,10 @@ function renderCatChart(){
   if(!Object.keys(cats).length){el.innerHTML='<div class="empty">No expenses yet</div>';return;}
   el.innerHTML=Object.entries(cats).sort(function(a,b){return b[1]-a[1];}).map(function(kv){
     var pct=total>0?Math.round(kv[1]/total*100):0;
-    return '<div style="margin-bottom:10px;">'+
-      '<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px;">'+
+    return '<div style="margin-bottom:12px;">'+
+      '<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:6px;">'+
         '<span>'+kv[0]+'</span>'+
-        '<span style="color:var(--g1);">'+inr(kv[1])+' <span style="color:var(--muted);font-weight:500;">('+pct+'%)</span></span>'+
+        '<span style="color:var(--primary);">'+inr(kv[1])+' <span style="color:var(--muted);font-weight:500;">('+pct+'%)</span></span>'+
       '</div>'+
       '<div class="pb"><div class="pf" style="width:'+pct+'%"></div></div>'+
     '</div>';
@@ -532,8 +900,8 @@ function expCard(e,full){
       '<div class="ea">'+inr(e.amount)+'</div>'+
     '</div>'+
     '<div class="em">'+
-      '<div class="av" style="background:'+aColor(e.payer_name)+';width:22px;height:22px;font-size:10px;">'+aInit(e.payer_name)+'</div>'+
-      '<span style="font-size:12px;color:var(--muted);"><strong>'+e.payer_name+'</strong> paid</span>'+
+      '<div class="av" style="background:'+aColor(e.payer_name)+';width:24px;height:24px;font-size:11px;">'+aInit(e.payer_name)+'</div>'+
+      '<span style="font-size:13px;color:var(--muted);"><strong>'+e.payer_name+'</strong> paid</span>'+
       '<span class="pill">÷'+MEMBERS.length+' = '+inr(parseFloat(share))+'</span>'+
     '</div>'+
     (full?'<div class="eact">'+
@@ -619,6 +987,7 @@ document.getElementById('saveEditBtn').addEventListener('click',async function()
 
 // ── DELETE EXPENSE ────────────────────────────────────────
 async function delExp(id){
+  if(!confirm('Delete this expense?'))return;
   try{
     await api('DELETE','/api/expenses/'+id);
     EXPENSES=EXPENSES.filter(function(e){return e.id!==id;});
@@ -638,7 +1007,7 @@ function renderBalance(){
     var bal=(paid[m.id]||0)-share;
     var cls=bal>0.01?'pos':bal<-0.01?'neg':'zero';
     var lbl=bal>0.01?'gets back '+inr(Math.abs(bal).toFixed(2)):bal<-0.01?'owes '+inr(Math.abs(bal).toFixed(2)):'settled ✓';
-    return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+';width:26px;height:26px;font-size:11px;">'+aInit(m.name)+'</div>'+m.name+'</div><span class="'+cls+'">'+lbl+'</span></div>';
+    return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>'+m.name+'</div><span class="'+cls+'">'+lbl+'</span></div>';
   }).join('');
 
   // Settlements
@@ -672,7 +1041,7 @@ function renderMemSummary(){
   var totals={};MEMBERS.forEach(function(m){totals[m.id]=0;});
   EXPENSES.forEach(function(e){if(totals[e.payer_id]!==undefined)totals[e.payer_id]+=e.amount;});
   document.getElementById('memSummary').innerHTML=MEMBERS.map(function(m){
-    return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+';width:26px;height:26px;font-size:11px;">'+aInit(m.name)+'</div>'+m.name+'</div><span style="font-weight:700;color:var(--g1);">'+inr(totals[m.id]||0)+'</span></div>';
+    return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>'+m.name+'</div><span style="font-weight:700;color:var(--primary);">'+inr(totals[m.id]||0)+'</span></div>';
   }).join('');
 }
 
@@ -690,6 +1059,7 @@ document.getElementById('addMemBtn').addEventListener('click',async function(){
 document.getElementById('newMem').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addMemBtn').click();});
 
 async function delMember(id){
+  if(!confirm('Remove this member?'))return;
   try{
     await api('DELETE','/api/members/'+id);
     MEMBERS=MEMBERS.filter(function(m){return m.id!==id;});
@@ -698,9 +1068,149 @@ async function delMember(id){
   }catch(e){toast(e.message);}
 }
 
+// ── GALLERY ───────────────────────────────────────────────
+async function renderFolders(){
+  FOLDERS=await api('GET','/api/folders');
+  var el=document.getElementById('foldersList');
+  if(!FOLDERS.length){
+    el.innerHTML='<div class="card"><div class="cb"><div class="empty">No folders yet. Create one!</div></div></div>';
+    return;
+  }
+  el.innerHTML=FOLDERS.map(function(f,i){
+    var colors=[
+      'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',
+      'linear-gradient(135deg,#f093fb 0%,#f5576c 100%)',
+      'linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)',
+      'linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)',
+      'linear-gradient(135deg,#fa709a 0%,#fee140 100%)',
+      'linear-gradient(135deg,#30cfd0 0%,#330867 100%)'
+    ];
+    var bg=colors[i%colors.length];
+    return '<div class="card" style="margin-bottom:12px;"><div style="background:'+bg+';color:#fff;padding:16px;border-radius:14px 14px 0 0;position:relative;overflow:hidden;cursor:pointer;" data-fid="'+f.id+'">'+
+      '<div style="position:absolute;top:-20%;right:-20%;width:100px;height:100px;background:rgba(255,255,255,.15);border-radius:50%;"></div>'+
+      '<div style="font-size:16px;font-weight:700;margin-bottom:4px;position:relative;">📂 '+f.name+'</div>'+
+      '<div style="font-size:13px;opacity:.85;position:relative;">'+f.count+' photo'+(f.count===1?'':'s')+'</div>'+
+    '</div><div style="padding:12px;display:flex;gap:8px;">'+
+      '<button class="btn btn-sm btn-success" style="flex:1;" data-open="'+f.id+'">📂 Open</button>'+
+      '<button class="btn btn-sm btn-d" data-delf="'+f.id+'">🗑️</button>'+
+    '</div></div>';
+  }).join('');
+  
+  el.querySelectorAll('[data-open]').forEach(function(b){
+    b.addEventListener('click',function(){openFolder(+this.getAttribute('data-open'));});
+  });
+  el.querySelectorAll('[data-fid]').forEach(function(d){
+    d.addEventListener('click',function(){openFolder(+this.getAttribute('data-fid'));});
+  });
+  el.querySelectorAll('[data-delf]').forEach(function(b){
+    b.addEventListener('click',async function(e){
+      e.stopPropagation();
+      var fid=+this.getAttribute('data-delf');
+      if(!confirm('Delete this folder and all photos?'))return;
+      try{
+        await api('DELETE','/api/folders/'+fid);
+        toast('Folder deleted');
+        renderFolders();
+      }catch(err){toast(err.message);}
+    });
+  });
+}
+
+document.getElementById('addFolderBtn').addEventListener('click',async function(){
+  var name=document.getElementById('newFolder').value.trim();
+  if(!name){toast('Enter folder name');return;}
+  try{
+    await api('POST','/api/folders',{name:name});
+    document.getElementById('newFolder').value='';
+    toast('Folder created!');
+    renderFolders();
+  }catch(e){toast(e.message);}
+});
+document.getElementById('newFolder').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addFolderBtn').click();});
+
+async function openFolder(fid){
+  CURRENT_FOLDER=FOLDERS.find(function(f){return f.id===fid;});
+  if(!CURRENT_FOLDER)return;
+  document.getElementById('folderTitle').textContent='📂 '+CURRENT_FOLDER.name;
+  document.getElementById('photosOv').classList.add('on');
+  loadPhotos();
+}
+
+document.getElementById('closePhotosBtn').addEventListener('click',function(){
+  document.getElementById('photosOv').classList.remove('on');
+});
+document.getElementById('photosOv').addEventListener('click',function(e){
+  if(e.target===this)this.classList.remove('on');
+});
+
+async function loadPhotos(){
+  if(!CURRENT_FOLDER)return;
+  document.getElementById('photoGrid').innerHTML='<div class="loading">Loading...</div>';
+  try{
+    var photos=await api('GET','/api/folders/'+CURRENT_FOLDER.id+'/photos');
+    if(!photos.length){
+      document.getElementById('photoGrid').innerHTML='<div class="empty" style="grid-column:1/-1;">No photos yet</div>';
+      return;
+    }
+    document.getElementById('photoGrid').innerHTML=photos.map(function(p){
+      return '<div class="photo-item">'+
+        '<img src="/uploads/'+CURRENT_FOLDER.name+'/'+p.filename+'" alt="'+p.orig_name+'"/>'+
+        '<div class="photo-overlay">'+
+          '<a href="/uploads/'+CURRENT_FOLDER.name+'/'+p.filename+'" download="'+p.orig_name+'" class="photo-btn" style="text-decoration:none;color:inherit;">⬇️</a>'+
+          '<button class="photo-btn" data-delp="'+p.id+'">🗑️</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    
+    document.querySelectorAll('[data-delp]').forEach(function(b){
+      b.addEventListener('click',async function(e){
+        e.stopPropagation();
+        var pid=+this.getAttribute('data-delp');
+        if(!confirm('Delete this photo?'))return;
+        try{
+          await api('DELETE','/api/photos/'+pid);
+          toast('Photo deleted');
+          loadPhotos();
+          renderFolders();
+        }catch(err){toast(err.message);}
+      });
+    });
+  }catch(e){toast(e.message);}
+}
+
+document.getElementById('photoUpload').addEventListener('change',async function(e){
+  if(!CURRENT_FOLDER||!e.target.files.length)return;
+  var fd=new FormData();
+  Array.from(e.target.files).forEach(function(f){fd.append('photos',f);});
+  try{
+    toast('Uploading '+e.target.files.length+' photo(s)...');
+    var r=await fetch('/api/folders/'+CURRENT_FOLDER.name+'/upload',{method:'POST',body:fd});
+    if(!r.ok)throw new Error('Upload failed');
+    toast('Photos uploaded!');
+    e.target.value='';
+    loadPhotos();
+    renderFolders();
+  }catch(err){toast(err.message);}
+});
+
+document.getElementById('deleteAllPhotos').addEventListener('click',async function(){
+  if(!CURRENT_FOLDER)return;
+  if(!confirm('Delete ALL photos in this folder?'))return;
+  try{
+    await api('DELETE','/api/folders/'+CURRENT_FOLDER.id+'/photos');
+    toast('All photos deleted');
+    loadPhotos();
+    renderFolders();
+  }catch(e){toast(e.message);}
+});
+
 // ── PACKING ───────────────────────────────────────────────
-var CAT_LABELS={clothing:'👕 Clothing',toiletries:'🧴 Toiletries',trekking:'🥾 Trekking',electronics:'📱 Electronics',food:'🍎 Snacks',docs:'📄 Documents'};
-var CAT_ORDER=['clothing','toiletries','trekking','electronics','food','docs'];
+var CAT_LABELS={
+  clothing:'👕 Clothing',toiletries:'🧴 Toiletries',trekking:'🥾 Trekking',
+  electronics:'📱 Electronics',food:'🍎 Snacks',docs:'📄 Documents',
+  firstaid:'🩹 First Aid'
+};
+var CAT_ORDER=['clothing','toiletries','trekking','electronics','food','docs','firstaid'];
 
 function renderPacking(){
   var done=CHECKLIST.filter(function(x){return x.done;}).length;
@@ -738,6 +1248,7 @@ function renderPacking(){
   document.querySelectorAll('[data-did]').forEach(function(b){
     b.addEventListener('click',async function(){
       var id=+this.getAttribute('data-did');
+      if(!confirm('Remove this item?'))return;
       await api('DELETE','/api/checklist/'+id);
       CHECKLIST=CHECKLIST.filter(function(x){return x.id!==id;});
       renderPacking();
@@ -760,8 +1271,216 @@ document.getElementById('addItemBtn').addEventListener('click',async function(){
 });
 document.getElementById('newItem').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addItemBtn').click();});
 
+// ── ITINERARY ─────────────────────────────────────────────
+var PLAN_KEY = 'matheran_plan_v1';
+
+var PLAN_DEFAULT = [
+  {
+    day: 'Day 1 — 29th August (Friday)',
+    subtitle: 'Arrival & Explore',
+    banner: {color:'#eff6ff',border:'#2563eb',text:'#1e40af',msg:'🕐 Check-in at <b>11:00 AM</b> — full gang departs together once Hyd group arrives ~5:30 AM'},
+    infoCards: [
+      {bg:'#f0fdf4',border:'#bbf7d0',label:'🚂 Surat Group · 10 members',labelColor:'#16a34a',body:'Train arrives <b>3:30 AM</b><br>Chai break & rest till Hyd group joins',bodyColor:'#166534'},
+      {bg:'#faf5ff',border:'#e9d5ff',label:'🚂 Hyderabad Group · 3 members',labelColor:'#7c3aed',body:'Train arrives <b>~5:30 AM</b><br>Full gang of 13 assembles & departs',bodyColor:'#6d28d9'}
+    ],
+    items: [
+      {time:'3:30 AM',  text:'🚂 Surat group (10 members) arrives — grab chai, rest nearby & wait for Hyd group'},
+      {time:'~5:30 AM', text:'🚂 Hyderabad group (3 members) arrives — full gang of 13 together! 🎉'},
+      {time:'6:00 AM',  text:'🚗 All 13 assemble & depart — cabs/vehicles to Neral'},
+      {time:'~7:45 AM', text:'🚉 Reach Neral Junction — board toy train or hire horses up to Matheran'},
+      {time:'~10:00 AM',text:'🏔️ Arrive Matheran — explore market, grab snacks if needed'},
+      {time:'11:00 AM', text:'🏨 CHECK-IN ✅ — settle into rooms, drop luggage', highlight:'#2563eb'},
+      {time:'11:30 AM', text:'☕ Welcome tea/coffee & biscuits at resort'},
+      {time:'12:30 PM', text:'🍽️ Lunch — Pure Veg buffet at resort'},
+      {time:'2:00 PM',  text:'🏊 Pool session — swim, relax & chill after the journey'},
+      {time:'4:00 PM',  text:'☕ Evening tea, snacks & group time'},
+      {time:'5:00 PM',  text:'🌄 Evening trek to Panorama Point — sunset views!'},
+      {time:'7:00 PM',  text:'🏨 Return to resort — freshen up'},
+      {time:'8:00 PM',  text:'🌙 Dinner — Pure Veg spread'},
+      {time:'9:30 PM',  text:'🎵 Night DJ Party! 🎉 Pool-side dancing & fun'},
+      {time:'11:30 PM', text:'😴 Wrap up & rest — big trek day tomorrow!'}
+    ]
+  },
+  {
+    day: 'Day 2 — 30th August (Saturday)',
+    subtitle: 'Trek, Games & Departure',
+    banner: null,
+    infoCards: [
+      {bg:'#fff7ed',border:'#fed7aa',label:'🚪 Check-out',labelColor:'#ea580c',body:'<b>10:00 AM</b>',bodyColor:'#9a3412'},
+      {bg:'#0f172a',border:'#334155',label:'🚂 Return Trains',labelColor:'#94a3b8',body:'<b>~10:00 PM</b>',bodyColor:'#f8fafc'}
+    ],
+    items: [
+      {time:'7:00 AM',  text:'☀️ Wake up & morning breakfast'},
+      {time:'8:00 AM',  text:'🥾 Morning trek — Charlotte Lake / Echo Point / Louisa Point'},
+      {time:'10:00 AM', text:'🚪 CHECK-OUT — vacate rooms, store luggage at reception. Resort facilities open till evening', highlight:'#ea580c'},
+      {time:'10:30 AM', text:'🏸 Sports time — Badminton · Cricket · Volleyball'},
+      {time:'12:30 PM', text:'🏊 Pool hangout (last dip!) · Carrom & indoor games'},
+      {time:'1:30 PM',  text:'🍽️ Final lunch together — savour the last resort meal!'},
+      {time:'3:00 PM',  text:'😴 Rest / free time — nap, chat, enjoy the resort vibes'},
+      {time:'4:30 PM',  text:'☕ Evening tea & snacks · last group hangout at resort'},
+      {time:'5:30 PM',  text:'📸 Group photos at resort · souvenir shopping at Matheran market'},
+      {time:'7:30 PM',  text:'🚌 Collect luggage & depart Matheran — head down to Neral'},
+      {time:'~9:00 PM', text:'🚉 Reach Neral — dinner at station / nearby restaurant'},
+      {time:'~10:00 PM',text:'🚂 All board return trains — Surat & Hyd groups head home. Safe journey! 🙏✨', highlight:'#0f172a'}
+    ]
+  }
+];
+
+function planLoad() {
+  try { return JSON.parse(localStorage.getItem(PLAN_KEY)) || null; } catch(e){ return null; }
+}
+function planSave(data) {
+  localStorage.setItem(PLAN_KEY, JSON.stringify(data));
+}
+function planGet() {
+  return planLoad() || JSON.parse(JSON.stringify(PLAN_DEFAULT));
+}
+
+function renderItinerary() {
+  var plan = planGet();
+  var root = document.getElementById('itinerary-root');
+
+  // Reset button
+  var resetHtml = '<div style="text-align:right;margin-bottom:10px;">'
+    + '<button onclick="planReset()" class="btn btn-sm btn-ghost" style="font-size:12px;">↺ Reset to default</button>'
+    + '</div>';
+
+  root.innerHTML = resetHtml + plan.map(function(day, di) {
+    // info cards
+    var infoHtml = '';
+    if (day.infoCards && day.infoCards.length) {
+      infoHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
+        + day.infoCards.map(function(c) {
+          return '<div style="background:'+c.bg+';border:2px solid '+c.border+';border-radius:10px;padding:11px 12px;">'
+            + '<div style="font-size:11px;font-weight:800;color:'+c.labelColor+';text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">'+c.label+'</div>'
+            + '<div style="font-size:13px;color:'+c.bodyColor+';">'+c.body+'</div>'
+            + '</div>';
+        }).join('') + '</div>';
+    }
+
+    // banner
+    var bannerHtml = '';
+    if (day.banner) {
+      bannerHtml = '<div style="background:'+day.banner.color+';border-left:4px solid '+day.banner.border
+        +';border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:'+day.banner.text+';font-weight:600;">'
+        + day.banner.msg + '</div>';
+    }
+
+    // timeline rows
+    var itemsHtml = day.items.map(function(item, ii) {
+      var dotStyle = item.highlight
+        ? 'background:'+item.highlight+';box-shadow:0 0 0 2px '+item.highlight+';'
+        : '';
+      var timeStyle = item.highlight ? 'color:'+item.highlight+';font-weight:900;' : '';
+      return '<div class="tli" data-day="'+di+'" data-item="'+ii+'">'
+        + '<div class="tld" style="'+dotStyle+'"></div>'
+        + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
+        +   '<input class="plan-time" data-day="'+di+'" data-item="'+ii+'" value="'+escHtml(item.time)+'"'
+        +     ' style="'+timeStyle+'width:88px;border:1.5px solid transparent;border-radius:6px;'
+        +     'padding:3px 7px;font-size:12px;font-weight:800;font-family:inherit;background:transparent;'
+        +     'text-transform:uppercase;letter-spacing:.3px;cursor:pointer;color:'+(item.highlight||'var(--primary)')+';outline:none;" />'
+        +   '<button class="plan-del" data-day="'+di+'" data-item="'+ii+'"'
+        +     ' style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;flex-shrink:0;" title="Delete">✕</button>'
+        + '</div>'
+        + '<div contenteditable="true" class="plan-text" data-day="'+di+'" data-item="'+ii+'"'
+        +   ' style="font-size:14px;color:#4a5568;line-height:1.5;outline:none;border:1.5px solid transparent;'
+        +   'border-radius:6px;padding:3px 6px;min-height:22px;cursor:text;">'
+        +   escHtml(item.text)
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    // add row button
+    var addHtml = '<div style="padding:10px 0 4px 32px;">'
+      + '<button class="plan-add" data-day="'+di+'"'
+      + ' style="background:var(--green-bg);color:var(--green);border:2px dashed #86efac;border-radius:8px;'
+      + 'padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">+ Add step</button>'
+      + '</div>';
+
+    return '<div class="card">'
+      + '<div class="ch">📅 '+escHtml(day.day)+' <span style="font-weight:500;color:var(--muted);font-size:13px;">— '+escHtml(day.subtitle)+'</span></div>'
+      + '<div class="cb">'
+      +   bannerHtml
+      +   infoHtml
+      +   '<div class="tl">' + itemsHtml + '</div>'
+      +   addHtml
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  // attach events
+  // time inputs — save on blur / enter
+  root.querySelectorAll('.plan-time').forEach(function(inp) {
+    inp.addEventListener('focus', function() { this.style.borderColor='var(--primary)'; this.style.background='#fff'; });
+    inp.addEventListener('blur', function() {
+      this.style.borderColor='transparent'; this.style.background='transparent';
+      planUpdateItem(+this.dataset.day, +this.dataset.item, 'time', this.value);
+    });
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); this.blur(); } });
+  });
+
+  // text divs — save on blur
+  root.querySelectorAll('.plan-text').forEach(function(div) {
+    div.addEventListener('focus', function() { this.style.borderColor='var(--border)'; this.style.background='#f8fafc'; });
+    div.addEventListener('blur', function() {
+      this.style.borderColor='transparent'; this.style.background='transparent';
+      planUpdateItem(+this.dataset.day, +this.dataset.item, 'text', this.innerText.trim());
+    });
+    div.addEventListener('keydown', function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); this.blur(); } });
+  });
+
+  // delete buttons
+  root.querySelectorAll('.plan-del').forEach(function(btn) {
+    btn.addEventListener('mouseenter', function(){ this.style.color='var(--red)'; });
+    btn.addEventListener('mouseleave', function(){ this.style.color='#cbd5e1'; });
+    btn.addEventListener('click', function() {
+      var di = +this.dataset.day, ii = +this.dataset.item;
+      var plan = planGet();
+      if(plan[di].items.length <= 1){ toast('Need at least one step'); return; }
+      plan[di].items.splice(ii, 1);
+      planSave(plan);
+      renderItinerary();
+      toast('Step removed');
+    });
+  });
+
+  // add buttons
+  root.querySelectorAll('.plan-add').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var di = +this.dataset.day;
+      var plan = planGet();
+      plan[di].items.push({time:'--:-- --', text:'New step — tap to edit'});
+      planSave(plan);
+      renderItinerary();
+      // focus new time input
+      var inputs = root.querySelectorAll('.plan-time[data-day="'+di+'"]');
+      if(inputs.length) inputs[inputs.length-1].focus();
+      toast('Step added');
+    });
+  });
+}
+
+function planUpdateItem(di, ii, field, val) {
+  var plan = planGet();
+  if(!plan[di] || !plan[di].items[ii]) return;
+  plan[di].items[ii][field] = val;
+  planSave(plan);
+}
+
+function planReset() {
+  if(!confirm('Reset plan to default? All your edits will be lost.')) return;
+  localStorage.removeItem(PLAN_KEY);
+  renderItinerary();
+  toast('Plan reset to default');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ── KICK OFF ──────────────────────────────────────────────
 boot();
+renderItinerary();
 </script>
 </body>
 </html>
