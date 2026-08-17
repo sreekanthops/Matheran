@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Matheran Trek Aug 2025</title>
+<title>Matheran Trek 2025</title>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0f766e"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Matheran"/>
+<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -766,7 +773,35 @@ body{
   Made with ❤️ by IBM Bob
 </div>
 
-<script>
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, set, push, remove, onValue, update, get }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+
+// ── FIREBASE CONFIG ── (replace with YOUR project config from Firebase Console)
+const FB_CONFIG = {
+  apiKey:            "REPLACE_API_KEY",
+  authDomain:        "REPLACE_PROJECT_ID.firebaseapp.com",
+  databaseURL:       "https://REPLACE_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "REPLACE_PROJECT_ID",
+  storageBucket:     "REPLACE_PROJECT_ID.appspot.com",
+  messagingSenderId: "REPLACE_SENDER_ID",
+  appId:             "REPLACE_APP_ID"
+};
+
+// ── If not configured yet, fall back to local server API ──────────────────
+var USE_FIREBASE = FB_CONFIG.apiKey !== 'REPLACE_API_KEY';
+
+var app, db, storage;
+if(USE_FIREBASE){
+  app = initializeApp(FB_CONFIG);
+  db  = getDatabase(app);
+  storage = getStorage(app);
+}
+
 // ── STATE ─────────────────────────────────────────────────
 var MEMBERS = [];
 var EXPENSES = [];
@@ -778,7 +813,7 @@ var CURRENT_FOLDER = null;
 var PAL=['#0f766e','#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#0891b2','#be123c','#4338ca','#7e22ce'];
 function aColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%PAL.length;return PAL[h];}
 function aInit(n){return n.substring(0,2).toUpperCase();}
-function inr(v){return '₹'+Number(v).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});}
+function inr(v){return '\u20B9'+Number(v).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});}
 
 var toastT;
 function toast(msg){
@@ -797,7 +832,7 @@ function goTab(id,el){
   if(id==='itinerary') renderItinerary();
 }
 
-// ── API ───────────────────────────────────────────────────
+// ── LOCAL API (server fallback) ───────────────────────────
 async function api(method,url,body){
   var opts={method:method,headers:{'Content-Type':'application/json'}};
   if(body) opts.body=JSON.stringify(body);
@@ -805,33 +840,128 @@ async function api(method,url,body){
   var text=await r.text();
   var json;
   try{ json=JSON.parse(text); }
-  catch(e){ throw new Error('Server error: unexpected response from '+url); }
+  catch(e){ throw new Error('Server error on '+url); }
   if(!r.ok) throw new Error(json.error||'Error');
   return json;
 }
 
+// ── FIREBASE HELPERS ──────────────────────────────────────
+function fbGet(path){ return get(ref(db,path)).then(s=>s.val()); }
+function fbSet(path,val){ return set(ref(db,path),val); }
+function fbPush(path,val){ return push(ref(db,path),val); }
+function fbRemove(path){ return remove(ref(db,path)); }
+function fbUpdate(path,val){ return update(ref(db,path),val); }
+
+// Convert Firebase object {-key:{...}} to array with id
+function fbArr(obj){
+  if(!obj) return [];
+  return Object.entries(obj).map(function([k,v]){ return Object.assign({},v,{fbKey:k}); });
+}
+
+// ── REAL-TIME LISTENERS ───────────────────────────────────
+function attachListeners(){
+  onValue(ref(db,'members'), function(snap){
+    var obj = snap.val()||{};
+    MEMBERS = fbArr(obj).map(function(m,i){ return {id:m.fbKey,name:m.name}; });
+    renderAll();
+  });
+  onValue(ref(db,'expenses'), function(snap){
+    var obj = snap.val()||{};
+    EXPENSES = fbArr(obj).map(function(e){
+      return {id:e.fbKey,desc:e.desc,amount:e.amount,category:e.category,
+              created_at:e.created_at,payer_id:e.payer_id,payer_name:e.payer_name};
+    }).reverse();
+    renderAllExp(); renderRecentList(); renderStats(); renderCatChart(); renderBalance(); renderMemSummary();
+  });
+  onValue(ref(db,'checklist'), function(snap){
+    var obj = snap.val()||{};
+    CHECKLIST = fbArr(obj).map(function(c){
+      return {id:c.fbKey,category:c.category,item:c.item,done:c.done||0};
+    });
+    renderPacking();
+  });
+  onValue(ref(db,'folders'), function(snap){
+    var obj = snap.val()||{};
+    FOLDERS = fbArr(obj).map(function(f){ return {id:f.fbKey,name:f.name,count:f.count||0}; });
+    renderFoldersIfVisible();
+  });
+}
+
+function renderFoldersIfVisible(){
+  if(document.getElementById('pg-gallery').classList.contains('on')) renderFolders();
+}
+
+// ── SEED INITIAL DATA (only if DB is empty) ──────────────
+async function seedIfEmpty(){
+  var members = await fbGet('members');
+  if(!members){
+    var defaultMembers = ['Sreekanth','Pooja','Sai','Naresh','Prashant','Vijay','Sonal','Divya','Shruti','Suresh','Sohan','Vinay','Swapna'];
+    for(var n of defaultMembers) await fbPush('members',{name:n});
+  }
+  var checklist = await fbGet('checklist');
+  if(!checklist){
+    var items = [
+      ['clothing','T-shirts (3-4)'],['clothing','Shorts / Track pants'],['clothing','Light jacket / Sweater'],
+      ['clothing','Innerwear & socks (extra)'],['clothing','Comfortable walking shoes'],['clothing','Flip flops'],
+      ['clothing','Raincoat / Poncho'],['clothing','Cap / Hat'],['clothing','Sunglasses'],
+      ['toiletries','Toothbrush & toothpaste'],['toiletries','Sunscreen SPF50+'],['toiletries','Moisturizer'],
+      ['toiletries','Insect repellent (Odomos)'],['toiletries','Hand sanitizer'],['toiletries','Wet wipes'],
+      ['toiletries','Tissues'],['toiletries','Personal medicines'],['toiletries','Pain balm (Iodex/Volini)'],
+      ['toiletries','Band-aids'],['trekking','Trekking shoes (must!)'],['trekking','Water bottle (2L)'],
+      ['trekking','Backpack (20-30L)'],['trekking','Rainproof bag cover'],
+      ['trekking','Torch / Headlamp + extra batteries'],['trekking','Whistle'],
+      ['trekking','Energy bars / trail mix'],['trekking','Walking stick (optional)'],
+      ['electronics','Phone charger'],['electronics','Power bank (10000mAh+)'],['electronics','Camera'],
+      ['electronics','Earphones'],['electronics','Offline maps saved (Google Maps)'],['electronics','OTT downloaded'],
+      ['food','Energy bars'],['food','Dry fruits & nuts'],['food','Glucose / ORS packets'],
+      ['food','Chocolates'],['food','Chewing gum'],
+      ['docs','Aadhar / ID proof'],['docs','Resort booking confirmation'],
+      ['docs','Emergency contacts list (printed)'],['docs','Cash (Rs.2000-3000)'],
+      ['firstaid','Paracetamol (Crocin 500mg)'],['firstaid','Antacid (Gelusil / Digene)'],
+      ['firstaid','ORS sachets (5-6)'],['firstaid','Betadine antiseptic'],
+      ['firstaid','Crepe bandage'],['firstaid','Moov / Volini spray'],
+      ['firstaid','Motion sickness tablets (Avomine)'],['firstaid','Antihistamine (Cetirizine)'],
+      ['firstaid','Diarrhea medication (Norflox)'],['firstaid','Salt (for leeches!)'],
+      ['firstaid','Glucose-D powder'],['firstaid','Scissors + safety pins']
+    ];
+    for(var [c,i] of items) await fbPush('checklist',{category:c,item:i,done:0});
+  }
+  var folders = await fbGet('folders');
+  if(!folders){
+    var defaultFolders = ['General','Day 1 - 29 Aug Arrival','Day 2 - 30 Aug Trek & Games','Pool & DJ Night','Group Selfies','Viewpoints'];
+    for(var fn of defaultFolders) await fbPush('folders',{name:fn,count:0});
+  }
+}
+
 // ── BOOT ──────────────────────────────────────────────────
 async function boot(){
-  try{
-    var [members,expenses,checklist,folders]=await Promise.all([
-      api('GET','/api/members'),
-      api('GET','/api/expenses'),
-      api('GET','/api/checklist'),
-      api('GET','/api/folders')
-    ]);
-    MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders;
-    renderAll();
-  }catch(err){
-    console.error('Boot failed:',err);
-    ['sTotal','sPer','sCnt','sMem'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.textContent='—';
-    });
-    ['catChart','recentList','allList','balList','settleList','memberWrap','memSummary','packLists','foldersList'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.innerHTML='<div style="text-align:center;color:#dc2626;padding:20px;font-size:13px;">⚠️ Could not connect to server. Please restart the server and refresh.<br><small>'+err.message+'</small></div>';
-    });
-    toast('⚠️ Server connection failed — please restart server');
+  if(USE_FIREBASE){
+    // Show loading indicators
+    document.getElementById('recentList').innerHTML='<div class="loading">Connecting to Firebase...</div>';
+    try{
+      await seedIfEmpty();
+      attachListeners();
+      toast('Connected — live sync active');
+    }catch(err){
+      console.error('Firebase boot failed:',err);
+      toast('Firebase error: '+err.message);
+    }
+  } else {
+    // Fallback: local server
+    try{
+      var [members,expenses,checklist,folders]=await Promise.all([
+        api('GET','/api/members'),api('GET','/api/expenses'),
+        api('GET','/api/checklist'),api('GET','/api/folders')
+      ]);
+      MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders;
+      renderAll();
+    }catch(err){
+      ['catChart','recentList','allList','balList','settleList','memberWrap','memSummary','packLists'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el) el.innerHTML='<div style="text-align:center;color:#dc2626;padding:20px;font-size:13px;">⚠️ Not connected. Set up Firebase in index.html.<br><small>'+err.message+'</small></div>';
+      });
+      toast('Configure Firebase for real-time sync!');
+    }
   }
 }
 
@@ -851,11 +981,8 @@ function renderAll(){
 function fillPayerSelects(){
   var opts=MEMBERS.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
   ['qPayer','ePayer'].forEach(function(id){
-    var s=document.getElementById(id);
-    if(!s)return;
-    var cur=s.value;
-    s.innerHTML=opts;
-    if(cur) s.value=cur;
+    var s=document.getElementById(id); if(!s)return;
+    var cur=s.value; s.innerHTML=opts; if(cur) s.value=cur;
   });
   document.getElementById('splitN').textContent=MEMBERS.length;
   document.getElementById('sMem').textContent=MEMBERS.length;
@@ -884,21 +1011,17 @@ function renderCatChart(){
     return '<div style="margin-bottom:12px;">'+
       '<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:6px;">'+
         '<span>'+kv[0]+'</span>'+
-        '<span style="color:var(--primary);">'+inr(kv[1])+' <span style="color:var(--muted);font-weight:500;">('+pct+'%)</span></span>'+
-      '</div>'+
-      '<div class="pb"><div class="pf" style="width:'+pct+'%"></div></div>'+
-    '</div>';
+        '<span style="color:var(--primary);">'+inr(kv[1])+' <span style="color:var(--muted);">('+pct+'%)</span></span>'+
+      '</div><div class="pb"><div class="pf" style="width:'+pct+'%"></div></div></div>';
   }).join('');
 }
 
-// ── EXPENSE CARD HTML ─────────────────────────────────────
+// ── EXPENSE CARD ──────────────────────────────────────────
 function expCard(e,full){
   var share=(e.amount/MEMBERS.length).toFixed(2);
   return '<div class="ei">'+
-    '<div class="et">'+
-      '<div><div class="en">'+e.desc+'</div><div class="ec">'+e.category+' · '+e.created_at+'</div></div>'+
-      '<div class="ea">'+inr(e.amount)+'</div>'+
-    '</div>'+
+    '<div class="et"><div><div class="en">'+e.desc+'</div><div class="ec">'+e.category+' · '+e.created_at+'</div></div>'+
+    '<div class="ea">'+inr(e.amount)+'</div></div>'+
     '<div class="em">'+
       '<div class="av" style="background:'+aColor(e.payer_name)+';width:24px;height:24px;font-size:11px;">'+aInit(e.payer_name)+'</div>'+
       '<span style="font-size:13px;color:var(--muted);"><strong>'+e.payer_name+'</strong> paid</span>'+
@@ -910,23 +1033,16 @@ function expCard(e,full){
     '</div>':'')+
   '</div>';
 }
-
 function attachExpActions(el){
-  el.querySelectorAll('[data-edit]').forEach(function(b){
-    b.addEventListener('click',function(){openEdit(+this.getAttribute('data-edit'));});
-  });
-  el.querySelectorAll('[data-del]').forEach(function(b){
-    b.addEventListener('click',function(){delExp(+this.getAttribute('data-del'));});
-  });
+  el.querySelectorAll('[data-edit]').forEach(function(b){ b.addEventListener('click',function(){openEdit(this.getAttribute('data-edit'));}); });
+  el.querySelectorAll('[data-del]').forEach(function(b){ b.addEventListener('click',function(){delExp(this.getAttribute('data-del'));}); });
 }
-
 function renderRecentList(){
   var el=document.getElementById('recentList');
   var list=EXPENSES.slice(0,3);
   if(!list.length){el.innerHTML='<div class="empty">No expenses yet</div>';return;}
   el.innerHTML=list.map(function(e){return expCard(e,false);}).join('');
 }
-
 function renderAllExp(){
   var el=document.getElementById('allList');
   if(!EXPENSES.length){el.innerHTML='<div class="empty">No expenses yet</div>';return;}
@@ -936,26 +1052,32 @@ function renderAllExp(){
 
 // ── ADD EXPENSE ───────────────────────────────────────────
 document.getElementById('addExpBtn').addEventListener('click',async function(){
-  var payer_id=+document.getElementById('qPayer').value;
+  var payer_id=document.getElementById('qPayer').value;
   var desc=document.getElementById('qDesc').value.trim();
   var amount=parseFloat(document.getElementById('qAmt').value);
   var category=document.getElementById('qCat').value;
-  if(!payer_id){toast('Select who paid');return;}
+  var payer=MEMBERS.find(function(m){return m.id==payer_id;});
+  if(!payer){toast('Select who paid');return;}
   if(!desc){toast('Enter a description');return;}
   if(!amount||amount<=0){toast('Enter a valid amount');return;}
+  var now=new Date(); var d=now.getDate().toString().padStart(2,'0');
+  var mo=(now.getMonth()+1).toString().padStart(2,'0'); var y=now.getFullYear();
+  var row={payer_id:payer_id,payer_name:payer.name,desc:desc,amount:amount,
+           category:category,created_at:d+'/'+mo+'/'+y};
   try{
-    var row=await api('POST','/api/expenses',{payer_id,desc,amount,category});
-    EXPENSES.unshift(row);
-    document.getElementById('qDesc').value='';
-    document.getElementById('qAmt').value='';
-    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
-    toast('Added! '+inr(amount)+' split → '+inr((amount/MEMBERS.length).toFixed(2))+'/person');
+    if(USE_FIREBASE){ await fbPush('expenses',row); }
+    else{
+      var r=await api('POST','/api/expenses',{payer_id:+payer_id,desc,amount,category});
+      EXPENSES.unshift(r); renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    }
+    document.getElementById('qDesc').value=''; document.getElementById('qAmt').value='';
+    toast('Added! '+inr(amount)+' ÷ '+MEMBERS.length+' = '+inr((amount/MEMBERS.length).toFixed(2))+'/person');
   }catch(e){toast(e.message);}
 });
 
 // ── EDIT EXPENSE ──────────────────────────────────────────
 function openEdit(id){
-  var e=EXPENSES.find(function(x){return x.id===id;});
+  var e=EXPENSES.find(function(x){return x.id==id;});
   if(!e)return;
   fillPayerSelects();
   document.getElementById('eId').value=id;
@@ -969,18 +1091,21 @@ document.getElementById('closeEditBtn').addEventListener('click',function(){docu
 document.getElementById('editOv').addEventListener('click',function(ev){if(ev.target===this)this.classList.remove('on');});
 
 document.getElementById('saveEditBtn').addEventListener('click',async function(){
-  var id=+document.getElementById('eId').value;
-  var payer_id=+document.getElementById('ePayer').value;
+  var id=document.getElementById('eId').value;
+  var payer_id=document.getElementById('ePayer').value;
   var desc=document.getElementById('eDesc').value.trim();
   var amount=parseFloat(document.getElementById('eAmt').value);
   var category=document.getElementById('eCat').value;
-  if(!desc||!amount){toast('Fill all fields');return;}
+  var payer=MEMBERS.find(function(m){return m.id==payer_id;});
+  if(!desc||!amount||!payer){toast('Fill all fields');return;}
   try{
-    var row=await api('PUT','/api/expenses/'+id,{payer_id,desc,amount,category});
-    var idx=EXPENSES.findIndex(function(x){return x.id===id;});
-    if(idx>-1)EXPENSES[idx]=row;
+    if(USE_FIREBASE){ await fbUpdate('expenses/'+id,{payer_id:payer_id,payer_name:payer.name,desc:desc,amount:amount,category:category}); }
+    else{
+      var r=await api('PUT','/api/expenses/'+id,{payer_id:+payer_id,desc,amount,category});
+      var idx=EXPENSES.findIndex(function(x){return x.id==id;}); if(idx>-1)EXPENSES[idx]=r;
+      renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    }
     document.getElementById('editOv').classList.remove('on');
-    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
     toast('Expense updated!');
   }catch(e){toast(e.message);}
 });
@@ -989,9 +1114,12 @@ document.getElementById('saveEditBtn').addEventListener('click',async function()
 async function delExp(id){
   if(!confirm('Delete this expense?'))return;
   try{
-    await api('DELETE','/api/expenses/'+id);
-    EXPENSES=EXPENSES.filter(function(e){return e.id!==id;});
-    renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    if(USE_FIREBASE){ await fbRemove('expenses/'+id); }
+    else{
+      await api('DELETE','/api/expenses/'+id);
+      EXPENSES=EXPENSES.filter(function(e){return e.id!=id;});
+      renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();
+    }
     toast('Expense deleted');
   }catch(e){toast(e.message);}
 }
@@ -1002,21 +1130,17 @@ function renderBalance(){
   var share=MEMBERS.length>0?total/MEMBERS.length:0;
   var paid={};MEMBERS.forEach(function(m){paid[m.id]=0;});
   EXPENSES.forEach(function(e){if(paid[e.payer_id]!==undefined)paid[e.payer_id]+=e.amount;});
-
   document.getElementById('balList').innerHTML=MEMBERS.map(function(m){
     var bal=(paid[m.id]||0)-share;
     var cls=bal>0.01?'pos':bal<-0.01?'neg':'zero';
     var lbl=bal>0.01?'gets back '+inr(Math.abs(bal).toFixed(2)):bal<-0.01?'owes '+inr(Math.abs(bal).toFixed(2)):'settled ✓';
     return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>'+m.name+'</div><span class="'+cls+'">'+lbl+'</span></div>';
   }).join('');
-
-  // Settlements
   var bmap={};MEMBERS.forEach(function(m){bmap[m.id]={name:m.name,bal:(paid[m.id]||0)-share};});
   var cred=Object.values(bmap).filter(function(x){return x.bal>0.01;}).sort(function(a,b){return b.bal-a.bal;});
   var debt=Object.values(bmap).filter(function(x){return x.bal<-0.01;}).sort(function(a,b){return a.bal-b.bal;});
-  var c=cred.map(function(x){return{name:x.name,a:x.bal};});
-  var d=debt.map(function(x){return{name:x.name,a:-x.bal};});
-  var rows=[]; var ci=0,di=0;
+  var c=cred.map(function(x){return{name:x.name,a:x.bal};}),d=debt.map(function(x){return{name:x.name,a:-x.bal};});
+  var rows=[],ci=0,di=0;
   while(ci<c.length&&di<d.length){
     var amt=Math.min(c[ci].a,d[di].a);
     rows.push('<div class="sr"><span><strong>'+d[di].name+'</strong> → <strong>'+c[ci].name+'</strong></span><span class="pill pill-b">'+inr(amt.toFixed(2))+'</span></div>');
@@ -1033,10 +1157,9 @@ function renderMembers(){
     return '<div class="mc"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div><span>'+m.name+'</span><button class="xbtn" data-mid="'+m.id+'">✕</button></div>';
   }).join('');
   wrap.querySelectorAll('[data-mid]').forEach(function(b){
-    b.addEventListener('click',function(){delMember(+this.getAttribute('data-mid'));});
+    b.addEventListener('click',function(){delMember(this.getAttribute('data-mid'));});
   });
 }
-
 function renderMemSummary(){
   var totals={};MEMBERS.forEach(function(m){totals[m.id]=0;});
   EXPENSES.forEach(function(e){if(totals[e.payer_id]!==undefined)totals[e.payer_id]+=e.amount;});
@@ -1044,91 +1167,117 @@ function renderMemSummary(){
     return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>'+m.name+'</div><span style="font-weight:700;color:var(--primary);">'+inr(totals[m.id]||0)+'</span></div>';
   }).join('');
 }
-
 document.getElementById('addMemBtn').addEventListener('click',async function(){
   var n=document.getElementById('newMem').value.trim();
   if(!n){toast('Enter a name');return;}
   try{
-    var m=await api('POST','/api/members',{name:n});
-    MEMBERS.push(m);
+    if(USE_FIREBASE){ await fbPush('members',{name:n}); }
+    else{ var m=await api('POST','/api/members',{name:n}); MEMBERS.push(m); renderAll(); }
     document.getElementById('newMem').value='';
-    renderAll();
     toast(n+' added!');
   }catch(e){toast(e.message);}
 });
 document.getElementById('newMem').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addMemBtn').click();});
-
 async function delMember(id){
   if(!confirm('Remove this member?'))return;
   try{
-    await api('DELETE','/api/members/'+id);
-    MEMBERS=MEMBERS.filter(function(m){return m.id!==id;});
-    renderAll();
+    if(USE_FIREBASE){ await fbRemove('members/'+id); }
+    else{ await api('DELETE','/api/members/'+id); MEMBERS=MEMBERS.filter(function(m){return m.id!=id;}); renderAll(); }
     toast('Member removed');
   }catch(e){toast(e.message);}
 }
 
-// ── GALLERY ───────────────────────────────────────────────
+// ── GALLERY (Firebase Storage) ────────────────────────────
 async function renderFolders(){
-  FOLDERS=await api('GET','/api/folders');
-  var el=document.getElementById('foldersList');
-  if(!FOLDERS.length){
-    el.innerHTML='<div class="card"><div class="cb"><div class="empty">No folders yet. Create one!</div></div></div>';
-    return;
-  }
-  el.innerHTML=FOLDERS.map(function(f,i){
-    var colors=[
-      'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',
-      'linear-gradient(135deg,#f093fb 0%,#f5576c 100%)',
-      'linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)',
-      'linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)',
-      'linear-gradient(135deg,#fa709a 0%,#fee140 100%)',
-      'linear-gradient(135deg,#30cfd0 0%,#330867 100%)'
-    ];
-    var bg=colors[i%colors.length];
-    return '<div class="card" style="margin-bottom:12px;"><div style="background:'+bg+';color:#fff;padding:16px;border-radius:14px 14px 0 0;position:relative;overflow:hidden;cursor:pointer;" data-fid="'+f.id+'">'+
-      '<div style="position:absolute;top:-20%;right:-20%;width:100px;height:100px;background:rgba(255,255,255,.15);border-radius:50%;"></div>'+
-      '<div style="font-size:16px;font-weight:700;margin-bottom:4px;position:relative;">📂 '+f.name+'</div>'+
-      '<div style="font-size:13px;opacity:.85;position:relative;">'+f.count+' photo'+(f.count===1?'':'s')+'</div>'+
-    '</div><div style="padding:12px;display:flex;gap:8px;">'+
-      '<button class="btn btn-sm btn-success" style="flex:1;" data-open="'+f.id+'">📂 Open</button>'+
-      '<button class="btn btn-sm btn-d" data-delf="'+f.id+'">🗑️</button>'+
-    '</div></div>';
-  }).join('');
-  
-  el.querySelectorAll('[data-open]').forEach(function(b){
-    b.addEventListener('click',function(){openFolder(+this.getAttribute('data-open'));});
-  });
-  el.querySelectorAll('[data-fid]').forEach(function(d){
-    d.addEventListener('click',function(){openFolder(+this.getAttribute('data-fid'));});
-  });
-  el.querySelectorAll('[data-delf]').forEach(function(b){
-    b.addEventListener('click',async function(e){
-      e.stopPropagation();
-      var fid=+this.getAttribute('data-delf');
-      if(!confirm('Delete this folder and all photos?'))return;
-      try{
-        await api('DELETE','/api/folders/'+fid);
-        toast('Folder deleted');
-        renderFolders();
-      }catch(err){toast(err.message);}
+  if(USE_FIREBASE){
+    var el=document.getElementById('foldersList');
+    if(!FOLDERS.length){
+      el.innerHTML='<div class="card"><div class="cb"><div class="empty">No folders yet. Create one!</div></div></div>';
+      return;
+    }
+    var colors=['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)',
+      'linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)',
+      'linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#30cfd0,#330867)'];
+    el.innerHTML=FOLDERS.map(function(f,i){
+      var bg=colors[i%colors.length];
+      return '<div class="card" style="margin-bottom:12px;"><div style="background:'+bg+';color:#fff;padding:16px;border-radius:14px 14px 0 0;position:relative;overflow:hidden;cursor:pointer;" data-fid="'+f.id+'">'+
+        '<div style="position:absolute;top:-20%;right:-20%;width:100px;height:100px;background:rgba(255,255,255,.15);border-radius:50%;"></div>'+
+        '<div style="font-size:16px;font-weight:700;margin-bottom:4px;position:relative;">📂 '+f.name+'</div>'+
+        '<div style="font-size:13px;opacity:.85;position:relative;">'+f.count+' photo'+(f.count===1?'':'s')+'</div>'+
+      '</div><div style="padding:12px;display:flex;gap:8px;">'+
+        '<button class="btn btn-sm btn-success" style="flex:1;" data-open="'+f.id+'">📂 Open</button>'+
+        '<button class="btn btn-sm btn-d" data-delf="'+f.id+'">🗑️</button>'+
+      '</div></div>';
+    }).join('');
+    el.querySelectorAll('[data-open],[data-fid]').forEach(function(b){
+      b.addEventListener('click',function(){openFolder(this.getAttribute('data-open')||this.getAttribute('data-fid'));});
     });
-  });
+    el.querySelectorAll('[data-delf]').forEach(function(b){
+      b.addEventListener('click',async function(e){ e.stopPropagation();
+        var fid=this.getAttribute('data-delf');
+        if(!confirm('Delete folder and all photos?'))return;
+        try{
+          var photos=await fbGet('photos');
+          if(photos){ for(var k of Object.keys(photos)){ if(photos[k].folder_id===fid){ try{ await deleteObject(sRef(storage,'photos/'+photos[k].filename)); }catch(_){} await fbRemove('photos/'+k); } } }
+          var cnt = (await fbGet('folders/'+fid+'/count'))||0;
+          await fbRemove('folders/'+fid);
+          toast('Folder deleted'); 
+        }catch(err){toast(err.message);}
+      });
+    });
+  } else {
+    // local server fallback
+    try{
+      FOLDERS=await api('GET','/api/folders');
+    }catch(e){}
+    var el=document.getElementById('foldersList');
+    if(!FOLDERS.length){ el.innerHTML='<div class="card"><div class="cb"><div class="empty">No folders yet.</div></div></div>'; return; }
+    var colors=['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)',
+      'linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)',
+      'linear-gradient(135deg,#fa709a,#fee140)','linear-gradient(135deg,#30cfd0,#330867)'];
+    el.innerHTML=FOLDERS.map(function(f,i){
+      var bg=colors[i%colors.length];
+      return '<div class="card" style="margin-bottom:12px;"><div style="background:'+bg+';color:#fff;padding:16px;border-radius:14px 14px 0 0;cursor:pointer;" data-fid="'+f.id+'">'+
+        '<div style="font-size:16px;font-weight:700;margin-bottom:4px;">📂 '+f.name+'</div>'+
+        '<div style="font-size:13px;opacity:.85;">'+f.count+' photo'+(f.count===1?'':'s')+'</div>'+
+      '</div><div style="padding:12px;display:flex;gap:8px;">'+
+        '<button class="btn btn-sm btn-success" style="flex:1;" data-open="'+f.id+'">📂 Open</button>'+
+        '<button class="btn btn-sm btn-d" data-delf="'+f.id+'">🗑️</button>'+
+      '</div></div>';
+    }).join('');
+    el.querySelectorAll('[data-open],[data-fid]').forEach(function(b){
+      b.addEventListener('click',function(){openFolderLocal(+(this.getAttribute('data-open')||this.getAttribute('data-fid')));});
+    });
+    el.querySelectorAll('[data-delf]').forEach(function(b){
+      b.addEventListener('click',async function(e){ e.stopPropagation();
+        var fid=+this.getAttribute('data-delf');
+        if(!confirm('Delete folder?'))return;
+        await api('DELETE','/api/folders/'+fid); toast('Deleted'); renderFolders();
+      });
+    });
+  }
 }
 
 document.getElementById('addFolderBtn').addEventListener('click',async function(){
   var name=document.getElementById('newFolder').value.trim();
   if(!name){toast('Enter folder name');return;}
   try{
-    await api('POST','/api/folders',{name:name});
+    if(USE_FIREBASE){ await fbPush('folders',{name:name,count:0}); }
+    else{ await api('POST','/api/folders',{name:name}); }
     document.getElementById('newFolder').value='';
-    toast('Folder created!');
-    renderFolders();
+    toast('Folder created!'); renderFolders();
   }catch(e){toast(e.message);}
 });
 document.getElementById('newFolder').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addFolderBtn').click();});
 
 async function openFolder(fid){
+  CURRENT_FOLDER=FOLDERS.find(function(f){return f.id==fid;});
+  if(!CURRENT_FOLDER)return;
+  document.getElementById('folderTitle').textContent='📂 '+CURRENT_FOLDER.name;
+  document.getElementById('photosOv').classList.add('on');
+  loadPhotos();
+}
+async function openFolderLocal(fid){
   CURRENT_FOLDER=FOLDERS.find(function(f){return f.id===fid;});
   if(!CURRENT_FOLDER)return;
   document.getElementById('folderTitle').textContent='📂 '+CURRENT_FOLDER.name;
@@ -1136,80 +1285,111 @@ async function openFolder(fid){
   loadPhotos();
 }
 
-document.getElementById('closePhotosBtn').addEventListener('click',function(){
-  document.getElementById('photosOv').classList.remove('on');
-});
-document.getElementById('photosOv').addEventListener('click',function(e){
-  if(e.target===this)this.classList.remove('on');
-});
+document.getElementById('closePhotosBtn').addEventListener('click',function(){document.getElementById('photosOv').classList.remove('on');});
+document.getElementById('photosOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
 
 async function loadPhotos(){
-  if(!CURRENT_FOLDER)return;
-  document.getElementById('photoGrid').innerHTML='<div class="loading">Loading...</div>';
-  try{
-    var photos=await api('GET','/api/folders/'+CURRENT_FOLDER.id+'/photos');
-    if(!photos.length){
-      document.getElementById('photoGrid').innerHTML='<div class="empty" style="grid-column:1/-1;">No photos yet</div>';
-      return;
-    }
-    document.getElementById('photoGrid').innerHTML=photos.map(function(p){
+  var grid=document.getElementById('photoGrid');
+  grid.innerHTML='<div class="loading">Loading...</div>';
+  if(USE_FIREBASE){
+    var all=await fbGet('photos');
+    var photos=!all?[]:Object.entries(all)
+      .filter(function([k,v]){return v.folder_id==CURRENT_FOLDER.id;})
+      .map(function([k,v]){return Object.assign({},v,{fbKey:k});});
+    if(!photos.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1;">No photos yet</div>'; return; }
+    grid.innerHTML=photos.map(function(p){
       return '<div class="photo-item">'+
-        '<img src="/uploads/'+CURRENT_FOLDER.name+'/'+p.filename+'" alt="'+p.orig_name+'"/>'+
+        '<img src="'+p.url+'" alt="'+p.orig_name+'" loading="lazy"/>'+
         '<div class="photo-overlay">'+
-          '<a href="/uploads/'+CURRENT_FOLDER.name+'/'+p.filename+'" download="'+p.orig_name+'" class="photo-btn" style="text-decoration:none;color:inherit;">⬇️</a>'+
-          '<button class="photo-btn" data-delp="'+p.id+'">🗑️</button>'+
-        '</div>'+
-      '</div>';
+          '<a href="'+p.url+'" download="'+p.orig_name+'" class="photo-btn" style="text-decoration:none;color:inherit;">⬇️</a>'+
+          '<button class="photo-btn" data-delp="'+p.fbKey+'">🗑️</button>'+
+        '</div></div>';
     }).join('');
-    
-    document.querySelectorAll('[data-delp]').forEach(function(b){
-      b.addEventListener('click',async function(e){
-        e.stopPropagation();
-        var pid=+this.getAttribute('data-delp');
-        if(!confirm('Delete this photo?'))return;
-        try{
-          await api('DELETE','/api/photos/'+pid);
-          toast('Photo deleted');
-          loadPhotos();
-          renderFolders();
-        }catch(err){toast(err.message);}
+    grid.querySelectorAll('[data-delp]').forEach(function(b){
+      b.addEventListener('click',async function(e){ e.stopPropagation();
+        var pid=this.getAttribute('data-delp');
+        if(!confirm('Delete?'))return;
+        var ph=await fbGet('photos/'+pid);
+        if(ph){ try{ await deleteObject(sRef(storage,'photos/'+ph.filename)); }catch(_){} }
+        await fbRemove('photos/'+pid);
+        var cnt=(await fbGet('folders/'+CURRENT_FOLDER.id+'/count'))||0;
+        await fbUpdate('folders/'+CURRENT_FOLDER.id,{count:Math.max(0,cnt-1)});
+        toast('Photo deleted'); loadPhotos(); renderFolders();
       });
     });
-  }catch(e){toast(e.message);}
+  } else {
+    try{
+      var photos=await api('GET','/api/folders/'+CURRENT_FOLDER.id+'/photos');
+      if(!photos.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1;">No photos yet</div>'; return; }
+      grid.innerHTML=photos.map(function(p){
+        return '<div class="photo-item">'+
+          '<img src="/uploads/'+CURRENT_FOLDER.name+'/'+p.filename+'" alt="'+p.orig_name+'" loading="lazy"/>'+
+          '<div class="photo-overlay">'+
+            '<a href="/uploads/'+CURRENT_FOLDER.name+'/'+p.filename+'" download="'+p.orig_name+'" class="photo-btn" style="text-decoration:none;color:inherit;">⬇️</a>'+
+            '<button class="photo-btn" data-delp="'+p.id+'">🗑️</button>'+
+          '</div></div>';
+      }).join('');
+      grid.querySelectorAll('[data-delp]').forEach(function(b){
+        b.addEventListener('click',async function(e){ e.stopPropagation();
+          var pid=+this.getAttribute('data-delp');
+          if(!confirm('Delete?'))return;
+          await api('DELETE','/api/photos/'+pid);
+          toast('Photo deleted'); loadPhotos();
+        });
+      });
+    }catch(e){toast(e.message);}
+  }
 }
 
 document.getElementById('photoUpload').addEventListener('change',async function(e){
   if(!CURRENT_FOLDER||!e.target.files.length)return;
-  var fd=new FormData();
-  Array.from(e.target.files).forEach(function(f){fd.append('photos',f);});
-  try{
-    toast('Uploading '+e.target.files.length+' photo(s)...');
-    var r=await fetch('/api/folders/'+CURRENT_FOLDER.name+'/upload',{method:'POST',body:fd});
-    if(!r.ok)throw new Error('Upload failed');
-    toast('Photos uploaded!');
-    e.target.value='';
-    loadPhotos();
-    renderFolders();
-  }catch(err){toast(err.message);}
+  var files=Array.from(e.target.files);
+  toast('Uploading '+files.length+' photo(s)...');
+  if(USE_FIREBASE){
+    try{
+      for(var file of files){
+        var fname=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        var ref2=sRef(storage,'photos/'+fname);
+        await uploadBytes(ref2,file);
+        var url=await getDownloadURL(ref2);
+        await fbPush('photos',{folder_id:CURRENT_FOLDER.id,filename:fname,orig_name:file.name,url:url,uploaded_at:new Date().toLocaleDateString('en-IN')});
+        var cnt=(await fbGet('folders/'+CURRENT_FOLDER.id+'/count'))||0;
+        await fbUpdate('folders/'+CURRENT_FOLDER.id,{count:cnt+1});
+      }
+      toast('Uploaded '+files.length+' photo(s)!'); e.target.value='';
+      loadPhotos(); renderFolders();
+    }catch(err){toast('Upload failed: '+err.message);}
+  } else {
+    var fd=new FormData(); files.forEach(function(f){fd.append('photos',f);});
+    try{
+      var r=await fetch('/api/folders/'+CURRENT_FOLDER.name+'/upload',{method:'POST',body:fd});
+      if(!r.ok)throw new Error('Upload failed');
+      toast('Uploaded!'); e.target.value=''; loadPhotos(); renderFolders();
+    }catch(err){toast(err.message);}
+  }
 });
 
 document.getElementById('deleteAllPhotos').addEventListener('click',async function(){
   if(!CURRENT_FOLDER)return;
   if(!confirm('Delete ALL photos in this folder?'))return;
-  try{
-    await api('DELETE','/api/folders/'+CURRENT_FOLDER.id+'/photos');
-    toast('All photos deleted');
-    loadPhotos();
-    renderFolders();
-  }catch(e){toast(e.message);}
+  if(USE_FIREBASE){
+    var all=await fbGet('photos');
+    if(all){
+      for(var [k,v] of Object.entries(all)){
+        if(v.folder_id==CURRENT_FOLDER.id){
+          try{ await deleteObject(sRef(storage,'photos/'+v.filename)); }catch(_){}
+          await fbRemove('photos/'+k);
+        }
+      }
+    }
+    await fbUpdate('folders/'+CURRENT_FOLDER.id,{count:0});
+  } else { await api('DELETE','/api/folders/'+CURRENT_FOLDER.id+'/photos'); }
+  toast('All photos deleted'); loadPhotos(); renderFolders();
 });
 
 // ── PACKING ───────────────────────────────────────────────
-var CAT_LABELS={
-  clothing:'👕 Clothing',toiletries:'🧴 Toiletries',trekking:'🥾 Trekking',
-  electronics:'📱 Electronics',food:'🍎 Snacks',docs:'📄 Documents',
-  firstaid:'🩹 First Aid'
-};
+var CAT_LABELS={clothing:'👕 Clothing',toiletries:'🧴 Toiletries',trekking:'🥾 Trekking',
+  electronics:'📱 Electronics',food:'🍎 Snacks',docs:'📄 Documents',firstaid:'🩹 First Aid'};
 var CAT_ORDER=['clothing','toiletries','trekking','electronics','food','docs','firstaid'];
 
 function renderPacking(){
@@ -1219,7 +1399,6 @@ function renderPacking(){
   var pct=total>0?Math.round(done/total*100):0;
   document.getElementById('progFill').style.width=pct+'%';
   document.getElementById('progPct').textContent=pct+'%';
-
   var html='';
   CAT_ORDER.forEach(function(cat){
     var items=CHECKLIST.filter(function(x){return x.category===cat;});
@@ -1234,248 +1413,161 @@ function renderPacking(){
     });
   });
   document.getElementById('packLists').innerHTML=html;
-
   document.querySelectorAll('[data-cid]').forEach(function(cb){
     cb.addEventListener('change',async function(){
-      var id=+this.getAttribute('data-cid');
-      var done=this.checked;
-      await api('PUT','/api/checklist/'+id,{done:done});
-      var item=CHECKLIST.find(function(x){return x.id===id;});
-      if(item)item.done=done?1:0;
+      var id=this.getAttribute('data-cid'); var done=this.checked?1:0;
+      if(USE_FIREBASE){ await fbUpdate('checklist/'+id,{done:done}); }
+      else{ await api('PUT','/api/checklist/'+id,{done:done}); }
+      var item=CHECKLIST.find(function(x){return x.id==id;}); if(item)item.done=done;
       renderPacking();
     });
   });
   document.querySelectorAll('[data-did]').forEach(function(b){
     b.addEventListener('click',async function(){
-      var id=+this.getAttribute('data-did');
-      if(!confirm('Remove this item?'))return;
-      await api('DELETE','/api/checklist/'+id);
-      CHECKLIST=CHECKLIST.filter(function(x){return x.id!==id;});
-      renderPacking();
+      var id=this.getAttribute('data-did');
+      if(!confirm('Remove item?'))return;
+      if(USE_FIREBASE){ await fbRemove('checklist/'+id); }
+      else{ await api('DELETE','/api/checklist/'+id); CHECKLIST=CHECKLIST.filter(function(x){return x.id!=id;}); renderPacking(); }
       toast('Item removed');
     });
   });
 }
-
 document.getElementById('addItemBtn').addEventListener('click',async function(){
   var cat=document.getElementById('newCat').value;
   var item=document.getElementById('newItem').value.trim();
   if(!item){toast('Enter item name');return;}
   try{
-    var row=await api('POST','/api/checklist',{category:cat,item:item});
-    CHECKLIST.push(row);
-    document.getElementById('newItem').value='';
-    renderPacking();
-    toast('Item added!');
+    if(USE_FIREBASE){ await fbPush('checklist',{category:cat,item:item,done:0}); }
+    else{ var r=await api('POST','/api/checklist',{category:cat,item:item}); CHECKLIST.push(r); renderPacking(); }
+    document.getElementById('newItem').value=''; toast('Item added!');
   }catch(e){toast(e.message);}
 });
 document.getElementById('newItem').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addItemBtn').click();});
 
-// ── ITINERARY ─────────────────────────────────────────────
+// ── ITINERARY (localStorage — plan is device-shared via Firebase too) ──────
 var PLAN_KEY = 'matheran_plan_v1';
-
 var PLAN_DEFAULT = [
   {
-    day: 'Day 1 — 29th August (Friday)',
-    subtitle: 'Arrival & Explore',
-    banner: {color:'#eff6ff',border:'#2563eb',text:'#1e40af',msg:'🕐 Check-in at <b>11:00 AM</b> — full gang departs together once Hyd group arrives ~5:30 AM'},
-    infoCards: [
+    day:'Day 1 — 29th August (Friday)',subtitle:'Arrival & Explore',
+    banner:{color:'#eff6ff',border:'#2563eb',text:'#1e40af',msg:'🕐 Check-in at <b>11:00 AM</b> — full gang departs together once Hyd group arrives ~5:30 AM'},
+    infoCards:[
       {bg:'#f0fdf4',border:'#bbf7d0',label:'🚂 Surat Group · 10 members',labelColor:'#16a34a',body:'Train arrives <b>3:30 AM</b><br>Chai break & rest till Hyd group joins',bodyColor:'#166534'},
       {bg:'#faf5ff',border:'#e9d5ff',label:'🚂 Hyderabad Group · 3 members',labelColor:'#7c3aed',body:'Train arrives <b>~5:30 AM</b><br>Full gang of 13 assembles & departs',bodyColor:'#6d28d9'}
     ],
-    items: [
-      {time:'3:30 AM',  text:'🚂 Surat group (10 members) arrives — grab chai, rest nearby & wait for Hyd group'},
-      {time:'~5:30 AM', text:'🚂 Hyderabad group (3 members) arrives — full gang of 13 together! 🎉'},
-      {time:'6:00 AM',  text:'🚗 All 13 assemble & depart — cabs/vehicles to Neral'},
-      {time:'~7:45 AM', text:'🚉 Reach Neral Junction — board toy train or hire horses up to Matheran'},
+    items:[
+      {time:'3:30 AM',text:'🚂 Surat group (10 members) arrives — grab chai, rest nearby & wait for Hyd group'},
+      {time:'~5:30 AM',text:'🚂 Hyderabad group (3 members) arrives — full gang of 13 together! 🎉'},
+      {time:'6:00 AM',text:'🚗 All 13 assemble & depart — cabs/vehicles to Neral'},
+      {time:'~7:45 AM',text:'🚉 Reach Neral Junction — board toy train or hire horses up to Matheran'},
       {time:'~10:00 AM',text:'🏔️ Arrive Matheran — explore market, grab snacks if needed'},
-      {time:'11:00 AM', text:'🏨 CHECK-IN ✅ — settle into rooms, drop luggage', highlight:'#2563eb'},
-      {time:'11:30 AM', text:'☕ Welcome tea/coffee & biscuits at resort'},
-      {time:'12:30 PM', text:'🍽️ Lunch — Pure Veg buffet at resort'},
-      {time:'2:00 PM',  text:'🏊 Pool session — swim, relax & chill after the journey'},
-      {time:'4:00 PM',  text:'☕ Evening tea, snacks & group time'},
-      {time:'5:00 PM',  text:'🌄 Evening trek to Panorama Point — sunset views!'},
-      {time:'7:00 PM',  text:'🏨 Return to resort — freshen up'},
-      {time:'8:00 PM',  text:'🌙 Dinner — Pure Veg spread'},
-      {time:'9:30 PM',  text:'🎵 Night DJ Party! 🎉 Pool-side dancing & fun'},
-      {time:'11:30 PM', text:'😴 Wrap up & rest — big trek day tomorrow!'}
+      {time:'11:00 AM',text:'🏨 CHECK-IN ✅ — settle into rooms, drop luggage',highlight:'#2563eb'},
+      {time:'11:30 AM',text:'☕ Welcome tea/coffee & biscuits at resort'},
+      {time:'12:30 PM',text:'🍽️ Lunch — Pure Veg buffet at resort'},
+      {time:'2:00 PM',text:'🏊 Pool session — swim, relax & chill after the journey'},
+      {time:'4:00 PM',text:'☕ Evening tea, snacks & group time'},
+      {time:'5:00 PM',text:'🌄 Evening trek to Panorama Point — sunset views!'},
+      {time:'7:00 PM',text:'🏨 Return to resort — freshen up'},
+      {time:'8:00 PM',text:'🌙 Dinner — Pure Veg spread'},
+      {time:'9:30 PM',text:'🎵 Night DJ Party! 🎉 Pool-side dancing & fun'},
+      {time:'11:30 PM',text:'😴 Wrap up & rest — big trek day tomorrow!'}
     ]
   },
   {
-    day: 'Day 2 — 30th August (Saturday)',
-    subtitle: 'Trek, Games & Departure',
-    banner: null,
-    infoCards: [
+    day:'Day 2 — 30th August (Saturday)',subtitle:'Trek, Games & Departure',
+    banner:null,
+    infoCards:[
       {bg:'#fff7ed',border:'#fed7aa',label:'🚪 Check-out',labelColor:'#ea580c',body:'<b>10:00 AM</b>',bodyColor:'#9a3412'},
       {bg:'#0f172a',border:'#334155',label:'🚂 Return Trains',labelColor:'#94a3b8',body:'<b>~10:00 PM</b>',bodyColor:'#f8fafc'}
     ],
-    items: [
-      {time:'7:00 AM',  text:'☀️ Wake up & morning breakfast'},
-      {time:'8:00 AM',  text:'🥾 Morning trek — Charlotte Lake / Echo Point / Louisa Point'},
-      {time:'10:00 AM', text:'🚪 CHECK-OUT — vacate rooms, store luggage at reception. Resort facilities open till evening', highlight:'#ea580c'},
-      {time:'10:30 AM', text:'🏸 Sports time — Badminton · Cricket · Volleyball'},
-      {time:'12:30 PM', text:'🏊 Pool hangout (last dip!) · Carrom & indoor games'},
-      {time:'1:30 PM',  text:'🍽️ Final lunch together — savour the last resort meal!'},
-      {time:'3:00 PM',  text:'😴 Rest / free time — nap, chat, enjoy the resort vibes'},
-      {time:'4:30 PM',  text:'☕ Evening tea & snacks · last group hangout at resort'},
-      {time:'5:30 PM',  text:'📸 Group photos at resort · souvenir shopping at Matheran market'},
-      {time:'7:30 PM',  text:'🚌 Collect luggage & depart Matheran — head down to Neral'},
-      {time:'~9:00 PM', text:'🚉 Reach Neral — dinner at station / nearby restaurant'},
-      {time:'~10:00 PM',text:'🚂 All board return trains — Surat & Hyd groups head home. Safe journey! 🙏✨', highlight:'#0f172a'}
+    items:[
+      {time:'7:00 AM',text:'☀️ Wake up & morning breakfast'},
+      {time:'8:00 AM',text:'🥾 Morning trek — Charlotte Lake / Echo Point / Louisa Point'},
+      {time:'10:00 AM',text:'🚪 CHECK-OUT — vacate rooms, store luggage. Resort facilities open till evening',highlight:'#ea580c'},
+      {time:'10:30 AM',text:'🏸 Sports time — Badminton · Cricket · Volleyball'},
+      {time:'12:30 PM',text:'🏊 Pool hangout (last dip!) · Carrom & indoor games'},
+      {time:'1:30 PM',text:'🍽️ Final lunch together — savour the last resort meal!'},
+      {time:'3:00 PM',text:'😴 Rest / free time — nap, chat, enjoy the resort vibes'},
+      {time:'4:30 PM',text:'☕ Evening tea & snacks · last group hangout at resort'},
+      {time:'5:30 PM',text:'📸 Group photos at resort · souvenir shopping at Matheran market'},
+      {time:'7:30 PM',text:'🚌 Collect luggage & depart Matheran — head down to Neral'},
+      {time:'~9:00 PM',text:'🚉 Reach Neral — dinner at station / nearby restaurant'},
+      {time:'~10:00 PM',text:'🚂 All board return trains — Surat & Hyd groups head home. Safe journey! 🙏✨',highlight:'#0f172a'}
     ]
   }
 ];
-
-function planLoad() {
-  try { return JSON.parse(localStorage.getItem(PLAN_KEY)) || null; } catch(e){ return null; }
-}
-function planSave(data) {
-  localStorage.setItem(PLAN_KEY, JSON.stringify(data));
-}
-function planGet() {
-  return planLoad() || JSON.parse(JSON.stringify(PLAN_DEFAULT));
-}
-
-function renderItinerary() {
-  var plan = planGet();
-  var root = document.getElementById('itinerary-root');
-
-  // Reset button
-  var resetHtml = '<div style="text-align:right;margin-bottom:10px;">'
-    + '<button onclick="planReset()" class="btn btn-sm btn-ghost" style="font-size:12px;">↺ Reset to default</button>'
-    + '</div>';
-
-  root.innerHTML = resetHtml + plan.map(function(day, di) {
-    // info cards
-    var infoHtml = '';
-    if (day.infoCards && day.infoCards.length) {
-      infoHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
-        + day.infoCards.map(function(c) {
-          return '<div style="background:'+c.bg+';border:2px solid '+c.border+';border-radius:10px;padding:11px 12px;">'
-            + '<div style="font-size:11px;font-weight:800;color:'+c.labelColor+';text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">'+c.label+'</div>'
-            + '<div style="font-size:13px;color:'+c.bodyColor+';">'+c.body+'</div>'
-            + '</div>';
-        }).join('') + '</div>';
+function planLoad(){try{return JSON.parse(localStorage.getItem(PLAN_KEY))||null;}catch(e){return null;}}
+function planSave(data){localStorage.setItem(PLAN_KEY,JSON.stringify(data));}
+function planGet(){return planLoad()||JSON.parse(JSON.stringify(PLAN_DEFAULT));}
+function renderItinerary(){
+  var plan=planGet(); var root=document.getElementById('itinerary-root');
+  var resetHtml='<div style="text-align:right;margin-bottom:10px;"><button onclick="planReset()" class="btn btn-sm btn-ghost" style="font-size:12px;">↺ Reset to default</button></div>';
+  root.innerHTML=resetHtml+plan.map(function(day,di){
+    var infoHtml='';
+    if(day.infoCards&&day.infoCards.length){
+      infoHtml='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'+
+        day.infoCards.map(function(c){
+          return '<div style="background:'+c.bg+';border:2px solid '+c.border+';border-radius:10px;padding:11px 12px;">'+
+            '<div style="font-size:11px;font-weight:800;color:'+c.labelColor+';text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">'+c.label+'</div>'+
+            '<div style="font-size:13px;color:'+c.bodyColor+';">'+c.body+'</div></div>';
+        }).join('')+'</div>';
     }
-
-    // banner
-    var bannerHtml = '';
-    if (day.banner) {
-      bannerHtml = '<div style="background:'+day.banner.color+';border-left:4px solid '+day.banner.border
-        +';border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:'+day.banner.text+';font-weight:600;">'
-        + day.banner.msg + '</div>';
-    }
-
-    // timeline rows
-    var itemsHtml = day.items.map(function(item, ii) {
-      var dotStyle = item.highlight
-        ? 'background:'+item.highlight+';box-shadow:0 0 0 2px '+item.highlight+';'
-        : '';
-      var timeStyle = item.highlight ? 'color:'+item.highlight+';font-weight:900;' : '';
-      return '<div class="tli" data-day="'+di+'" data-item="'+ii+'">'
-        + '<div class="tld" style="'+dotStyle+'"></div>'
-        + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
-        +   '<input class="plan-time" data-day="'+di+'" data-item="'+ii+'" value="'+escHtml(item.time)+'"'
-        +     ' style="'+timeStyle+'width:88px;border:1.5px solid transparent;border-radius:6px;'
-        +     'padding:3px 7px;font-size:12px;font-weight:800;font-family:inherit;background:transparent;'
-        +     'text-transform:uppercase;letter-spacing:.3px;cursor:pointer;color:'+(item.highlight||'var(--primary)')+';outline:none;" />'
-        +   '<button class="plan-del" data-day="'+di+'" data-item="'+ii+'"'
-        +     ' style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;flex-shrink:0;" title="Delete">✕</button>'
-        + '</div>'
-        + '<div contenteditable="true" class="plan-text" data-day="'+di+'" data-item="'+ii+'"'
-        +   ' style="font-size:14px;color:#4a5568;line-height:1.5;outline:none;border:1.5px solid transparent;'
-        +   'border-radius:6px;padding:3px 6px;min-height:22px;cursor:text;">'
-        +   escHtml(item.text)
-        + '</div>'
-        + '</div>';
+    var bannerHtml='';
+    if(day.banner) bannerHtml='<div style="background:'+day.banner.color+';border-left:4px solid '+day.banner.border+';border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:'+day.banner.text+';font-weight:600;">'+day.banner.msg+'</div>';
+    var itemsHtml=day.items.map(function(item,ii){
+      var dotStyle=item.highlight?'background:'+item.highlight+';box-shadow:0 0 0 2px '+item.highlight+';':'';
+      return '<div class="tli" data-day="'+di+'" data-item="'+ii+'">'+
+        '<div class="tld" style="'+dotStyle+'"></div>'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'+
+          '<input class="plan-time" data-day="'+di+'" data-item="'+ii+'" value="'+escHtml(item.time)+'"'+
+            ' style="'+(item.highlight?'color:'+item.highlight+';font-weight:900;':'')+
+            'width:88px;border:1.5px solid transparent;border-radius:6px;padding:3px 7px;font-size:12px;font-weight:800;font-family:inherit;background:transparent;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;color:'+(item.highlight||'var(--primary)')+';outline:none;" />'+
+          '<button class="plan-del" data-day="'+di+'" data-item="'+ii+'" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;padding:0 2px;" title="Delete">✕</button>'+
+        '</div>'+
+        '<div contenteditable="true" class="plan-text" data-day="'+di+'" data-item="'+ii+'"'+
+          ' style="font-size:14px;color:#4a5568;line-height:1.5;outline:none;border:1.5px solid transparent;border-radius:6px;padding:3px 6px;min-height:22px;cursor:text;">'+
+          escHtml(item.text)+'</div></div>';
     }).join('');
-
-    // add row button
-    var addHtml = '<div style="padding:10px 0 4px 32px;">'
-      + '<button class="plan-add" data-day="'+di+'"'
-      + ' style="background:var(--green-bg);color:var(--green);border:2px dashed #86efac;border-radius:8px;'
-      + 'padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">+ Add step</button>'
-      + '</div>';
-
-    return '<div class="card">'
-      + '<div class="ch">📅 '+escHtml(day.day)+' <span style="font-weight:500;color:var(--muted);font-size:13px;">— '+escHtml(day.subtitle)+'</span></div>'
-      + '<div class="cb">'
-      +   bannerHtml
-      +   infoHtml
-      +   '<div class="tl">' + itemsHtml + '</div>'
-      +   addHtml
-      + '</div>'
-      + '</div>';
+    var addHtml='<div style="padding:10px 0 4px 32px;"><button class="plan-add" data-day="'+di+'" style="background:var(--green-bg);color:var(--green);border:2px dashed #86efac;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">+ Add step</button></div>';
+    return '<div class="card"><div class="ch">📅 '+escHtml(day.day)+' <span style="font-weight:500;color:var(--muted);font-size:13px;">— '+escHtml(day.subtitle)+'</span></div>'+
+      '<div class="cb">'+bannerHtml+infoHtml+'<div class="tl">'+itemsHtml+'</div>'+addHtml+'</div></div>';
   }).join('');
-
-  // attach events
-  // time inputs — save on blur / enter
-  root.querySelectorAll('.plan-time').forEach(function(inp) {
-    inp.addEventListener('focus', function() { this.style.borderColor='var(--primary)'; this.style.background='#fff'; });
-    inp.addEventListener('blur', function() {
-      this.style.borderColor='transparent'; this.style.background='transparent';
-      planUpdateItem(+this.dataset.day, +this.dataset.item, 'time', this.value);
-    });
-    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); this.blur(); } });
+  root.querySelectorAll('.plan-time').forEach(function(inp){
+    inp.addEventListener('focus',function(){this.style.borderColor='var(--primary)';this.style.background='#fff';});
+    inp.addEventListener('blur',function(){this.style.borderColor='transparent';this.style.background='transparent';planUpdateItem(+this.dataset.day,+this.dataset.item,'time',this.value);});
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();this.blur();}});
   });
-
-  // text divs — save on blur
-  root.querySelectorAll('.plan-text').forEach(function(div) {
-    div.addEventListener('focus', function() { this.style.borderColor='var(--border)'; this.style.background='#f8fafc'; });
-    div.addEventListener('blur', function() {
-      this.style.borderColor='transparent'; this.style.background='transparent';
-      planUpdateItem(+this.dataset.day, +this.dataset.item, 'text', this.innerText.trim());
-    });
-    div.addEventListener('keydown', function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); this.blur(); } });
+  root.querySelectorAll('.plan-text').forEach(function(div){
+    div.addEventListener('focus',function(){this.style.borderColor='var(--border)';this.style.background='#f8fafc';});
+    div.addEventListener('blur',function(){this.style.borderColor='transparent';this.style.background='transparent';planUpdateItem(+this.dataset.day,+this.dataset.item,'text',this.innerText.trim());});
+    div.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.blur();}});
   });
-
-  // delete buttons
-  root.querySelectorAll('.plan-del').forEach(function(btn) {
-    btn.addEventListener('mouseenter', function(){ this.style.color='var(--red)'; });
-    btn.addEventListener('mouseleave', function(){ this.style.color='#cbd5e1'; });
-    btn.addEventListener('click', function() {
-      var di = +this.dataset.day, ii = +this.dataset.item;
-      var plan = planGet();
-      if(plan[di].items.length <= 1){ toast('Need at least one step'); return; }
-      plan[di].items.splice(ii, 1);
-      planSave(plan);
-      renderItinerary();
-      toast('Step removed');
+  root.querySelectorAll('.plan-del').forEach(function(btn){
+    btn.addEventListener('mouseenter',function(){this.style.color='var(--red)';});
+    btn.addEventListener('mouseleave',function(){this.style.color='#cbd5e1';});
+    btn.addEventListener('click',function(){
+      var di=+this.dataset.day,ii=+this.dataset.item,plan=planGet();
+      if(plan[di].items.length<=1){toast('Need at least one step');return;}
+      plan[di].items.splice(ii,1); planSave(plan); renderItinerary(); toast('Step removed');
     });
   });
-
-  // add buttons
-  root.querySelectorAll('.plan-add').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var di = +this.dataset.day;
-      var plan = planGet();
-      plan[di].items.push({time:'--:-- --', text:'New step — tap to edit'});
-      planSave(plan);
-      renderItinerary();
-      // focus new time input
-      var inputs = root.querySelectorAll('.plan-time[data-day="'+di+'"]');
-      if(inputs.length) inputs[inputs.length-1].focus();
-      toast('Step added');
+  root.querySelectorAll('.plan-add').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var di=+this.dataset.day,plan=planGet();
+      plan[di].items.push({time:'--:-- --',text:'New step — tap to edit'}); planSave(plan); renderItinerary();
+      var inputs=root.querySelectorAll('.plan-time[data-day="'+di+'"]');
+      if(inputs.length)inputs[inputs.length-1].focus(); toast('Step added');
     });
   });
 }
+function planUpdateItem(di,ii,field,val){var plan=planGet();if(!plan[di]||!plan[di].items[ii])return;plan[di].items[ii][field]=val;planSave(plan);}
+function planReset(){if(!confirm('Reset plan to default?'))return;localStorage.removeItem(PLAN_KEY);renderItinerary();toast('Plan reset');}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-function planUpdateItem(di, ii, field, val) {
-  var plan = planGet();
-  if(!plan[di] || !plan[di].items[ii]) return;
-  plan[di].items[ii][field] = val;
-  planSave(plan);
-}
-
-function planReset() {
-  if(!confirm('Reset plan to default? All your edits will be lost.')) return;
-  localStorage.removeItem(PLAN_KEY);
-  renderItinerary();
-  toast('Plan reset to default');
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ── SERVICE WORKER REGISTRATION ───────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(function(r){
+    console.log('SW registered');
+  }).catch(function(e){ console.warn('SW failed:',e); });
 }
 
 // ── KICK OFF ──────────────────────────────────────────────

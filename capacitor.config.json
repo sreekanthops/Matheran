@@ -1,0 +1,15 @@
+{
+  "appId": "com.matherantrek.app",
+  "appName": "Matheran Trek 2025",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https",
+    "url": "YOUR_HOSTED_URL_HERE"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "matheran.keystore",
+      "keystoreAlias": "matheran"
+    }
+  }
+}
