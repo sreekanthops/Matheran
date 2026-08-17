@@ -247,13 +247,35 @@ body{
 .pill-b{background:var(--blue-bg);color:var(--blue);}
 .eact{display:flex;gap:8px;margin-top:12px;}
 
-/* MEMBER CHIP */
-.mwrap{display:flex;flex-wrap:wrap;gap:8px;}
+/* MEMBER CARD */
+.mwrap{display:flex;flex-direction:column;gap:10px;}
 .mc{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#f8fafc;border:2px solid var(--border);
-  border-radius:24px;padding:6px 14px 6px 6px;
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border:2px solid var(--border);
+  border-radius:16px;padding:10px 14px;
   font-size:14px;font-weight:600;
+  transition:border-color .2s;
+}
+.mc:hover{border-color:var(--primary-light);}
+.mc-info{flex:1;min-width:0;}
+.mc-name{font-weight:700;font-size:14px;color:var(--txt);}
+.mc-phone{font-size:12px;color:var(--muted);margin-top:2px;cursor:pointer;}
+.mc-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.mc-loc-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--green-bg);color:var(--green);
+  border:1.5px solid #bbf7d0;border-radius:10px;
+  padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+  white-space:nowrap;
+}
+.mc-loc-btn.active{background:#dcfce7;border-color:var(--green);}
+.mc-loc-btn.stale{background:#fef9c3;color:#a16207;border-color:#fde047;}
+.mc-call-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--blue-bg);color:var(--blue);
+  border:1.5px solid #bfdbfe;border-radius:10px;
+  padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+  text-decoration:none;white-space:nowrap;
 }
 .av{
   width:28px;height:28px;border-radius:50%;color:#fff;
@@ -503,13 +525,45 @@ body{
 <!-- ── LOGIN SCREEN ── -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">🏔️</div>
-    <div class="login-title">Matheran Trek 2025</div>
-    <div class="login-sub">Gang of 13 · Redwood Resort<br/>Enter your name to continue</div>
-    <input class="login-input" id="loginInput" type="text" placeholder="Your name (e.g. Sreekanth)" autocomplete="off" autocapitalize="words"/>
-    <button class="login-btn" id="loginBtn">Let's Go! 🚀</button>
-    <div class="login-err" id="loginErr"></div>
-    <div class="login-hint">No password needed — just your name</div>
+
+    <!-- Step 1: Name entry -->
+    <div id="loginStep1">
+      <div class="login-logo">🏔️</div>
+      <div class="login-title">Matheran Trek 2025</div>
+      <div class="login-sub">Gang of 13 · Redwood Resort<br/>29–30 August 2025</div>
+      <input class="login-input" id="loginInput" type="text" placeholder="Your name (e.g. Sreekanth)" autocomplete="off" autocapitalize="words"/>
+      <button class="login-btn" id="loginBtn">Let's Go! 🚀</button>
+      <div class="login-err" id="loginErr"></div>
+      <!-- Location notice -->
+      <div style="margin-top:18px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:12px 14px;text-align:left;">
+        <div style="font-size:12px;font-weight:800;color:#166534;margin-bottom:6px;">📍 Live Location — Mandatory</div>
+        <div style="font-size:12px;color:#166534;line-height:1.6;">
+          Your live location will be shared with the gang <strong>from 28th Aug to 30th Aug 11 PM</strong> so everyone can find each other easily.
+          You'll be asked to allow location access on the next screen.
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Location permission -->
+    <div id="loginStep2" style="display:none;">
+      <div class="login-logo">📍</div>
+      <div class="login-title" id="locWelcomeName">Hey!</div>
+      <div class="login-sub" style="margin-bottom:20px;">One last step before you enter</div>
+      <div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:16px;padding:16px;margin-bottom:20px;text-align:left;">
+        <div style="font-size:14px;font-weight:800;color:#166534;margin-bottom:8px;">📍 Live Location Sharing</div>
+        <div style="font-size:13px;color:#166534;line-height:1.7;">
+          • Active from <strong>28 Aug – 30 Aug 11 PM</strong><br/>
+          • Shared only with your gang of 13<br/>
+          • Helps everyone find each other at Matheran<br/>
+          • Auto-stops after 30 Aug 11 PM<br/>
+          • Updates every 3 minutes
+        </div>
+      </div>
+      <button class="login-btn" id="allowLocBtn" style="margin-bottom:10px;">✅ Allow Location &amp; Enter App</button>
+      <button id="skipLocBtn" style="width:100%;padding:12px;background:transparent;color:var(--muted);border:2px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Skip for now</button>
+      <div class="login-err" id="locErr"></div>
+    </div>
+
   </div>
 </div>
 
@@ -1009,7 +1063,7 @@ function initLogin(){
   try{ saved = JSON.parse(localStorage.getItem(LOGIN_KEY)); }catch(_){}
   if(saved && saved.name){
     CURRENT_USER = saved;
-    showApp();
+    showApp(); // already logged in — go straight to app, location shared in boot()
   } else {
     document.getElementById('loginScreen').style.display='flex';
     document.getElementById('appLayout').style.display='none';
@@ -1026,7 +1080,10 @@ async function doLogin(){
     var user = await api('POST','/api/login',{name:name});
     CURRENT_USER = user;
     localStorage.setItem(LOGIN_KEY, JSON.stringify(user));
-    showApp();
+    // Show location step
+    document.getElementById('loginStep1').style.display='none';
+    document.getElementById('loginStep2').style.display='block';
+    document.getElementById('locWelcomeName').textContent='Hey, '+user.name+'! 👋';
   }catch(e){
     document.getElementById('loginErr').textContent = e.message;
     document.getElementById('loginBtn').textContent = "Let's Go! 🚀";
@@ -1057,15 +1114,17 @@ function showApp(){
 // ── BOOT ──────────────────────────────────────────────────
 async function boot(){
   try{
-    var [members,expenses,checklist,folders]=await Promise.all([
+    var [members,expenses,checklist,folders,locs]=await Promise.all([
       api('GET','/api/members'),
       api('GET','/api/expenses'),
       api('GET','/api/checklist'),
-      api('GET','/api/folders')
+      api('GET','/api/folders'),
+      api('GET','/api/locations')
     ]);
-    MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders;
+    MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders; LOCATIONS=locs;
     renderAll();
     renderActivity();
+    shareMyLocation();
   }catch(err){
     console.error('Boot failed:',err);
     ['sTotal','sPer','sCnt','sMem'].forEach(function(id){
@@ -1299,13 +1358,69 @@ function renderBalance(){
 }
 
 // ── MEMBERS ───────────────────────────────────────────────
+var LOCATIONS = [];
+
 function renderMembers(){
   var wrap=document.getElementById('memberWrap');
-  wrap.innerHTML=MEMBERS.map(function(m){
-    return '<div class="mc"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div><span>'+m.name+'</span><button class="xbtn" data-mid="'+m.id+'">✕</button></div>';
+  if(!wrap) return;
+
+  wrap.innerHTML = MEMBERS.map(function(m){
+    // location for this member
+    var loc = LOCATIONS.find(function(l){return l.member_id===m.id;});
+    var locBtn = '';
+    if(loc){
+      var mapsUrl = 'https://www.google.com/maps?q='+loc.lat+','+loc.lng;
+      locBtn = '<a href="'+mapsUrl+'" target="_blank" class="mc-loc-btn active" title="Last seen '+loc.updated_at+'">📍 Live</a>';
+    } else {
+      locBtn = '<span class="mc-loc-btn" style="opacity:.4;cursor:default;">📍 —</span>';
+    }
+
+    // phone
+    var callBtn = m.phone
+      ? '<a href="tel:'+escHtml(m.phone)+'" class="mc-call-btn">📞 Call</a>'
+      : '<button class="mc-call-btn" data-setphone="'+m.id+'" style="background:#f8fafc;color:var(--muted);border-color:var(--border);">📞 Add</button>';
+
+    // is this the logged-in user?
+    var isMe = CURRENT_USER && CURRENT_USER.id === m.id;
+    var meTag = isMe ? '<span style="background:var(--primary);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:8px;margin-left:4px;">YOU</span>' : '';
+
+    return '<div class="mc">'+
+      '<div class="av" style="background:'+aColor(m.name)+';width:40px;height:40px;font-size:14px;">'+aInit(m.name)+'</div>'+
+      '<div class="mc-info">'+
+        '<div class="mc-name">'+escHtml(m.name)+meTag+'</div>'+
+        (m.phone
+          ? '<div class="mc-phone" data-setphone="'+m.id+'" title="Tap to edit">'+escHtml(m.phone)+' ✎</div>'
+          : '<div class="mc-phone" data-setphone="'+m.id+'" title="Tap to add phone">+ add phone number</div>')+
+      '</div>'+
+      '<div class="mc-actions">'+
+        locBtn+
+        callBtn+
+        '<button class="xbtn" data-mid="'+m.id+'" style="flex-shrink:0;">✕</button>'+
+      '</div>'+
+    '</div>';
   }).join('');
+
+  // delete
   wrap.querySelectorAll('[data-mid]').forEach(function(b){
     b.addEventListener('click',function(){delMember(+this.getAttribute('data-mid'));});
+  });
+
+  // set/edit phone
+  wrap.querySelectorAll('[data-setphone]').forEach(function(el){
+    el.addEventListener('click',function(){
+      var id = +this.getAttribute('data-setphone');
+      var m = MEMBERS.find(function(x){return x.id===id;});
+      if(!m) return;
+      var cur = m.phone || '';
+      var ph = prompt('Enter phone number for '+m.name+' (with country code, e.g. +919876543210):', cur);
+      if(ph===null) return;
+      ph = ph.trim();
+      api('PUT','/api/members/'+id+'/phone',{phone:ph}).then(function(updated){
+        m.phone = updated.phone;
+        renderMembers();
+        toast('Phone saved ✅');
+      }).catch(function(e){toast(e.message);});
+    });
   });
 }
 
@@ -1977,10 +2092,88 @@ function medReset() {
   toast('Medical info reset to default');
 }
 
+// ── LOCATION SHARING ──────────────────────────────────────
+var _locInterval = null;
+
+// IST = UTC+5:30. Location window: 28 Aug 00:00 IST → 30 Aug 23:00 IST
+function inLocationWindow(){
+  var now = new Date();
+  // 28 Aug 2025 00:00 IST = 27 Aug 2025 18:30 UTC
+  var start = new Date('2025-08-27T18:30:00Z');
+  // 30 Aug 2025 23:00 IST = 30 Aug 2025 17:30 UTC
+  var end   = new Date('2025-08-30T17:30:00Z');
+  return now >= start && now <= end;
+}
+
+function shareMyLocation(){
+  if(!CURRENT_USER) return;
+  if(!navigator.geolocation) return;
+  if(!inLocationWindow()) return;
+
+  function doShare(){
+    if(!inLocationWindow()){
+      if(_locInterval){ clearInterval(_locInterval); _locInterval=null; }
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function(pos){
+      api('POST','/api/location',{
+        member_id: CURRENT_USER.id,
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        accuracy: pos.coords.accuracy
+      }).then(function(){
+        api('GET','/api/locations').then(function(locs){
+          LOCATIONS = locs;
+          renderMembers();
+        }).catch(function(){});
+      }).catch(function(){});
+    }, function(){}, {enableHighAccuracy:false, timeout:10000});
+  }
+
+  doShare();
+  if(_locInterval) clearInterval(_locInterval);
+  _locInterval = setInterval(doShare, 3 * 60 * 1000);
+}
+
 // ── KICK OFF ──────────────────────────────────────────────
-// Wire up login
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+// ── Location permission step buttons ──────────────────────
+document.getElementById('allowLocBtn').addEventListener('click', function(){
+  if(!navigator.geolocation){
+    document.getElementById('locErr').textContent = 'Location not supported on this device.';
+    return;
+  }
+  var btn = this;
+  btn.textContent = 'Requesting permission…';
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      // Permission granted — immediately post first location
+      if(inLocationWindow() && CURRENT_USER){
+        api('POST','/api/location',{
+          member_id: CURRENT_USER.id,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        }).catch(function(){});
+      }
+      showApp();
+    },
+    function(err){
+      // User denied or error — still let them in, just warn
+      document.getElementById('locErr').textContent =
+        err.code===1 ? '⚠️ Location denied. You can enable it later in browser settings.' : '⚠️ Could not get location. Entering anyway…';
+      btn.textContent = '✅ Allow Location & Enter App';
+      setTimeout(showApp, 1500);
+    },
+    {enableHighAccuracy:false, timeout:15000}
+  );
+});
+
+document.getElementById('skipLocBtn').addEventListener('click', function(){
+  showApp();
+});
 
 initLogin();
 renderItinerary();

@@ -41,8 +41,9 @@ async function openDB() {
   db.run(`PRAGMA journal_mode=WAL;`);
   db.run(`
     CREATE TABLE IF NOT EXISTS members (
-      id   INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL UNIQUE
+      id    INTEGER PRIMARY KEY AUTOINCREMENT,
+      name  TEXT NOT NULL UNIQUE,
+      phone TEXT NOT NULL DEFAULT ''
     );
     CREATE TABLE IF NOT EXISTS expenses (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,7 +77,17 @@ async function openDB() {
       detail     TEXT NOT NULL DEFAULT '',
       ts         TEXT NOT NULL DEFAULT (strftime('%d/%m/%Y %H:%M', 'now'))
     );
+    CREATE TABLE IF NOT EXISTS locations (
+      id        INTEGER PRIMARY KEY AUTOINCREMENT,
+      member_id INTEGER NOT NULL UNIQUE,
+      lat       REAL NOT NULL,
+      lng       REAL NOT NULL,
+      accuracy  REAL NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (strftime('%d/%m/%Y %H:%M', 'now'))
+    );
   `);
+  // Migrate: add phone column if not present
+  try { db.run(`ALTER TABLE members ADD COLUMN phone TEXT NOT NULL DEFAULT ''`); save(); } catch(_) {}
 
   // Seed members
   if (get('SELECT COUNT(*) as c FROM members').c === 0) {
@@ -175,10 +186,35 @@ app.post('/api/members', (req, res) => {
   res.json(get('SELECT * FROM members WHERE name=?', [name.trim()]));
 });
 
+app.put('/api/members/:id/phone', (req, res) => {
+  const { phone } = req.body;
+  if (phone === undefined) return res.status(400).json({ error: 'phone required' });
+  run('UPDATE members SET phone=? WHERE id=?', [phone.trim(), +req.params.id]);
+  res.json(get('SELECT * FROM members WHERE id=?', [+req.params.id]));
+});
+
 app.delete('/api/members/:id', (req, res) => {
   if (get('SELECT COUNT(*) as c FROM members').c <= 2) return res.status(400).json({ error: 'Need at least 2 members' });
   run('DELETE FROM members WHERE id=?', [+req.params.id]);
   res.json({ ok: true });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  LOCATIONS
+// ═══════════════════════════════════════════════════════════
+app.post('/api/location', (req, res) => {
+  const { member_id, lat, lng, accuracy } = req.body;
+  if (!member_id || lat == null || lng == null) return res.status(400).json({ error: 'Missing fields' });
+  run(`INSERT INTO locations (member_id, lat, lng, accuracy, updated_at)
+       VALUES (?,?,?,?,strftime('%d/%m/%Y %H:%M','now'))
+       ON CONFLICT(member_id) DO UPDATE SET lat=excluded.lat, lng=excluded.lng,
+         accuracy=excluded.accuracy, updated_at=excluded.updated_at`,
+      [+member_id, parseFloat(lat), parseFloat(lng), parseFloat(accuracy || 0)]);
+  res.json({ ok: true });
+});
+
+app.get('/api/locations', (_req, res) => {
+  res.json(all(`SELECT l.*, m.name FROM locations l JOIN members m ON l.member_id=m.id`));
 });
 
 // ═══════════════════════════════════════════════════════════
