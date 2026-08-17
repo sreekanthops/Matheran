@@ -1,0 +1,14 @@
+{
+  "name": "matheran-trek",
+  "version": "1.0.0",
+  "description": "Matheran Trek Trip Planner - Gang of 13",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0",
+    "express": "^4.18.2"
+  }
+}

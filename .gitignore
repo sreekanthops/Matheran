@@ -1,0 +1,4 @@
+node_modules/
+trek.db.bin
+npm-debug.log*
+.DS_Store
