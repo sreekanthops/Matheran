@@ -519,113 +519,174 @@ body{
 .act-detail{font-size:12px;color:var(--muted-light);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .act-time{font-size:11px;color:var(--muted-light);white-space:nowrap;margin-top:2px;}
 
-/* ── CHAT ────────────────────────────────────────────── */
-.chat-badge{
-  display:inline-flex;align-items:center;justify-content:center;
-  background:#ef4444;color:#fff;border-radius:12px;
-  font-size:10px;font-weight:900;min-width:18px;height:18px;
-  padding:0 5px;margin-left:6px;line-height:1;
-}
-.chat-page{display:flex;flex-direction:column;height:calc(100vh - 80px);max-height:calc(100vh - 80px);}
-.chat-banner{
+/* ── CHAT FLOATING WIDGET ─────────────────────────────── */
+/* FAB bubble */
+.chat-fab{
+  position:fixed;bottom:24px;right:20px;z-index:400;
+  width:56px;height:56px;border-radius:50%;
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
-  color:#fff;padding:12px 16px;border-radius:14px;margin-bottom:12px;
-  display:flex;align-items:center;gap:10px;cursor:pointer;
-  box-shadow:0 4px 12px rgba(15,118,110,.2);
+  color:#fff;font-size:26px;border:none;cursor:pointer;
+  box-shadow:0 6px 20px rgba(15,118,110,.45);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s;
 }
-.chat-banner-ico{font-size:22px;}
-.chat-banner-txt{flex:1;}
-.chat-banner-title{font-size:13px;font-weight:800;}
-.chat-banner-sub{font-size:12px;opacity:.85;margin-top:1px;}
-.chat-banner-cnt{
-  background:rgba(255,255,255,.25);padding:4px 10px;
-  border-radius:12px;font-size:12px;font-weight:800;white-space:nowrap;
+.chat-fab:hover{transform:scale(1.08);}
+.chat-fab-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:#ef4444;color:#fff;border-radius:10px;
+  font-size:10px;font-weight:900;min-width:18px;height:18px;
+  padding:0 4px;display:none;align-items:center;justify-content:center;
+  border:2px solid #fff;line-height:1;
 }
-.chat-body{
-  flex:1;overflow-y:auto;padding:4px 0 12px;
-  display:flex;flex-direction:column;gap:2px;
-  scroll-behavior:smooth;
+/* popup box */
+.chat-popup{
+  position:fixed;bottom:90px;right:20px;z-index:401;
+  width:340px;max-width:calc(100vw - 32px);
+  background:#fff;border-radius:20px;
+  box-shadow:0 16px 48px rgba(0,0,0,.18);
+  display:none;flex-direction:column;
+  overflow:hidden;
+  transform:scale(.92) translateY(16px);opacity:0;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),opacity .18s;
 }
-.chat-body::-webkit-scrollbar{width:4px;}
-.chat-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.chat-popup.open{
+  display:flex;transform:scale(1) translateY(0);opacity:1;
+}
+/* popup header */
+.cp-header{
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+  color:#fff;padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+}
+.cp-title{flex:1;font-size:14px;font-weight:800;}
+.cp-sub{font-size:11px;opacity:.75;margin-top:1px;}
+.cp-btn{
+  background:rgba(255,255,255,.2);border:none;color:#fff;
+  border-radius:8px;padding:5px 8px;cursor:pointer;font-size:13px;
+  transition:background .15s;
+}
+.cp-btn:hover{background:rgba(255,255,255,.35);}
+/* messages area */
+.cp-body{
+  flex:1;height:300px;overflow-y:auto;padding:12px;
+  display:flex;flex-direction:column;gap:3px;
+  background:#f8fafc;
+}
+.cp-body::-webkit-scrollbar{width:3px;}
+.cp-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+/* reply bar inside popup */
+.cp-reply-bar{
+  background:#eff6ff;border-left:3px solid var(--blue);
+  padding:6px 10px;font-size:11px;display:none;
+  align-items:center;gap:8px;
+}
+.cp-reply-bar-txt{flex:1;color:var(--blue);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* input */
+.cp-input-row{
+  display:flex;gap:6px;align-items:flex-end;padding:10px 12px;
+  border-top:1px solid var(--border);background:#fff;
+}
+.cp-textarea{
+  flex:1;border:1.5px solid var(--border);outline:none;resize:none;
+  font-family:inherit;font-size:13px;color:var(--txt);
+  border-radius:10px;padding:8px 10px;
+  max-height:80px;line-height:1.4;background:#f8fafc;
+  transition:border-color .15s;
+}
+.cp-textarea:focus{border-color:var(--primary);background:#fff;}
+.cp-send-btn{
+  background:var(--primary);color:#fff;border:none;
+  border-radius:10px;width:36px;height:36px;
+  font-size:16px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.cp-send-btn:hover{background:var(--primary-dark);}
+.cp-send-btn:disabled{background:var(--muted-light);}
+/* shared message styles (used in both popup and full page) */
 .chat-day-sep{
-  text-align:center;font-size:11px;color:var(--muted);font-weight:700;
-  margin:12px 0 6px;position:relative;
+  text-align:center;font-size:10px;color:var(--muted);font-weight:700;
+  margin:8px 0 4px;position:relative;
 }
 .chat-day-sep::before,.chat-day-sep::after{
-  content:'';position:absolute;top:50%;width:28%;height:1px;background:var(--border);
+  content:'';position:absolute;top:50%;width:25%;height:1px;background:var(--border);
 }
 .chat-day-sep::before{left:0;}.chat-day-sep::after{right:0;}
-.chat-msg{display:flex;gap:8px;padding:3px 0;align-items:flex-end;}
+.chat-msg{display:flex;gap:6px;padding:2px 0;align-items:flex-end;}
 .chat-msg.me{flex-direction:row-reverse;}
 .chat-av{
-  width:30px;height:30px;border-radius:50%;color:#fff;
-  font-size:11px;font-weight:800;display:flex;align-items:center;
+  width:26px;height:26px;border-radius:50%;color:#fff;
+  font-size:10px;font-weight:800;display:flex;align-items:center;
   justify-content:center;flex-shrink:0;margin-bottom:2px;
 }
 .chat-bubble{
-  max-width:72%;background:#fff;border:1.5px solid var(--border);
-  border-radius:18px 18px 18px 4px;padding:9px 13px;
-  font-size:14px;line-height:1.5;color:var(--txt);
-  box-shadow:0 1px 4px rgba(0,0,0,.06);position:relative;
+  max-width:78%;background:#fff;border:1.5px solid var(--border);
+  border-radius:16px 16px 16px 4px;padding:7px 11px;
+  font-size:13px;line-height:1.45;color:var(--txt);
+  box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;
   word-break:break-word;
 }
 .chat-msg.me .chat-bubble{
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
   color:#fff;border-color:transparent;
-  border-radius:18px 18px 4px 18px;
+  border-radius:16px 16px 4px 16px;
 }
-.chat-name{font-size:10px;font-weight:800;margin-bottom:3px;opacity:.75;}
+.chat-name{font-size:10px;font-weight:800;margin-bottom:2px;opacity:.7;}
 .chat-msg.me .chat-name{display:none;}
-.chat-ts{font-size:10px;opacity:.6;margin-top:4px;text-align:right;}
+.chat-ts{font-size:9px;opacity:.55;margin-top:3px;text-align:right;}
 .chat-reply-preview{
   background:rgba(0,0,0,.07);border-left:3px solid rgba(0,0,0,.2);
-  border-radius:6px;padding:4px 8px;margin-bottom:6px;font-size:11px;
-  opacity:.8;cursor:pointer;
+  border-radius:5px;padding:3px 7px;margin-bottom:5px;font-size:10px;opacity:.8;
 }
-.chat-msg.me .chat-reply-preview{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5);}
+.chat-msg.me .chat-reply-preview{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);}
 .chat-del-btn{
-  position:absolute;top:-6px;right:-6px;
+  position:absolute;top:-5px;right:-5px;
   background:#ef4444;color:#fff;border:none;border-radius:50%;
-  width:18px;height:18px;font-size:9px;cursor:pointer;
+  width:16px;height:16px;font-size:8px;cursor:pointer;
   display:none;align-items:center;justify-content:center;font-weight:900;
 }
 .chat-bubble:hover .chat-del-btn{display:flex;}
-.chat-reply-bar{
-  background:var(--blue-bg);border-left:3px solid var(--blue);
-  border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:8px;
-  display:flex;align-items:center;gap:8px;font-size:12px;
+/* full-page chat */
+.chat-full-page{display:flex;flex-direction:column;height:calc(100vh - 64px);}
+.chat-full-body{
+  flex:1;overflow-y:auto;padding:12px 16px;
+  display:flex;flex-direction:column;gap:3px;
+  background:#f8fafc;scroll-behavior:smooth;
 }
-.chat-reply-bar-txt{flex:1;color:var(--blue);font-weight:600;}
-.chat-reply-bar-close{background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);padding:0;}
-.chat-input-row{
+.chat-full-body::-webkit-scrollbar{width:4px;}
+.chat-full-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.chat-full-input-row{
   display:flex;gap:8px;align-items:flex-end;
-  background:#fff;border:2px solid var(--border);
-  border-radius:16px;padding:8px 10px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  padding:12px 16px;background:#fff;
+  border-top:1px solid var(--border);
 }
-.chat-input-row:focus-within{border-color:var(--primary);}
-.chat-textarea{
-  flex:1;border:none;outline:none;resize:none;
+.chat-full-textarea{
+  flex:1;border:2px solid var(--border);outline:none;resize:none;
   font-family:inherit;font-size:14px;color:var(--txt);
-  background:transparent;max-height:120px;line-height:1.5;
-  padding:2px 0;
+  border-radius:12px;padding:10px 14px;max-height:100px;
+  line-height:1.5;transition:border-color .15s;
 }
-.chat-send-btn{
+.chat-full-textarea:focus{border-color:var(--primary);}
+.chat-full-send-btn{
   background:var(--primary);color:#fff;border:none;
-  border-radius:12px;width:40px;height:40px;
-  font-size:18px;cursor:pointer;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s;
+  border-radius:12px;width:44px;height:44px;font-size:20px;
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
 }
-.chat-send-btn:hover{background:var(--primary-dark);}
-.chat-send-btn:disabled{background:var(--muted-light);cursor:default;}
-.chat-unread-banner{
-  background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
-  border-radius:12px;padding:10px 14px;margin-bottom:10px;
-  display:flex;align-items:center;gap:10px;cursor:pointer;
-  box-shadow:0 3px 10px rgba(37,99,235,.25);
+.chat-full-reply-bar{
+  background:#eff6ff;border-left:3px solid var(--blue);
+  padding:8px 16px;font-size:12px;display:none;align-items:center;gap:8px;
 }
+.chat-full-reply-txt{flex:1;color:var(--blue);font-weight:600;}
+/* toast-style new message banner (floats above FAB) */
+.chat-new-toast{
+  position:fixed;bottom:90px;right:20px;z-index:402;
+  background:#1e293b;color:#fff;
+  padding:10px 14px;border-radius:14px;font-size:12px;font-weight:600;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);
+  display:none;align-items:center;gap:8px;cursor:pointer;
+  max-width:280px;
+}
+.chat-new-toast.show{display:flex;}
 </style>
 </head>
 <body>
@@ -717,7 +778,6 @@ body{
     <button class="tab" onclick="goTab('packing',this)"><span class="tab-icon">🎒</span><span class="tab-label">Packing</span></button>
     <button class="tab" onclick="goTab('medical',this)"><span class="tab-icon">🩹</span><span class="tab-label">Medical</span></button>
     <button class="tab" onclick="goTab('tips',this)"><span class="tab-icon">💡</span><span class="tab-label">Tips</span></button>
-    <button class="tab" id="chatTab" onclick="goTab('chat',this)"><span class="tab-icon">💬</span><span class="tab-label">Chat</span><span class="chat-badge" id="chatBadge" style="display:none;"></span></button>
   </div>
   <div class="sb-footer">
   </div>
@@ -1113,28 +1173,25 @@ body{
 </div><!-- /container -->
 
 <!-- ══ CHAT ═══════════════════════════════════════════════ -->
+<!-- ══ CHAT FULL PAGE ══════════════════════════════════════ -->
 <div id="pg-chat" class="pg">
-  <div class="chat-page" id="chatPage">
-    <!-- Unread banner (shown when new msgs arrive while on other tabs) -->
-    <div id="chatUnreadBanner" class="chat-unread-banner" style="display:none;" onclick="goTab('chat',document.getElementById('chatTab'))">
-      <span style="font-size:20px;">💬</span>
-      <div style="flex:1;"><strong id="chatUnreadBannerTxt">New messages</strong><div style="font-size:11px;opacity:.85;margin-top:1px;">Tap to view</div></div>
-      <span style="font-size:18px;">→</span>
+  <div class="chat-full-page">
+    <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;">
+      <button onclick="closeChatFull()" style="background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:13px;">← Back</button>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:800;">💬 Gang Chat</div>
+        <div style="font-size:11px;opacity:.75;margin-top:1px;">Matheran Trek 2025 · <span id="fullChatOnline">—</span> members</div>
+      </div>
     </div>
-    <!-- Reply bar -->
-    <div class="chat-reply-bar" id="chatReplyBar" style="display:none;">
-      <span style="font-size:14px;">↩️</span>
-      <div class="chat-reply-bar-txt" id="chatReplyTxt">Replying to…</div>
-      <button class="chat-reply-bar-close" onclick="cancelReply()">✕</button>
+    <div class="chat-full-reply-bar" id="fullReplyBar">
+      <span>↩️</span>
+      <div class="chat-full-reply-txt" id="fullReplyTxt">Replying…</div>
+      <button onclick="cancelReply(true)" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);">✕</button>
     </div>
-    <!-- Messages -->
-    <div class="chat-body" id="chatBody">
-      <div class="loading">Loading messages…</div>
-    </div>
-    <!-- Input -->
-    <div class="chat-input-row">
-      <textarea class="chat-textarea" id="chatInput" placeholder="Message the gang…" rows="1"></textarea>
-      <button class="chat-send-btn" id="chatSendBtn">➤</button>
+    <div class="chat-full-body" id="chatFullBody"></div>
+    <div class="chat-full-input-row">
+      <textarea class="chat-full-textarea" id="chatFullInput" placeholder="Message the gang… (Enter to send)" rows="1"></textarea>
+      <button class="chat-full-send-btn" id="chatFullSendBtn">➤</button>
     </div>
   </div>
 </div>
@@ -1142,6 +1199,38 @@ body{
 </div><!-- /main-body -->
 </div><!-- /main -->
 </div><!-- /layout -->
+
+<!-- ══ FLOATING CHAT WIDGET (outside layout) ════════════════ -->
+<div class="chat-new-toast" id="chatNewToast" onclick="openChatPopup()">
+  <span>💬</span><span id="chatToastTxt">New message</span>
+  <span style="margin-left:auto;opacity:.7;font-size:11px;">tap to open</span>
+</div>
+
+<button class="chat-fab" id="chatFab" onclick="toggleChatPopup()" style="display:none;">
+  💬<span class="chat-fab-badge" id="chatFabBadge"></span>
+</button>
+
+<div class="chat-popup" id="chatPopup">
+  <div class="cp-header">
+    <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💬</div>
+    <div style="flex:1;margin-left:8px;">
+      <div class="cp-title">Gang Chat</div>
+      <div class="cp-sub">Matheran Trek 2025</div>
+    </div>
+    <button class="cp-btn" onclick="openChatFull()" title="Open full screen">⛶</button>
+    <button class="cp-btn" style="margin-left:4px;" onclick="closeChatPopup()">✕</button>
+  </div>
+  <div class="cp-reply-bar" id="popupReplyBar">
+    <span>↩️</span>
+    <div class="cp-reply-bar-txt" id="popupReplyTxt"></div>
+    <button onclick="cancelReply(false)" style="background:none;border:none;font-size:14px;cursor:pointer;color:var(--muted);padding:0;">✕</button>
+  </div>
+  <div class="cp-body" id="chatPopupBody"><div class="loading" style="font-size:12px;padding:20px;">Loading…</div></div>
+  <div class="cp-input-row">
+    <textarea class="cp-textarea" id="chatPopupInput" placeholder="Message the gang…" rows="1"></textarea>
+    <button class="cp-send-btn" id="chatPopupSendBtn">➤</button>
+  </div>
+</div>
 
 <script>
 // ── STATE ─────────────────────────────────────────────────
@@ -1184,7 +1273,6 @@ function goTab(id,el){
   document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pg-'+id).classList.add('on');
   el.classList.add('on');
-  CHAT_ACTIVE = (id === 'chat');
   if(id==='gallery') renderFolders();
   if(id==='itinerary') renderItinerary();
   if(id==='medical') renderMedical();
@@ -2289,28 +2377,61 @@ function shareMyLocation(){
 }
 
 // ── CHAT ─────────────────────────────────────────────────
-var CHAT_MSGS      = [];        // all messages loaded
-var CHAT_LAST_ID   = 0;         // highest id we've seen
-var CHAT_READ_ID   = 0;         // highest id user has read (localStorage)
-var CHAT_REPLY     = null;      // {id, name, msg} currently replying to
-var CHAT_POLL      = null;      // setInterval handle
-var CHAT_KEY       = 'matheran_chat_read';
-var CHAT_ACTIVE    = false;     // is chat tab open?
+var CHAT_MSGS    = [];
+var CHAT_LAST_ID = 0;
+var CHAT_POLL    = null;
+var CHAT_REPLY   = null;  // {id,name,msg}
+var CHAT_KEY     = 'matheran_chat_read';
+var CHAT_POPUP_OPEN = false;
+var CHAT_FULL_OPEN  = false;
 
 function chatReadId(){ try{ return parseInt(localStorage.getItem(CHAT_KEY))||0; }catch(_){return 0;} }
-function chatSaveRead(id){ localStorage.setItem(CHAT_KEY, id); }
+function chatSaveRead(id){ localStorage.setItem(CHAT_KEY, String(id)); }
 
-// ── load all history + start polling ──────────────────────
+function chatUnreadCount(){
+  var rid = chatReadId();
+  return CHAT_MSGS.filter(function(m){ return m.id > rid && m.member_id !== (CURRENT_USER&&CURRENT_USER.id); }).length;
+}
+
+// ── FAB badge ─────────────────────────────────────────────
+function updateFabBadge(){
+  var n = chatUnreadCount();
+  var b = document.getElementById('chatFabBadge');
+  if(!b) return;
+  if(n > 0){ b.textContent = n > 99 ? '99+' : n; b.style.display='inline-flex'; }
+  else { b.style.display='none'; }
+}
+
+// ── new-message toast (bottom-right above FAB) ─────────────
+var _toastTimer = null;
+function showNewToast(msgs){
+  var fromOthers = msgs.filter(function(m){ return m.member_id !== (CURRENT_USER&&CURRENT_USER.id); });
+  if(!fromOthers.length) return;
+  var last = fromOthers[fromOthers.length-1];
+  var n = chatUnreadCount();
+  document.getElementById('chatToastTxt').textContent =
+    n === 1 ? last.name+': '+last.msg.substring(0,38)+(last.msg.length>38?'…':'')
+            : n+' new · '+last.name+': '+last.msg.substring(0,28)+'…';
+  var t = document.getElementById('chatNewToast');
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 5000);
+}
+
+// ── init + polling ─────────────────────────────────────────
 async function initChat(){
+  // show FAB once logged in
+  var fab = document.getElementById('chatFab');
+  if(fab) fab.style.display = 'flex';
   try{
     var r = await api('GET','/api/chat?since=0');
     CHAT_MSGS = r.messages || [];
     CHAT_LAST_ID = CHAT_MSGS.length ? CHAT_MSGS[CHAT_MSGS.length-1].id : 0;
-    CHAT_READ_ID = chatReadId();
-    updateChatBadge();
-    if(CHAT_ACTIVE) renderChatBody();
   } catch(_){}
-  // poll every 6 seconds
+  updateFabBadge();
+  if(CHAT_POPUP_OPEN) renderMsgs('chatPopupBody', true);
+  if(CHAT_FULL_OPEN)  renderMsgs('chatFullBody', true);
+
   if(CHAT_POLL) clearInterval(CHAT_POLL);
   CHAT_POLL = setInterval(chatPoll, 6000);
 }
@@ -2322,120 +2443,78 @@ async function chatPoll(){
     if(!newMsgs.length) return;
     newMsgs.forEach(function(m){ CHAT_MSGS.push(m); });
     CHAT_LAST_ID = newMsgs[newMsgs.length-1].id;
-    if(CHAT_ACTIVE){
-      // chat open — render and mark read
-      renderChatBody();
+    if(CHAT_FULL_OPEN){
+      renderMsgs('chatFullBody', true);
+      chatMarkRead();
+    } else if(CHAT_POPUP_OPEN){
+      renderMsgs('chatPopupBody', true);
       chatMarkRead();
     } else {
-      // chat closed — show badge + banner
-      updateChatBadge();
-      showChatBanner(newMsgs);
+      updateFabBadge();
+      showNewToast(newMsgs);
     }
   } catch(_){}
 }
 
-function updateChatBadge(){
-  CHAT_READ_ID = chatReadId();
-  var unread = CHAT_MSGS.filter(function(m){ return m.id > CHAT_READ_ID && m.member_id !== CURRENT_USER?.id; }).length;
-  var badge = document.getElementById('chatBadge');
-  if(!badge) return;
-  if(unread > 0){
-    badge.textContent = unread > 99 ? '99+' : unread;
-    badge.style.display = 'inline-flex';
-  } else {
-    badge.style.display = 'none';
-  }
-}
-
-function showChatBanner(newMsgs){
-  var banner = document.getElementById('chatUnreadBanner');
-  if(!banner) return;
-  // Only show for messages from others
-  var fromOthers = newMsgs.filter(function(m){ return m.member_id !== CURRENT_USER?.id; });
-  if(!fromOthers.length) return;
-  var last = fromOthers[fromOthers.length-1];
-  var unread = CHAT_MSGS.filter(function(m){ return m.id > chatReadId() && m.member_id !== CURRENT_USER?.id; }).length;
-  document.getElementById('chatUnreadBannerTxt').textContent =
-    unread === 1
-      ? last.name+': '+last.msg.substring(0,40)+(last.msg.length>40?'…':'')
-      : unread+' new messages — latest from '+last.name;
-  banner.style.display = 'flex';
-  // auto-hide after 6s
-  clearTimeout(banner._t);
-  banner._t = setTimeout(function(){ banner.style.display='none'; }, 6000);
-}
-
 function chatMarkRead(){
   if(!CHAT_MSGS.length) return;
-  CHAT_READ_ID = CHAT_LAST_ID;
-  chatSaveRead(CHAT_READ_ID);
-  updateChatBadge();
-  document.getElementById('chatUnreadBanner').style.display = 'none';
+  chatSaveRead(CHAT_LAST_ID);
+  updateFabBadge();
+  document.getElementById('chatNewToast').classList.remove('show');
 }
 
-// ── render messages ───────────────────────────────────────
-function renderChatBody(){
-  var body = document.getElementById('chatBody');
+// ── render messages into a container ──────────────────────
+function renderMsgs(containerId, scrollBottom){
+  var body = document.getElementById(containerId);
   if(!body) return;
   if(!CHAT_MSGS.length){
-    body.innerHTML = '<div class="empty" style="margin-top:40px;">No messages yet — say hi! 👋</div>';
+    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 10px;font-size:13px;">No messages yet — say hi! 👋</div>';
     return;
   }
-
+  var scrollPos = body.scrollTop;
+  var atBottom = body.scrollHeight - body.clientHeight - scrollPos < 60;
   var html = '';
   var lastDay = '';
   CHAT_MSGS.forEach(function(m){
     var isMe = CURRENT_USER && m.member_id === CURRENT_USER.id;
     var day = m.ts ? m.ts.split(' ')[0] : '';
-    if(day !== lastDay){
-      html += '<div class="chat-day-sep">'+escHtml(day)+'</div>';
-      lastDay = day;
-    }
-    // reply preview
+    if(day !== lastDay){ html += '<div class="chat-day-sep">'+escHtml(day)+'</div>'; lastDay = day; }
     var replyHtml = '';
     if(m.reply_to){
       var orig = CHAT_MSGS.find(function(x){ return x.id === m.reply_to; });
-      if(orig){
-        replyHtml = '<div class="chat-reply-preview">↩ <strong>'+escHtml(orig.name)+'</strong>: '+escHtml(orig.msg.substring(0,60))+'</div>';
-      }
+      if(orig) replyHtml = '<div class="chat-reply-preview">↩ <strong>'+escHtml(orig.name)+'</strong>: '+escHtml(orig.msg.substring(0,50))+'</div>';
     }
-    var delBtn = isMe
-      ? '<button class="chat-del-btn" data-del="'+m.id+'" title="Delete">✕</button>'
-      : '';
+    var delBtn = isMe ? '<button class="chat-del-btn" data-del="'+m.id+'">✕</button>' : '';
     html +=
       '<div class="chat-msg'+(isMe?' me':'')+'" data-id="'+m.id+'">' +
         (isMe ? '' : '<div class="chat-av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>') +
         '<div class="chat-bubble" data-reply="'+m.id+'">' +
           delBtn +
           '<div class="chat-name">'+escHtml(m.name)+'</div>' +
-          replyHtml +
-          escHtml(m.msg) +
-          '<div class="chat-ts">'+(m.ts ? m.ts.split(' ')[1]||'' : '')+'</div>' +
+          replyHtml + escHtml(m.msg) +
+          '<div class="chat-ts">'+(m.ts?m.ts.split(' ')[1]||'':'')+'</div>' +
         '</div>' +
         (isMe ? '<div class="chat-av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>' : '') +
       '</div>';
   });
-
   body.innerHTML = html;
+  if(scrollBottom || atBottom) body.scrollTop = body.scrollHeight;
 
-  // scroll to bottom
-  body.scrollTop = body.scrollHeight;
-
-  // wire delete buttons
+  // delete buttons
   body.querySelectorAll('[data-del]').forEach(function(btn){
     btn.addEventListener('click', function(e){
       e.stopPropagation();
       var id = +this.getAttribute('data-del');
       if(!confirm('Delete this message?')) return;
-      api('DELETE','/api/chat/'+id,{member_id: CURRENT_USER.id}).then(function(){
+      api('DELETE','/api/chat/'+id,{member_id:CURRENT_USER.id}).then(function(){
         CHAT_MSGS = CHAT_MSGS.filter(function(m){ return m.id !== id; });
-        renderChatBody();
-        toast('Message deleted');
+        renderMsgs(containerId, false);
+        toast('Deleted');
       }).catch(function(e){ toast(e.message); });
     });
   });
 
-  // wire reply on bubble tap
+  // reply on bubble tap
   body.querySelectorAll('.chat-bubble[data-reply]').forEach(function(bubble){
     bubble.addEventListener('click', function(e){
       if(e.target.closest('[data-del]')) return;
@@ -2447,49 +2526,115 @@ function renderChatBody(){
   });
 }
 
+// ── reply ──────────────────────────────────────────────────
 function setReply(m){
   CHAT_REPLY = m;
-  document.getElementById('chatReplyBar').style.display = 'flex';
-  document.getElementById('chatReplyTxt').textContent = m.name+': '+m.msg.substring(0,60)+(m.msg.length>60?'…':'');
-  document.getElementById('chatInput').focus();
+  var preview = m.name+': '+m.msg.substring(0,50)+(m.msg.length>50?'…':'');
+  if(CHAT_FULL_OPEN){
+    document.getElementById('fullReplyBar').style.display = 'flex';
+    document.getElementById('fullReplyTxt').textContent = preview;
+    document.getElementById('chatFullInput').focus();
+  } else {
+    document.getElementById('popupReplyBar').style.display = 'flex';
+    document.getElementById('popupReplyTxt').textContent = preview;
+    document.getElementById('chatPopupInput').focus();
+  }
 }
-function cancelReply(){
+function cancelReply(isFull){
   CHAT_REPLY = null;
-  document.getElementById('chatReplyBar').style.display = 'none';
+  document.getElementById('fullReplyBar').style.display = 'none';
+  document.getElementById('popupReplyBar').style.display = 'none';
 }
 
-// ── send message ──────────────────────────────────────────
-async function sendChatMsg(){
-  if(!CURRENT_USER){ toast('Please log in first'); return; }
-  var inp = document.getElementById('chatInput');
+// ── send ───────────────────────────────────────────────────
+async function doSend(inputId, bodyId){
+  if(!CURRENT_USER){ toast('Please log in'); return; }
+  var inp = document.getElementById(inputId);
   var msg = inp.value.trim();
   if(!msg) return;
-  var btn = document.getElementById('chatSendBtn');
+  var sendBtnId = inputId === 'chatPopupInput' ? 'chatPopupSendBtn' : 'chatFullSendBtn';
+  var btn = document.getElementById(sendBtnId);
   btn.disabled = true;
   try{
-    var payload = {member_id: CURRENT_USER.id, name: CURRENT_USER.name, msg: msg};
+    var payload = {member_id:CURRENT_USER.id, name:CURRENT_USER.name, msg:msg};
     if(CHAT_REPLY) payload.reply_to = CHAT_REPLY.id;
     var row = await api('POST','/api/chat', payload);
     CHAT_MSGS.push(row);
     CHAT_LAST_ID = row.id;
-    inp.value = '';
-    inp.style.height = 'auto';
+    inp.value = ''; inp.style.height = 'auto';
     cancelReply();
     chatMarkRead();
-    renderChatBody();
-  }catch(e){ toast(e.message); }
+    renderMsgs(bodyId, true);
+  } catch(e){ toast(e.message); }
   btn.disabled = false;
   inp.focus();
 }
 
-// ── wire input ────────────────────────────────────────────
-document.getElementById('chatSendBtn').addEventListener('click', sendChatMsg);
-document.getElementById('chatInput').addEventListener('keydown', function(e){
-  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendChatMsg(); }
+// ── popup open/close ───────────────────────────────────────
+function toggleChatPopup(){
+  var popup = document.getElementById('chatPopup');
+  if(CHAT_POPUP_OPEN){ closeChatPopup(); } else { openChatPopup(); }
+}
+function openChatPopup(){
+  CHAT_POPUP_OPEN = true;
+  document.getElementById('chatNewToast').classList.remove('show');
+  var popup = document.getElementById('chatPopup');
+  popup.style.display = 'flex';
+  requestAnimationFrame(function(){
+    popup.classList.add('open');
+  });
+  renderMsgs('chatPopupBody', true);
+  chatMarkRead();
+  document.getElementById('chatPopupInput').focus();
+  // online count
+  var el = document.getElementById('fullChatOnline');
+  if(el) el.textContent = MEMBERS.length || '—';
+}
+function closeChatPopup(){
+  CHAT_POPUP_OPEN = false;
+  var popup = document.getElementById('chatPopup');
+  popup.classList.remove('open');
+  setTimeout(function(){ popup.style.display='none'; }, 200);
+}
+
+// ── full page open/close ───────────────────────────────────
+function openChatFull(){
+  closeChatPopup();
+  CHAT_FULL_OPEN = true;
+  // navigate to pg-chat using a dummy button (no sidebar active state needed)
+  var dummy = {classList:{add:function(){},remove:function(){}}};
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('pg-chat').classList.add('on');
+  document.getElementById('fullChatOnline').textContent = MEMBERS.length || '—';
+  renderMsgs('chatFullBody', true);
+  chatMarkRead();
+  document.getElementById('chatFullInput').focus();
+}
+function closeChatFull(){
+  CHAT_FULL_OPEN = false;
+  // go back to home
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('pg-home').classList.add('on');
+  document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
+  document.querySelector('#sidebar .tab').classList.add('on');
+}
+
+// ── wire popup input ───────────────────────────────────────
+document.getElementById('chatPopupSendBtn').addEventListener('click', function(){ doSend('chatPopupInput','chatPopupBody'); });
+document.getElementById('chatPopupInput').addEventListener('keydown', function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend('chatPopupInput','chatPopupBody'); }
 });
-document.getElementById('chatInput').addEventListener('input', function(){
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 120)+'px';
+document.getElementById('chatPopupInput').addEventListener('input', function(){
+  this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,80)+'px';
+});
+
+// ── wire full-page input ───────────────────────────────────
+document.getElementById('chatFullSendBtn').addEventListener('click', function(){ doSend('chatFullInput','chatFullBody'); });
+document.getElementById('chatFullInput').addEventListener('keydown', function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend('chatFullInput','chatFullBody'); }
+});
+document.getElementById('chatFullInput').addEventListener('input', function(){
+  this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px';
 });
 
 // ── KICK OFF ──────────────────────────────────────────────
