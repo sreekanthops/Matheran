@@ -531,7 +531,6 @@ body{
     <div class="sb-section">Dashboard</div>
     <button class="tab on" onclick="goTab('home',this)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></button>
     <button class="tab" onclick="goTab('spots',this)"><span class="tab-icon">🏔️</span><span class="tab-label">Spots</span></button>
-    <button class="tab" onclick="goTab('resort',this)"><span class="tab-icon">🏨</span><span class="tab-label">Resort</span></button>
     <button class="tab" onclick="goTab('itinerary',this)"><span class="tab-icon">📅</span><span class="tab-label">Plan</span></button>
 
     <div class="sb-section">Money</div>
@@ -546,9 +545,6 @@ body{
     <button class="tab" onclick="goTab('tips',this)"><span class="tab-icon">💡</span><span class="tab-label">Tips</span></button>
   </div>
   <div class="sb-footer">
-    <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank" style="color:rgba(255,255,255,.5);text-decoration:none;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-      📍 View on Maps
-    </a>
   </div>
   <div class="sb-user" id="sbUser" onclick="doLogout()">
     <div class="sb-user-av" id="sbUserAv">?</div>
@@ -646,6 +642,22 @@ body{
   <div class="card">
     <div class="ch">🕒 Recent Activity <span style="margin-left:auto;font-size:11px;font-weight:600;color:var(--muted);">who did what</span></div>
     <div class="cb" id="activityList"><div class="loading">Loading…</div></div>
+  </div>
+
+  <!-- Resort quick-link card -->
+  <div class="card" style="background:linear-gradient(135deg,#ecfdf5,#f0fdf4);border:2px solid #bbf7d0;cursor:pointer;" onclick="goTab('resort',document.createElement('button'))">
+    <div class="cb" style="display:flex;align-items:center;gap:14px;padding:14px 0 2px;">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🏨</div>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:15px;color:#065f46;">Redwood Resort, Matheran</div>
+        <div style="font-size:12px;color:#059669;margin-top:2px;">Check-in 11 AM · Check-out 10 AM · View map →</div>
+      </div>
+      <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank"
+        onclick="event.stopPropagation()"
+        style="flex-shrink:0;background:#0f766e;color:#fff;padding:7px 12px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">
+        📍 Maps
+      </a>
+    </div>
   </div>
 </div>
 
@@ -801,14 +813,37 @@ body{
     <div class="cb">
       <div style="margin-bottom:14px;line-height:1.7;">
         <p style="font-size:14px;color:#4a5568;margin-bottom:10px;">
-          <strong>Redwood Resort</strong> is a premium property nestled in the scenic hills of Matheran, 
-          offering breathtaking valley views and a serene escape from city life. The resort features 
+          <strong>Redwood Resort</strong> is a premium property nestled in the scenic hills of Matheran,
+          offering breathtaking valley views and a serene escape from city life. The resort features
           spacious rooms, modern amenities, and extensive recreational facilities.
         </p>
         <span class="ip ipg">🌿 Pure Veg Food</span>
         <span class="ip ipb">⏰ Check-in 11 AM</span>
         <span class="ip ipo">🚪 Check-out 10 AM</span>
       </div>
+
+      <!-- ── MAP BLOCK ── -->
+      <div style="border-radius:12px;overflow:hidden;border:2px solid var(--border);margin-bottom:14px;">
+        <img
+          src="https://maps.googleapis.com/maps/api/staticmap?center=Redwood+Resort+Matheran&zoom=15&size=600x220&maptype=roadmap&markers=color:red%7CRedwood+Resort+Matheran&key=AIzaSyD-placeholder"
+          alt="Redwood Resort location map"
+          style="width:100%;display:block;background:#e8f4f0;"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+        />
+        <div style="display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f766e,#14b8a6);height:130px;flex-direction:column;gap:8px;">
+          <div style="font-size:32px;">📍</div>
+          <div style="color:#fff;font-weight:700;font-size:14px;">Redwood Resort, Matheran</div>
+          <div style="color:rgba(255,255,255,.8);font-size:12px;">Matheran, Maharashtra 410102</div>
+        </div>
+      </div>
+      <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;
+               background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;
+               padding:13px 20px;border-radius:12px;font-size:14px;font-weight:700;
+               text-decoration:none;margin-bottom:16px;
+               box-shadow:0 4px 14px rgba(15,118,110,.3);">
+        📍 Open in Google Maps &nbsp;→
+      </a>
       <div class="divider"></div>
       <div class="cst">⏰ Timings</div>
       <div style="display:flex;gap:10px;margin-bottom:12px;">
