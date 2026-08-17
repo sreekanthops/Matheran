@@ -867,45 +867,7 @@ body{
 
 <!-- ══ MEDICAL ════════════════════════════════════════════ -->
 <div id="pg-medical" class="pg">
-  <div class="card">
-    <div class="ch">🩹 First Aid Kit</div>
-    <div class="cb">
-      <div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#991b1b;font-weight:600;">
-        ⚠️ Pack these before leaving — don't rely on finding them in Matheran!
-      </div>
-      <div class="cst">💊 Medicines</div>
-      <div class="tr"><div class="ti">💊</div><div class="tx"><strong>Paracetamol (Crocin 500mg)</strong> — fever, headache, body pain <span class="fa-urgent">MUST</span></div></div>
-      <div class="tr"><div class="ti">🤢</div><div class="tx"><strong>Antacid (Gelusil / Digene)</strong> — acidity, indigestion</div></div>
-      <div class="tr"><div class="ti">🤮</div><div class="tx"><strong>Motion sickness (Avomine)</strong> — take before journey if prone</div></div>
-      <div class="tr"><div class="ti">🤧</div><div class="tx"><strong>Antihistamine (Cetirizine)</strong> — allergies, insect bites, rashes</div></div>
-      <div class="tr"><div class="ti">💩</div><div class="tx"><strong>Anti-diarrhea (Norflox / Imodium)</strong> — stomach upset, food poisoning</div></div>
-      <div class="divider"></div>
-      <div class="cst">🩹 Wound Care</div>
-      <div class="tr"><div class="ti">🩹</div><div class="tx"><strong>Band-aids (assorted)</strong> — cuts, scrapes, blisters on feet</div></div>
-      <div class="tr"><div class="ti">🟠</div><div class="tx"><strong>Betadine antiseptic</strong> — clean wounds before bandaging</div></div>
-      <div class="tr"><div class="ti">🌀</div><div class="tx"><strong>Crepe bandage</strong> — sprains, ankle support on uneven trails</div></div>
-      <div class="tr"><div class="ti">✂️</div><div class="tx"><strong>Scissors + Safety pins</strong> — cutting tape, securing bandage</div></div>
-      <div class="divider"></div>
-      <div class="cst">💪 Pain &amp; Energy Relief</div>
-      <div class="tr"><div class="ti">💪</div><div class="tx"><strong>Moov / Volini spray</strong> — muscle pain &amp; joint relief after trekking</div></div>
-      <div class="tr"><div class="ti">💧</div><div class="tx"><strong>ORS sachets (5–6)</strong> — rehydrate after heavy trekking or heat <span class="fa-urgent">MUST</span></div></div>
-      <div class="tr"><div class="ti">🍬</div><div class="tx"><strong>Glucose-D sachets</strong> — instant energy during long treks</div></div>
-      <div class="divider"></div>
-      <div class="cst">🐛 Monsoon Specific</div>
-      <div class="tr"><div class="ti">🧂</div><div class="tx"><strong>Salt packet</strong> — pour on leeches to remove instantly <span class="fa-urgent">MUST</span></div></div>
-      <div class="tr"><div class="ti">🍋</div><div class="tx"><strong>Lemon / lime</strong> — alternate leech remedy</div></div>
-      <div class="tr"><div class="ti">🧴</div><div class="tx"><strong>Odomos / insect repellent</strong> — apply before every trek in monsoon</div></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="ch">🚨 Emergency Contacts</div>
-    <div class="cb">
-      <div class="tr"><div class="ti">🚑</div><div class="tx"><strong>Ambulance:</strong> 108</div></div>
-      <div class="tr"><div class="ti">🏥</div><div class="tx"><strong>Nearest Hospital:</strong> Karjat / Khopoli (30–40 min from Neral)</div></div>
-      <div class="tr"><div class="ti">🚓</div><div class="tx"><strong>Police:</strong> 100 · Matheran Police Station: 02148-230033</div></div>
-      <div class="tr"><div class="ti">🏨</div><div class="tx"><strong>Redwood Resort:</strong> Keep resort number saved in your phone</div></div>
-    </div>
-  </div>
+  <div id="medical-root"></div>
 </div>
 
 <!-- ══ TIPS ═══════════════════════════════════════════════ -->
@@ -985,6 +947,7 @@ function goTab(id,el){
   el.classList.add('on');
   if(id==='gallery') renderFolders();
   if(id==='itinerary') renderItinerary();
+  if(id==='medical') renderMedical();
   // close sidebar on mobile after picking a page
   if(window.innerWidth<=768) closeSidebar();
 }
@@ -1751,6 +1714,233 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── MEDICAL ───────────────────────────────────────────────
+var MED_KEY = 'matheran_medical_v1';
+
+var MED_DEFAULT = {
+  firstaid: [
+    {id:1, section:'💊 Medicines', icon:'💊', text:'Paracetamol (Crocin 500mg) — fever, headache, body pain', must:true},
+    {id:2, section:'💊 Medicines', icon:'🤢', text:'Antacid (Gelusil / Digene) — acidity, indigestion', must:false},
+    {id:3, section:'💊 Medicines', icon:'🤮', text:'Motion sickness (Avomine) — take before journey if prone', must:false},
+    {id:4, section:'💊 Medicines', icon:'🤧', text:'Antihistamine (Cetirizine) — allergies, insect bites, rashes', must:false},
+    {id:5, section:'💊 Medicines', icon:'💩', text:'Anti-diarrhea (Norflox / Imodium) — stomach upset, food poisoning', must:false},
+    {id:6, section:'🩹 Wound Care', icon:'🩹', text:'Band-aids (assorted) — cuts, scrapes, blisters on feet', must:false},
+    {id:7, section:'🩹 Wound Care', icon:'🟠', text:'Betadine antiseptic — clean wounds before bandaging', must:false},
+    {id:8, section:'🩹 Wound Care', icon:'🌀', text:'Crepe bandage — sprains, ankle support on uneven trails', must:false},
+    {id:9, section:'🩹 Wound Care', icon:'✂️', text:'Scissors + Safety pins — cutting tape, securing bandage', must:false},
+    {id:10,section:'💪 Pain & Energy', icon:'💪', text:'Moov / Volini spray — muscle pain & joint relief after trekking', must:false},
+    {id:11,section:'💪 Pain & Energy', icon:'💧', text:'ORS sachets (5–6) — rehydrate after heavy trekking or heat', must:true},
+    {id:12,section:'💪 Pain & Energy', icon:'🍬', text:'Glucose-D sachets — instant energy during long treks', must:false},
+    {id:13,section:'🐛 Monsoon Specific', icon:'🧂', text:'Salt packet — pour on leeches to remove instantly', must:true},
+    {id:14,section:'🐛 Monsoon Specific', icon:'🍋', text:'Lemon / lime — alternate leech remedy', must:false},
+    {id:15,section:'🐛 Monsoon Specific', icon:'🧴', text:'Odomos / insect repellent — apply before every trek in monsoon', must:false}
+  ],
+  contacts: [
+    {id:1, icon:'🚑', label:'Ambulance', detail:'108'},
+    {id:2, icon:'🏥', label:'Nearest Hospital', detail:'Karjat / Khopoli (30–40 min from Neral)'},
+    {id:3, icon:'🚓', label:'Police', detail:'100 · Matheran Police Station: 02148-230033'},
+    {id:4, icon:'🏨', label:'Redwood Resort', detail:'Keep resort number saved in your phone'}
+  ]
+};
+
+function medGet() {
+  try { var d = JSON.parse(localStorage.getItem(MED_KEY)); if(d) return d; } catch(_) {}
+  return JSON.parse(JSON.stringify(MED_DEFAULT));
+}
+function medSave(d) { localStorage.setItem(MED_KEY, JSON.stringify(d)); }
+
+function renderMedical() {
+  var data = medGet();
+  var root = document.getElementById('medical-root');
+
+  // ── First Aid sections ──────────────────────────────────
+  var sections = [];
+  data.firstaid.forEach(function(item) {
+    if(sections.indexOf(item.section) === -1) sections.push(item.section);
+  });
+
+  var faHtml = '<div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#991b1b;font-weight:600;">⚠️ Pack these before leaving — don\'t rely on finding them in Matheran!</div>';
+  sections.forEach(function(sec) {
+    faHtml += '<div class="cst">'+escHtml(sec)+'</div>';
+    data.firstaid.filter(function(x){return x.section===sec;}).forEach(function(item) {
+      faHtml += '<div class="tr" style="align-items:flex-start;gap:10px;">' +
+        '<div class="ti" style="flex-shrink:0">'+escHtml(item.icon)+'</div>' +
+        '<div class="tx" style="flex:1">' +
+          '<span class="med-item-text" data-mid="'+item.id+'" style="cursor:pointer;" title="Click to edit">'+escHtml(item.text)+'</span>' +
+          (item.must ? '<span class="fa-urgent">MUST</span>' : '') +
+        '</div>' +
+        '<button class="xbtn" data-med-del="'+item.id+'" title="Delete item" style="flex-shrink:0;margin-top:2px;">✕</button>' +
+      '</div>';
+    });
+  });
+
+  // ── Add First Aid form ──────────────────────────────────
+  faHtml += '<div class="divider"></div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;">' +
+      '<select id="medNewSection" style="padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;flex:1;min-width:140px;">' +
+        '<option>💊 Medicines</option>' +
+        '<option>🩹 Wound Care</option>' +
+        '<option>💪 Pain & Energy</option>' +
+        '<option>🐛 Monsoon Specific</option>' +
+        '<option>🆕 Other</option>' +
+      '</select>' +
+      '<input id="medNewIcon" placeholder="Icon" style="width:60px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;font-size:14px;text-align:center;" maxlength="4"/>' +
+      '<input id="medNewText" placeholder="Item description…" style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;"/>' +
+      '<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;white-space:nowrap;"><input type="checkbox" id="medNewMust"/> MUST</label>' +
+      '<button id="medAddBtn" class="btn btn-p" style="padding:7px 16px;font-size:13px;">+ Add</button>' +
+    '</div>';
+
+  // ── Emergency Contacts ──────────────────────────────────
+  var ecHtml = '';
+  data.contacts.forEach(function(c) {
+    ecHtml += '<div class="tr" style="align-items:flex-start;gap:10px;">' +
+      '<div class="ti" style="flex-shrink:0">'+escHtml(c.icon)+'</div>' +
+      '<div class="tx" style="flex:1">' +
+        '<strong class="med-contact-label" data-cid="'+c.id+'" style="cursor:pointer;" title="Click to edit label">'+escHtml(c.label)+'</strong>: ' +
+        '<span class="med-contact-detail" data-cid="'+c.id+'" style="cursor:pointer;" title="Click to edit detail">'+escHtml(c.detail)+'</span>' +
+      '</div>' +
+      '<button class="xbtn" data-ec-del="'+c.id+'" title="Delete contact" style="flex-shrink:0;margin-top:2px;">✕</button>' +
+    '</div>';
+  });
+
+  ecHtml += '<div class="divider"></div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;">' +
+      '<input id="ecNewIcon" placeholder="Icon" style="width:60px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;font-size:14px;text-align:center;" maxlength="4"/>' +
+      '<input id="ecNewLabel" placeholder="Label (e.g. Doctor)" style="flex:1;min-width:120px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;"/>' +
+      '<input id="ecNewDetail" placeholder="Number / detail…" style="flex:1;min-width:140px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;"/>' +
+      '<button id="ecAddBtn" class="btn btn-p" style="padding:7px 16px;font-size:13px;">+ Add</button>' +
+    '</div>';
+
+  root.innerHTML =
+    '<div class="card">' +
+      '<div class="ch" style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<span>🩹 First Aid Kit</span>' +
+        '<button class="xbtn" onclick="medReset()" style="background:#fef2f2;color:#dc2626;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;width:auto;border:1px solid #fca5a5;">↺ Reset</button>' +
+      '</div>' +
+      '<div class="cb" id="fa-list">'+faHtml+'</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="ch">🚨 Emergency Contacts</div>' +
+      '<div class="cb" id="ec-list">'+ecHtml+'</div>' +
+    '</div>';
+
+  // ── Wire First Aid delete ───────────────────────────────
+  root.querySelectorAll('[data-med-del]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = +this.getAttribute('data-med-del');
+      if(!confirm('Remove this item?')) return;
+      var d = medGet();
+      d.firstaid = d.firstaid.filter(function(x){return x.id!==id;});
+      medSave(d);
+      renderMedical();
+      toast('Item removed');
+    });
+  });
+
+  // ── Wire First Aid inline edit ──────────────────────────
+  root.querySelectorAll('.med-item-text').forEach(function(span) {
+    span.addEventListener('click', function() {
+      var id = +this.getAttribute('data-mid');
+      var d = medGet();
+      var item = d.firstaid.find(function(x){return x.id===id;});
+      if(!item) return;
+      var newText = prompt('Edit item text:', item.text);
+      if(newText === null) return;
+      newText = newText.trim();
+      if(!newText) return;
+      item.text = newText;
+      medSave(d);
+      renderMedical();
+      toast('Item updated');
+    });
+  });
+
+  // ── Wire First Aid add ──────────────────────────────────
+  root.querySelector('#medAddBtn').addEventListener('click', function() {
+    var sec  = document.getElementById('medNewSection').value;
+    var icon = document.getElementById('medNewIcon').value.trim() || '💊';
+    var text = document.getElementById('medNewText').value.trim();
+    var must = document.getElementById('medNewMust').checked;
+    if(!text) { toast('Enter item description'); return; }
+    var d = medGet();
+    var maxId = d.firstaid.reduce(function(m,x){return x.id>m?x.id:m;}, 0);
+    d.firstaid.push({id:maxId+1, section:sec, icon:icon, text:text, must:must});
+    medSave(d);
+    renderMedical();
+    toast('Item added ✅');
+  });
+  root.querySelector('#medNewText').addEventListener('keydown', function(e){
+    if(e.key==='Enter') root.querySelector('#medAddBtn').click();
+  });
+
+  // ── Wire Contacts delete ────────────────────────────────
+  root.querySelectorAll('[data-ec-del]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = +this.getAttribute('data-ec-del');
+      if(!confirm('Remove this contact?')) return;
+      var d = medGet();
+      d.contacts = d.contacts.filter(function(x){return x.id!==id;});
+      medSave(d);
+      renderMedical();
+      toast('Contact removed');
+    });
+  });
+
+  // ── Wire Contacts inline edit ───────────────────────────
+  root.querySelectorAll('.med-contact-label').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var id = +this.getAttribute('data-cid');
+      var d = medGet();
+      var c = d.contacts.find(function(x){return x.id===id;});
+      if(!c) return;
+      var v = prompt('Edit label:', c.label);
+      if(v===null || !v.trim()) return;
+      c.label = v.trim();
+      medSave(d);
+      renderMedical();
+      toast('Updated');
+    });
+  });
+  root.querySelectorAll('.med-contact-detail').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var id = +this.getAttribute('data-cid');
+      var d = medGet();
+      var c = d.contacts.find(function(x){return x.id===id;});
+      if(!c) return;
+      var v = prompt('Edit detail:', c.detail);
+      if(v===null || !v.trim()) return;
+      c.detail = v.trim();
+      medSave(d);
+      renderMedical();
+      toast('Updated');
+    });
+  });
+
+  // ── Wire Contacts add ───────────────────────────────────
+  root.querySelector('#ecAddBtn').addEventListener('click', function() {
+    var icon   = document.getElementById('ecNewIcon').value.trim() || '📞';
+    var label  = document.getElementById('ecNewLabel').value.trim();
+    var detail = document.getElementById('ecNewDetail').value.trim();
+    if(!label || !detail) { toast('Enter label and detail'); return; }
+    var d = medGet();
+    var maxId = d.contacts.reduce(function(m,x){return x.id>m?x.id:m;}, 0);
+    d.contacts.push({id:maxId+1, icon:icon, label:label, detail:detail});
+    medSave(d);
+    renderMedical();
+    toast('Contact added ✅');
+  });
+  root.querySelector('#ecNewDetail').addEventListener('keydown', function(e){
+    if(e.key==='Enter') root.querySelector('#ecAddBtn').click();
+  });
+}
+
+function medReset() {
+  if(!confirm('Reset First Aid & Contacts to default? All edits will be lost.')) return;
+  localStorage.removeItem(MED_KEY);
+  renderMedical();
+  toast('Medical info reset to default');
+}
+
 // ── KICK OFF ──────────────────────────────────────────────
 // Wire up login
 document.getElementById('loginBtn').addEventListener('click', doLogin);
@@ -1758,6 +1948,7 @@ document.getElementById('loginInput').addEventListener('keydown', function(e){ i
 
 initLogin();
 renderItinerary();
+renderMedical();
 </script>
 </body>
 </html>
