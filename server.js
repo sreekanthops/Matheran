@@ -385,6 +385,58 @@ app.delete('/api/folders/:folderId/photos', (req, res) => {
   res.json({ ok: true });
 });
 
+// ═══════════════════════════════════════════════════════════
+//  CHAT
+// ═══════════════════════════════════════════════════════════
+
+// Ensure chat table exists (migration-safe)
+function ensureChat() {
+  db.run(`CREATE TABLE IF NOT EXISTS chat_messages (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    member_id  INTEGER NOT NULL,
+    name       TEXT NOT NULL,
+    msg        TEXT NOT NULL,
+    ts         TEXT NOT NULL,
+    reply_to   INTEGER DEFAULT NULL
+  );`);
+  try { save(); } catch(_) {}
+}
+
+// GET /api/chat?since=<id>  — returns messages newer than id (default all, max 200)
+app.get('/api/chat', (req, res) => {
+  ensureChat();
+  const since = parseInt(req.query.since) || 0;
+  const rows = all(
+    'SELECT * FROM chat_messages WHERE id > ? ORDER BY id ASC LIMIT 200',
+    [since]
+  );
+  const total = get('SELECT COUNT(*) as c FROM chat_messages').c || 0;
+  res.json({ messages: rows, total });
+});
+
+// POST /api/chat  — send a message
+app.post('/api/chat', (req, res) => {
+  ensureChat();
+  const { member_id, name, msg, reply_to } = req.body;
+  if (!member_id || !name || !msg?.trim()) return res.status(400).json({ error: 'Missing fields' });
+  run(
+    'INSERT INTO chat_messages (member_id, name, msg, ts, reply_to) VALUES (?,?,?,?,?)',
+    [+member_id, name, msg.trim(), istNow(), reply_to || null]
+  );
+  const row = all('SELECT * FROM chat_messages ORDER BY id DESC LIMIT 1')[0];
+  res.json(row);
+});
+
+// DELETE /api/chat/:id  — delete own message
+app.delete('/api/chat/:id', (req, res) => {
+  const { member_id } = req.body || {};
+  const m = get('SELECT * FROM chat_messages WHERE id=?', [+req.params.id]);
+  if (!m) return res.status(404).json({ error: 'Not found' });
+  if (m.member_id !== +member_id) return res.status(403).json({ error: 'Not your message' });
+  run('DELETE FROM chat_messages WHERE id=?', [+req.params.id]);
+  res.json({ ok: true });
+});
+
 // ── Catch-all ──────────────────────────────────────────────
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
