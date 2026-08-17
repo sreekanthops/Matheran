@@ -193,6 +193,14 @@ app.get('/api/activity', (_req, res) => {
   res.json(all('SELECT * FROM activity_log ORDER BY id DESC LIMIT 50'));
 });
 
+app.delete('/api/activity/:id', (req, res) => {
+  const { requester } = req.body || {};
+  if (!requester || requester.toLowerCase() !== 'sreekanth')
+    return res.status(403).json({ error: 'Not allowed' });
+  run('DELETE FROM activity_log WHERE id=?', [+req.params.id]);
+  res.json({ ok: true });
+});
+
 // ═══════════════════════════════════════════════════════════
 //  MEMBERS
 // ═══════════════════════════════════════════════════════════

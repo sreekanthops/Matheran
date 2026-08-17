@@ -1612,21 +1612,39 @@ var ACT_ICONS = {
 async function renderActivity(){
   var el = document.getElementById('activityList');
   if(!el) return;
+  var isSreekanth = CURRENT_USER && CURRENT_USER.name.toLowerCase() === 'sreekanth';
   try{
     var logs = await api('GET','/api/activity');
     if(!logs.length){ el.innerHTML='<div class="empty">No activity yet</div>'; return; }
     el.innerHTML = logs.map(function(l){
       var icon = ACT_ICONS[l.action] || '📝';
-      return '<div class="act-row">'+
+      var delBtn = isSreekanth
+        ? '<button class="xbtn" data-act-del="'+l.id+'" title="Delete log" style="flex-shrink:0;margin-top:2px;">✕</button>'
+        : '';
+      return '<div class="act-row" style="align-items:flex-start;">'+
         '<div class="act-av" style="background:'+aColor(l.user_name)+'">'+aInit(l.user_name)+'</div>'+
         '<div class="act-body">'+
           '<div><span class="act-who">'+l.user_name+'</span> '+
           '<span class="act-what">'+icon+' '+l.action+'</span></div>'+
-          (l.detail?'<div class="act-detail">'+l.detail+'</div>':'')+
+          (l.detail?'<div class="act-detail">'+escHtml(l.detail)+'</div>':'')+
           '<div class="act-time">'+l.ts+'</div>'+
         '</div>'+
+        delBtn+
       '</div>';
     }).join('');
+    if(isSreekanth){
+      el.querySelectorAll('[data-act-del]').forEach(function(btn){
+        btn.addEventListener('click', async function(){
+          var id = +this.getAttribute('data-act-del');
+          if(!confirm('Delete this log entry?')) return;
+          try{
+            await api('DELETE','/api/activity/'+id,{requester:CURRENT_USER.name});
+            renderActivity();
+            toast('Log deleted');
+          }catch(e){ toast(e.message); }
+        });
+      });
+    }
   }catch(e){ el.innerHTML='<div class="empty">Could not load activity</div>'; }
 }
 
