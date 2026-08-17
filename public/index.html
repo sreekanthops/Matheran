@@ -21,10 +21,9 @@
 }
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Inter",sans-serif;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  background:#f0f4f8;
   color:var(--txt);font-size:15px;line-height:1.6;
   -webkit-tap-highlight-color:transparent;min-height:100vh;
-  padding-bottom:60px;
 }
 
 /* HEADER */
@@ -62,27 +61,93 @@ body{
 }
 .map-btn:active{transform:scale(.95);}
 
-/* TABS */
-.tabs{
-  display:flex;overflow-x:auto;background:var(--white);
-  border-bottom:2px solid var(--border);position:sticky;top:0;z-index:40;
-  scrollbar-width:none;box-shadow:var(--shadow);
-}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{
-  flex:0 0 auto;padding:14px 16px;font-size:13px;font-weight:700;
-  color:var(--muted);border:none;background:none;cursor:pointer;
-  white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px;
-  transition:all .2s;
-}
-.tab.on{color:var(--primary);border-bottom-color:var(--primary);}
+/* ── LAYOUT ─────────────────────────────────────────── */
+.layout{display:flex;min-height:100vh;}
 
-/* CONTAINER */
-.container{max-width:800px;margin:0 auto;padding:16px 14px 40px;}
+/* SIDEBAR */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:linear-gradient(180deg,var(--primary-dark) 0%,#0f766e 100%);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  box-shadow:4px 0 20px rgba(0,0,0,.15);z-index:50;
+}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+
+.sb-header{
+  padding:22px 18px 16px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.sb-title{font-size:15px;font-weight:900;color:#fff;letter-spacing:-.3px;}
+.sb-sub{font-size:11px;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500;}
+.sb-date{
+  display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  background:rgba(255,255,255,.15);padding:5px 10px;
+  border-radius:20px;font-size:11px;font-weight:700;color:#fff;
+}
+
+.sb-nav{padding:10px 0;flex:1;}
+.sb-section{
+  font-size:10px;font-weight:800;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:.8px;
+  padding:14px 18px 6px;
+}
+.tab{
+  display:flex;align-items:center;gap:11px;
+  width:100%;padding:11px 18px;border:none;background:none;
+  color:rgba(255,255,255,.75);font-size:13px;font-weight:600;
+  cursor:pointer;text-align:left;transition:all .15s;
+  border-left:3px solid transparent;
+  font-family:inherit;
+}
+.tab:hover{background:rgba(255,255,255,.08);color:#fff;}
+.tab.on{
+  background:rgba(255,255,255,.15);color:#fff;font-weight:700;
+  border-left-color:var(--accent);
+}
+.tab-icon{font-size:17px;flex-shrink:0;width:22px;text-align:center;}
+.tab-label{flex:1;}
+
+.sb-footer{
+  padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);
+  font-size:11px;color:rgba(255,255,255,.4);
+}
+
+/* MAIN CONTENT */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.main-body{flex:1;padding:20px 22px 40px;max-width:860px;width:100%;}
 
 /* PAGES */
 .pg{display:none;}
 .pg.on{display:block;}
+
+/* CONTAINER (legacy compat) */
+.container{width:100%;}
+
+/* MOBILE — bottom nav */
+.mob-nav{display:none;}
+@media(max-width:768px){
+  .layout{flex-direction:column;}
+  .sidebar{
+    width:100%;height:auto;position:static;
+    flex-direction:row;overflow-x:auto;overflow-y:hidden;
+    box-shadow:none;border-bottom:1px solid rgba(255,255,255,.15);
+  }
+  .sidebar::-webkit-scrollbar{display:none;}
+  .sb-header{display:none;}
+  .sb-nav{display:flex;padding:0;flex:unset;}
+  .sb-section{display:none;}
+  .tab{
+    flex-direction:column;gap:3px;padding:10px 14px;
+    border-left:none;border-bottom:3px solid transparent;
+    font-size:10px;white-space:nowrap;min-width:60px;
+  }
+  .tab.on{border-left-color:transparent;border-bottom-color:var(--accent);}
+  .tab-icon{font-size:19px;width:auto;}
+  .sb-footer{display:none;}
+  .main-body{padding:14px 12px 80px;}
+}
 
 /* CARD */
 .card{
@@ -362,35 +427,43 @@ body{
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="hdr">
-  <div class="hdr-title">🏔️ Matheran Trek 2025</div>
-  <div class="hdr-sub">Gang of <span id="gangCount">13</span> · Redwood Resort, Matheran</div>
-  <div class="hdr-date">📅 29th - 30th August 2025</div>
-  <div class="hdr-pills">
-    <span class="hpill">🕐 Check-in 11 AM</span>
-    <span class="hpill">🕙 Check-out 10 AM</span>
-    <span class="hpill">🌿 Pure Veg</span>
-  </div>
-  <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank" class="map-btn">
-    📍 View Location on Maps
-  </a>
-</div>
+<div class="layout">
 
-<!-- TABS -->
-<div class="tabs" id="tabBar">
-  <button class="tab on" onclick="goTab('home',this)">🏠 Home</button>
-  <button class="tab" onclick="goTab('spots',this)">🏔️ Spots</button>
-  <button class="tab" onclick="goTab('expenses',this)">💸 Expenses</button>
-  <button class="tab" onclick="goTab('balance',this)">⚖️ Balance</button>
-  <button class="tab" onclick="goTab('members',this)">👥 Members</button>
-  <button class="tab" onclick="goTab('gallery',this)">📸 Photos</button>
-  <button class="tab" onclick="goTab('packing',this)">🎒 Packing</button>
-  <button class="tab" onclick="goTab('resort',this)">🏨 Resort</button>
-  <button class="tab" onclick="goTab('itinerary',this)">📅 Plan</button>
-  <button class="tab" onclick="goTab('medical',this)">🩹 Medical</button>
-  <button class="tab" onclick="goTab('tips',this)">💡 Tips</button>
-</div>
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-header">
+    <div class="sb-title">🏔️ Matheran Trek 2025</div>
+    <div class="sb-sub">Gang of <span id="gangCount">13</span> · Redwood Resort</div>
+    <div class="sb-date">📅 29–30 Aug 2025</div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Dashboard</div>
+    <button class="tab on" onclick="goTab('home',this)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></button>
+    <button class="tab" onclick="goTab('spots',this)"><span class="tab-icon">🏔️</span><span class="tab-label">Spots</span></button>
+    <button class="tab" onclick="goTab('resort',this)"><span class="tab-icon">🏨</span><span class="tab-label">Resort</span></button>
+    <button class="tab" onclick="goTab('itinerary',this)"><span class="tab-icon">📅</span><span class="tab-label">Plan</span></button>
+
+    <div class="sb-section">Money</div>
+    <button class="tab" onclick="goTab('expenses',this)"><span class="tab-icon">💸</span><span class="tab-label">Expenses</span></button>
+    <button class="tab" onclick="goTab('balance',this)"><span class="tab-icon">⚖️</span><span class="tab-label">Balance</span></button>
+    <button class="tab" onclick="goTab('members',this)"><span class="tab-icon">👥</span><span class="tab-label">Members</span></button>
+
+    <div class="sb-section">Trip</div>
+    <button class="tab" onclick="goTab('gallery',this)"><span class="tab-icon">📸</span><span class="tab-label">Photos</span></button>
+    <button class="tab" onclick="goTab('packing',this)"><span class="tab-icon">🎒</span><span class="tab-label">Packing</span></button>
+    <button class="tab" onclick="goTab('medical',this)"><span class="tab-icon">🩹</span><span class="tab-label">Medical</span></button>
+    <button class="tab" onclick="goTab('tips',this)"><span class="tab-icon">💡</span><span class="tab-label">Tips</span></button>
+  </div>
+  <div class="sb-footer">
+    <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank" style="color:rgba(255,255,255,.5);text-decoration:none;display:flex;align-items:center;gap:6px;">
+      📍 View on Maps
+    </a>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+<div class="main-body">
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -760,11 +833,15 @@ body{
   </div>
 </div>
 
-</div>
+</div><!-- /container -->
 
-<div style="text-align:center;padding:24px 0 12px;font-size:12px;color:rgba(255,255,255,.6);background:transparent;">
+<div style="text-align:center;padding:20px 0 8px;font-size:11px;color:var(--muted-light);">
   Made with ❤️ by IBM Bob
 </div>
+
+</div><!-- /main-body -->
+</div><!-- /main -->
+</div><!-- /layout -->
 
 <script>
 // ── STATE ─────────────────────────────────────────────────
@@ -790,7 +867,7 @@ function toast(msg){
 
 function goTab(id,el){
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
-  document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pg-'+id).classList.add('on');
   el.classList.add('on');
   if(id==='gallery') renderFolders();
