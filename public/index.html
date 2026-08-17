@@ -687,6 +687,117 @@ body{
   max-width:280px;
 }
 .chat-new-toast.show{display:flex;}
+
+/* ── SECRET PAGE ──────────────────────────────────────── */
+.sp-lock{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1a0533 0%,#3b0764 50%,#1a0533 100%);
+  padding:24px;
+}
+.sp-lock-box{
+  background:rgba(255,255,255,.06);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.15);border-radius:24px;
+  padding:36px 28px;width:100%;max-width:340px;text-align:center;
+}
+.sp-heart{font-size:52px;margin-bottom:12px;display:block;}
+.sp-lock-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:4px;}
+.sp-lock-sub{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:24px;}
+.sp-pw-input{
+  width:100%;padding:13px 16px;background:rgba(255,255,255,.1);
+  border:1.5px solid rgba(255,255,255,.2);border-radius:12px;
+  color:#fff;font-size:16px;text-align:center;font-family:inherit;
+  outline:none;margin-bottom:12px;letter-spacing:2px;
+}
+.sp-pw-input::placeholder{color:rgba(255,255,255,.4);letter-spacing:0;}
+.sp-pw-input:focus{border-color:rgba(255,192,203,.6);}
+.sp-unlock-btn{
+  width:100%;padding:13px;background:linear-gradient(135deg,#be185d,#9d174d);
+  color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+}
+.sp-err{color:#fca5a5;font-size:13px;margin-top:10px;min-height:20px;}
+/* main content */
+.sp-page{
+  min-height:100vh;
+  background:linear-gradient(160deg,#1a0533 0%,#3b0764 40%,#0f172a 100%);
+  color:#fff;padding-bottom:40px;
+}
+.sp-header{
+  text-align:center;padding:36px 20px 28px;
+  background:rgba(255,255,255,.04);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.sp-header-title{
+  font-size:28px;font-weight:900;
+  background:linear-gradient(135deg,#f9a8d4,#fbcfe8,#fdf2f8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:6px;
+}
+.sp-header-sub{font-size:13px;color:rgba(255,255,255,.5);}
+/* player card */
+.sp-player-card{
+  margin:20px 16px 0;background:rgba(255,255,255,.07);
+  backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:20px;
+}
+.sp-song-title{font-size:16px;font-weight:800;color:#fdf2f8;margin-bottom:4px;}
+.sp-song-artist{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px;}
+.sp-audio{width:100%;border-radius:10px;outline:none;margin-bottom:14px;accent-color:#be185d;}
+.sp-player-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.sp-dl-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#be185d,#9d174d);color:#fff;
+  padding:9px 18px;border-radius:12px;font-size:13px;font-weight:700;
+  text-decoration:none;border:none;cursor:pointer;
+}
+.sp-upload-label{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.12);color:#fff;
+  padding:9px 18px;border-radius:12px;font-size:13px;font-weight:700;
+  cursor:pointer;border:1px solid rgba(255,255,255,.2);
+}
+.sp-no-song{
+  text-align:center;padding:20px;color:rgba(255,255,255,.4);font-size:13px;
+}
+/* lyrics */
+.sp-lyrics-card{
+  margin:16px 16px 0;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px;
+}
+.sp-lyrics-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.sp-lyrics-title{font-size:14px;font-weight:800;color:#fdf2f8;}
+.sp-edit-btn{
+  background:rgba(255,255,255,.12);color:#fff;border:none;
+  border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;
+}
+.sp-lyrics-display{
+  font-size:14px;line-height:2;color:rgba(255,255,255,.85);
+  white-space:pre-wrap;font-family:inherit;
+}
+.sp-lyrics-display .chorus{color:#f9a8d4;font-weight:700;}
+.sp-lyrics-editor{
+  width:100%;min-height:400px;background:rgba(255,255,255,.08);
+  border:1.5px solid rgba(255,255,255,.2);border-radius:12px;
+  color:#fff;font-size:13px;line-height:1.8;font-family:inherit;
+  padding:12px;resize:vertical;outline:none;
+}
+.sp-save-btn{
+  margin-top:10px;width:100%;padding:11px;
+  background:linear-gradient(135deg,#be185d,#9d174d);
+  color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;
+}
+/* floating hearts animation */
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(1);opacity:.8;}
+  100%{transform:translateY(-80px) scale(1.4);opacity:0;}
+}
+.sp-heart-float{
+  position:fixed;pointer-events:none;font-size:20px;
+  animation:floatUp 2s ease-out forwards;z-index:9999;
+}
 </style>
 </head>
 <body>
@@ -778,6 +889,8 @@ body{
     <button class="tab" onclick="goTab('packing',this)"><span class="tab-icon">🎒</span><span class="tab-label">Packing</span></button>
     <button class="tab" onclick="goTab('medical',this)"><span class="tab-icon">🩹</span><span class="tab-label">Medical</span></button>
     <button class="tab" onclick="goTab('tips',this)"><span class="tab-icon">💡</span><span class="tab-label">Tips</span></button>
+    <!-- Hidden: only injected for Sreekanth after login -->
+    <button class="tab" id="secretTabBtn" style="display:none;" onclick="goTab('secret',this)"><span class="tab-icon">💝</span><span class="tab-label">For You</span></button>
   </div>
   <div class="sb-footer">
   </div>
@@ -1172,6 +1285,60 @@ body{
 
 </div><!-- /container -->
 
+<!-- ══ SECRET PAGE ════════════════════════════════════════ -->
+<div id="pg-secret" class="pg">
+  <!-- Lock screen -->
+  <div class="sp-lock" id="spLock">
+    <div class="sp-lock-box">
+      <span class="sp-heart">💝</span>
+      <div class="sp-lock-title">This page is just for you</div>
+      <div class="sp-lock-sub">Enter the password to open</div>
+      <input class="sp-pw-input" id="spPwInput" type="password" placeholder="password…" autocomplete="off"/>
+      <button class="sp-unlock-btn" id="spUnlockBtn">Open 💝</button>
+      <div class="sp-err" id="spErr"></div>
+    </div>
+  </div>
+  <!-- Content (hidden until unlocked) -->
+  <div class="sp-page" id="spContent" style="display:none;">
+    <div class="sp-header">
+      <div style="font-size:40px;margin-bottom:10px;">💝</div>
+      <div class="sp-header-title">Give Me One Chance</div>
+      <div class="sp-header-sub">Written from the heart · Just for you</div>
+    </div>
+
+    <!-- Player card -->
+    <div class="sp-player-card">
+      <div class="sp-song-title" id="spSongTitle">Give Me One Chance</div>
+      <div class="sp-song-artist">A song written for you 💕</div>
+      <div id="spPlayerWrap">
+        <div class="sp-no-song" id="spNoSong">🎵 No song uploaded yet</div>
+        <audio id="spAudio" class="sp-audio" controls style="display:none;"></audio>
+      </div>
+      <div class="sp-player-btns">
+        <a id="spDlBtn" class="sp-dl-btn" style="display:none;" download>⬇️ Download Song</a>
+        <label class="sp-upload-label">
+          🎵 Upload Song
+          <input type="file" id="spSongFile" accept="audio/*" style="display:none;"/>
+        </label>
+        <div id="spUploadStatus" style="font-size:12px;color:rgba(255,255,255,.5);align-self:center;"></div>
+      </div>
+    </div>
+
+    <!-- Lyrics card -->
+    <div class="sp-lyrics-card">
+      <div class="sp-lyrics-header">
+        <div class="sp-lyrics-title">📜 Lyrics</div>
+        <button class="sp-edit-btn" id="spEditBtn">✏️ Edit</button>
+      </div>
+      <div class="sp-lyrics-display" id="spLyricsDisplay"></div>
+      <div id="spEditorWrap" style="display:none;">
+        <textarea class="sp-lyrics-editor" id="spLyricsEditor"></textarea>
+        <button class="sp-save-btn" id="spSaveBtn">💾 Save Lyrics</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ CHAT ═══════════════════════════════════════════════ -->
 <!-- ══ CHAT FULL PAGE ══════════════════════════════════════ -->
 <div id="pg-chat" class="pg">
@@ -1348,6 +1515,10 @@ function showApp(){
   document.getElementById('sbUserAv').textContent = aInit(u.name);
   document.getElementById('sbUserAv').style.background = aColor(u.name);
   document.getElementById('sbUserName').textContent = u.name;
+  // show secret tab only for Sreekanth
+  if(u.name && u.name.toLowerCase() === 'sreekanth'){
+    document.getElementById('secretTabBtn').style.display = 'flex';
+  }
   boot();
 }
 
@@ -2635,6 +2806,294 @@ document.getElementById('chatFullInput').addEventListener('keydown', function(e)
 });
 document.getElementById('chatFullInput').addEventListener('input', function(){
   this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px';
+});
+
+// ── SECRET PAGE ───────────────────────────────────────────
+var SP_PW = null; // stored after unlock
+var SP_EDITING = false;
+
+var SP_DEFAULT_LYRICS = `Almost two years ago…
+I saw a girl.
+
+A girl in a saree…
+with beautiful eyes.
+
+For a moment, it felt like the whole world had frozen
+Her eyes… wow
+I was simply amazed.
+
+I still remember that moment
+
+But I never took a chance to talk to her
+Never even tried to find out
+Who is this angel?
+
+Maybe something held me back..
+and somehow, it still does
+
+Some stories feel too much to believe…
+Till one day, you find yourself living one.
+
+We never notice how they begin…
+Only realise where they've taken us.
+
+I never thought I'd feel this way…
+But somehow, I'm starting to like it…
+
+A few little meetups, a few miles together,
+Just enjoying your company, without calling it anything.
+I never let my heart read too much into those times,
+Because you were engaged, so I stayed behind the line.
+
+But maybe some things are written before we know,
+Some pages are meant to be felt, not read.
+And somehow the roads kept crossing again,
+Like a story quietly writing itself instead.
+
+Give me one chance, just one chance,
+I'll give you the best days ever.
+Through every high, through every fall,
+I'll be right there beside you.
+I can't promise life will always be easy,
+But I promise you'll never face it alone.
+Give me one chance, just one chance,
+And I'll make every day worth holding on to.
+
+You've been through things no one should face,
+Carried pain that never showed on your face.
+But you turned those tears into your strength,
+And found your own way through every break.
+
+You wanted to make your father proud,
+To build a name that would be your own.
+You chose to create your own identity,
+And never let your past decide who you'd become.
+
+We both walked through our own dark days,
+Different roads, but somehow the same pain.
+And somewhere between losing and finding,
+We learned our worth and found ourselves again.
+
+Tears were never what made us weak,
+It's how we rise that says who we are.
+Your sweet little talks,
+The cute way you explain things,
+That innocence that somehow hides a stronger heart.
+
+I told you what I felt from the very first sight,
+And since that moment, I stopped hiding mine.
+Somewhere along the way,
+I started thinking about you more than I should,
+And now I don't know how to stop.
+
+Maybe our little moments looked silly,
+But they still mean something to me.
+That ride by the beach,
+With so many people around,
+Yet somehow I got to share that moment with you.
+
+And that seat beside you at the restaurant,
+Nothing special to anyone else,
+But somehow it stayed with me.
+I never let myself feel those things back then,
+But now I look back and smile at every little memory.
+
+Not everyone gets a second chance,
+Some moments never come around again.
+But somehow, we were given ours,
+So I don't want to let it pass us by.
+
+Every road that took us apart,
+Somehow found a way to bring us back around.
+
+Maybe that's how destiny writes—
+Not all at once, but one path at a time.
+Creating little chances, crossing our roads,
+Until two stories meet again.
+
+Give me one chance, just one chance,
+I'll give you the best days ever.
+I'll turn the little moments into memories,
+And the ordinary into something better.
+Through every high, through every fall,
+I'll be there, whatever comes.
+Give me one chance, just one chance,
+And I'll give you the best days ever.
+
+Then I saw your family together,
+The way you all stood as one.
+And for the first time, I didn't just admire you,
+I wished I could belong there too.
+
+You saw me in just two days,
+And somehow understood a part of me—
+I could enjoy things on my own,
+But I'd rather see everyone enjoy together.
+I don't want to just promise you a family,
+I want to become a part of yours.
+
+I know I may not be enough
+But I know I'm more than willing
+To take care of you,
+To respect you,
+And stay when life gets hard.
+
+This trip was never part of my plan,
+But somehow it gave me the chance to say
+What I had kept somewhere inside,
+Opportunities don't always wait for us,
+So this time, I'm taking mine.
+
+There may be a hundred reasons to walk away,
+But maybe one reason is enough to stay.
+If we can make each other happy,
+Maybe that's enough to try.
+
+Give me one chance, just one chance,
+I'll give you the best days ever.
+
+Give me one chance, just one chance,
+I'll give you the best days ever.
+
+Give me one chance, just one chance,
+I'll give you the best days ever.
+
+Through every high, through every fall,
+I'll be there whatever comes
+
+Give me one chance, just one chance,
+I'll give you the best days ever.
+The best days ever…
+The best days ever…
+The best days ever…`;
+
+function spSetLyrics(text){
+  var el = document.getElementById('spLyricsDisplay');
+  if(!el) return;
+  // highlight chorus lines
+  var html = escHtml(text).replace(
+    /(Give me one chance[^\n]*\n?)/g,
+    '<span class="chorus">$1</span>'
+  );
+  el.innerHTML = html;
+  var ed = document.getElementById('spLyricsEditor');
+  if(ed) ed.value = text;
+}
+
+function spSetSong(url){
+  var audio = document.getElementById('spAudio');
+  var noSong = document.getElementById('spNoSong');
+  var dlBtn = document.getElementById('spDlBtn');
+  if(url){
+    audio.src = url; audio.style.display='block'; noSong.style.display='none';
+    dlBtn.href = url; dlBtn.style.display='inline-flex';
+  } else {
+    audio.style.display='none'; noSong.style.display='block';
+    dlBtn.style.display='none';
+  }
+}
+
+async function spLoad(){
+  try{
+    var data = await api('GET','/api/secret?pw='+encodeURIComponent(SP_PW));
+    spSetLyrics(data.lyrics || SP_DEFAULT_LYRICS);
+    spSetSong(data.song_url || '');
+  } catch(e){
+    spSetLyrics(SP_DEFAULT_LYRICS);
+  }
+}
+
+function spUnlock(){
+  var pw = document.getElementById('spPwInput').value.trim();
+  var err = document.getElementById('spErr');
+  if(!pw){ err.textContent='Enter password'; return; }
+  if(pw.toLowerCase() !== 'sripooja'){
+    err.textContent='✗ Wrong password';
+    document.getElementById('spPwInput').value='';
+    // shake animation
+    var box = document.querySelector('.sp-lock-box');
+    box.style.transform='translateX(-8px)';
+    setTimeout(function(){ box.style.transform='translateX(8px)'; },80);
+    setTimeout(function(){ box.style.transform=''; },160);
+    return;
+  }
+  SP_PW = pw;
+  err.textContent='';
+  document.getElementById('spLock').style.display='none';
+  document.getElementById('spContent').style.display='block';
+  spLoad();
+  // burst hearts on unlock
+  for(var i=0;i<8;i++) spFloatHeart();
+}
+
+function spFloatHeart(){
+  var h = document.createElement('div');
+  h.className='sp-heart-float';
+  h.textContent = ['💝','💕','💖','💗','💓'][Math.floor(Math.random()*5)];
+  h.style.left = (20+Math.random()*60)+'vw';
+  h.style.bottom = '20px';
+  h.style.fontSize = (16+Math.random()*16)+'px';
+  document.body.appendChild(h);
+  setTimeout(function(){ h.remove(); }, 2100);
+}
+
+// edit lyrics toggle
+document.getElementById('spEditBtn').addEventListener('click', function(){
+  SP_EDITING = !SP_EDITING;
+  var display = document.getElementById('spLyricsDisplay');
+  var edWrap = document.getElementById('spEditorWrap');
+  if(SP_EDITING){
+    this.textContent='✕ Cancel';
+    display.style.display='none'; edWrap.style.display='block';
+    document.getElementById('spLyricsEditor').focus();
+  } else {
+    this.textContent='✏️ Edit';
+    display.style.display='block'; edWrap.style.display='none';
+  }
+});
+
+// save lyrics
+document.getElementById('spSaveBtn').addEventListener('click', async function(){
+  var text = document.getElementById('spLyricsEditor').value;
+  this.textContent='Saving…'; this.disabled=true;
+  try{
+    await api('PUT','/api/secret/lyrics',{pw:SP_PW, lyrics:text});
+    spSetLyrics(text);
+    SP_EDITING=false;
+    document.getElementById('spEditBtn').textContent='✏️ Edit';
+    document.getElementById('spLyricsDisplay').style.display='block';
+    document.getElementById('spEditorWrap').style.display='none';
+    toast('Lyrics saved 💾');
+    spFloatHeart();
+  } catch(e){ toast(e.message); }
+  this.textContent='💾 Save Lyrics'; this.disabled=false;
+});
+
+// upload song
+document.getElementById('spSongFile').addEventListener('change', async function(){
+  var file = this.files[0];
+  if(!file) return;
+  var status = document.getElementById('spUploadStatus');
+  status.textContent='Uploading…';
+  var fd = new FormData();
+  fd.append('song', file);
+  try{
+    var r = await fetch('/api/secret/song?pw='+encodeURIComponent(SP_PW), {method:'POST', body:fd});
+    var json = await r.json();
+    if(!r.ok) throw new Error(json.error||'Upload failed');
+    spSetSong(json.url);
+    status.textContent='✓ Uploaded!';
+    toast('Song uploaded 🎵');
+    setTimeout(function(){ status.textContent=''; },3000);
+    spFloatHeart();
+  } catch(e){ status.textContent='✗ '+e.message; }
+  this.value='';
+});
+
+// wire unlock button + enter key
+document.getElementById('spUnlockBtn').addEventListener('click', spUnlock);
+document.getElementById('spPwInput').addEventListener('keydown', function(e){
+  if(e.key==='Enter') spUnlock();
 });
 
 // ── KICK OFF ──────────────────────────────────────────────

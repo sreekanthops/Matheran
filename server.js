@@ -437,6 +437,66 @@ app.delete('/api/chat/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// ═══════════════════════════════════════════════════════════
+//  SECRET PAGE — song + lyrics (Sreekanth only)
+// ═══════════════════════════════════════════════════════════
+const SONGS_DIR = path.join(__dirname, 'public', 'songs');
+if (!fs.existsSync(SONGS_DIR)) fs.mkdirSync(SONGS_DIR, { recursive: true });
+
+const songUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, SONGS_DIR),
+    filename: (_req, file, cb) => {
+      const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      cb(null, Date.now() + '_' + safe);
+    }
+  }),
+  limits: { fileSize: 50 * 1024 * 1024 }  // 50MB
+});
+
+function ensureSecret() {
+  db.run(`CREATE TABLE IF NOT EXISTS secret_page (
+    id       INTEGER PRIMARY KEY,
+    lyrics   TEXT NOT NULL DEFAULT '',
+    song_url TEXT NOT NULL DEFAULT ''
+  );`);
+  try {
+    const row = get('SELECT id FROM secret_page WHERE id=1');
+    if (!row) run('INSERT INTO secret_page (id,lyrics,song_url) VALUES (1,?,?)', ['', '']);
+    save();
+  } catch(_) {}
+}
+
+// GET lyrics + song
+app.get('/api/secret', (req, res) => {
+  const { pw } = req.query;
+  if (pw !== 'sripooja') return res.status(403).json({ error: 'wrong' });
+  ensureSecret();
+  res.json(get('SELECT * FROM secret_page WHERE id=1') || { id:1, lyrics:'', song_url:'' });
+});
+
+// PUT lyrics
+app.put('/api/secret/lyrics', (req, res) => {
+  const { pw, lyrics } = req.body;
+  if (pw !== 'sripooja') return res.status(403).json({ error: 'wrong' });
+  ensureSecret();
+  run('UPDATE secret_page SET lyrics=? WHERE id=1', [lyrics || '']);
+  res.json({ ok: true });
+});
+
+// POST song upload
+app.post('/api/secret/song', (req, res, next) => {
+  if (req.query.pw !== 'sripooja') return res.status(403).json({ error: 'wrong' });
+  songUpload.single('song')(req, res, err => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'No file' });
+    const url = '/songs/' + req.file.filename;
+    ensureSecret();
+    run('UPDATE secret_page SET song_url=? WHERE id=1', [url]);
+    res.json({ url });
+  });
+});
+
 // ── Catch-all ──────────────────────────────────────────────
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
