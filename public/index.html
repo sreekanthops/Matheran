@@ -126,27 +126,37 @@ body{
 .container{width:100%;}
 
 /* MOBILE — bottom nav */
-.mob-nav{display:none;}
+/* Hamburger toggle button — shown only on mobile */
+.sb-toggle{
+  display:none;position:fixed;top:14px;left:14px;z-index:300;
+  background:var(--primary);color:#fff;border:none;
+  width:40px;height:40px;border-radius:10px;
+  font-size:20px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+  align-items:center;justify-content:center;
+}
+
+/* Overlay behind sidebar when open on mobile */
+.sb-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.45);z-index:150;
+}
+.sb-overlay.on{display:block;}
+
 @media(max-width:768px){
-  .layout{flex-direction:column;}
+  /* Sidebar stays vertical but slides in/out */
   .sidebar{
-    width:100%;height:auto;position:static;
-    flex-direction:row;overflow-x:auto;overflow-y:hidden;
-    box-shadow:none;border-bottom:1px solid rgba(255,255,255,.15);
+    position:fixed;left:-240px;top:0;height:100vh;
+    width:220px;z-index:200;
+    transition:left .25s cubic-bezier(.4,0,.2,1);
   }
-  .sidebar::-webkit-scrollbar{display:none;}
-  .sb-header{display:none;}
-  .sb-nav{display:flex;padding:0;flex:unset;}
-  .sb-section{display:none;}
-  .tab{
-    flex-direction:column;gap:3px;padding:10px 14px;
-    border-left:none;border-bottom:3px solid transparent;
-    font-size:10px;white-space:nowrap;min-width:60px;
-  }
-  .tab.on{border-left-color:transparent;border-bottom-color:var(--accent);}
-  .tab-icon{font-size:19px;width:auto;}
-  .sb-footer{display:none;}
-  .main-body{padding:14px 12px 80px;}
+  .sidebar.open{left:0;}
+
+  .sb-toggle{display:flex;}
+
+  /* Push content right only when sidebar is open */
+  .main{width:100%;}
+  .main-body{padding:14px 12px 40px;padding-top:64px;}
 }
 
 /* CARD */
@@ -428,6 +438,11 @@ body{
 <body>
 
 <div class="layout">
+
+<!-- Hamburger toggle (mobile only) -->
+<button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()">☰</button>
+<!-- Overlay (mobile only) -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
 
 <!-- ── SIDEBAR ── -->
 <nav class="sidebar" id="sidebar">
@@ -865,6 +880,19 @@ function toast(msg){
   toastT=setTimeout(function(){t.classList.remove('on');},2800);
 }
 
+function toggleSidebar(){
+  var sb=document.getElementById('sidebar');
+  var ov=document.getElementById('sbOverlay');
+  var open=sb.classList.toggle('open');
+  ov.classList.toggle('on',open);
+  document.getElementById('sbToggle').textContent=open?'✕':'☰';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('on');
+  document.getElementById('sbToggle').textContent='☰';
+}
+
 function goTab(id,el){
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
   document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
@@ -872,6 +900,8 @@ function goTab(id,el){
   el.classList.add('on');
   if(id==='gallery') renderFolders();
   if(id==='itinerary') renderItinerary();
+  // close sidebar on mobile after picking a page
+  if(window.innerWidth<=768) closeSidebar();
 }
 
 // ── API ───────────────────────────────────────────────────
