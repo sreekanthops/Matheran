@@ -1666,7 +1666,8 @@ var PAL_FALLBACK=['#0f766e','#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#
 function aColor(n){
   if(!n) return PAL_FALLBACK[0];
   var key = n.trim().toLowerCase();
-  if(MEMBER_COLORS[key]) return MEMBER_COLORS[key];
+  // only exact name "pooja" gets teal — "pooja pm", "pooja s" etc. get their own colour
+  if(MEMBER_COLORS.hasOwnProperty(key)) return MEMBER_COLORS[key];
   // fallback for any unlisted name — hash into fallback palette
   var h=0; for(var i=0;i<key.length;i++) h=(h*31+key.charCodeAt(i))%PAL_FALLBACK.length;
   return PAL_FALLBACK[h];
