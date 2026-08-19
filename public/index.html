@@ -277,6 +277,13 @@ body{
   padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
   text-decoration:none;white-space:nowrap;
 }
+.mc-wa-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#f0fdf4;color:#15803d;
+  border:1.5px solid #86efac;border-radius:10px;
+  padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+  text-decoration:none;white-space:nowrap;
+}
 .av{
   width:28px;height:28px;border-radius:50%;color:#fff;
   font-size:12px;font-weight:800;display:flex;
@@ -798,6 +805,156 @@ body{
   position:fixed;pointer-events:none;font-size:20px;
   animation:floatUp 2s ease-out forwards;z-index:9999;
 }
+
+/* ── VIP DASHBOARD ────────────────────────────────────────── */
+@keyframes vipShimmer{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+@keyframes vipPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.4),0 8px 32px rgba(15,118,110,.25);}
+  50%{box-shadow:0 0 0 8px rgba(245,158,11,.0),0 12px 40px rgba(15,118,110,.35);}
+}
+@keyframes vipStarSpin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+@keyframes vipFadeSlide{
+  from{opacity:0;transform:translateY(18px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* Body gets a subtle warm tint */
+body{
+  background:linear-gradient(160deg,#f0fdf4 0%,#fefce8 50%,#f0f9ff 100%) !important;
+}
+
+/* Sidebar enhanced glow for everyone */
+.sidebar{
+  background:linear-gradient(180deg,#0c3d39 0%,#134e4a 40%,#1a3550 100%) !important;
+  box-shadow:4px 0 28px rgba(245,158,11,.18),4px 0 12px rgba(0,0,0,.2) !important;
+}
+
+/* Sidebar user area warm highlight for everyone */
+.sb-user{
+  background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(251,191,36,.1)) !important;
+  border-top:1px solid rgba(245,158,11,.35) !important;
+}
+
+/* VIP welcome card on home page */
+.vip-welcome{
+  border-radius:20px;margin-bottom:20px;overflow:hidden;
+  border:2px solid rgba(245,158,11,.4);
+  animation:vipPulse 3s ease-in-out infinite, vipFadeSlide .5s ease-out;
+  position:relative;
+}
+.vip-welcome-inner{
+  background:linear-gradient(135deg,#0f4c45 0%,#1a6b5e 35%,#1e3a5f 70%,#2d1b69 100%);
+  background-size:200% 200%;
+  animation:vipShimmer 6s ease infinite;
+  padding:24px 20px 20px;color:#fff;
+  position:relative;overflow:hidden;
+}
+.vip-welcome-inner::before{
+  content:'';position:absolute;top:-40%;right:-15%;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(245,158,11,.25) 0%,transparent 70%);
+  border-radius:50%;
+}
+.vip-welcome-inner::after{
+  content:'';position:absolute;bottom:-30%;left:-10%;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(20,184,166,.2) 0%,transparent 70%);
+  border-radius:50%;
+}
+.vip-crown{
+  font-size:36px;margin-bottom:8px;display:block;
+  filter:drop-shadow(0 2px 8px rgba(245,158,11,.6));
+}
+.vip-welcome-name{
+  font-size:24px;font-weight:900;letter-spacing:-.3px;
+  background:linear-gradient(135deg,#fcd34d,#fbbf24,#fff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:4px;
+}
+.vip-welcome-sub{
+  font-size:13px;color:rgba(255,255,255,.75);font-weight:500;
+  margin-bottom:16px;line-height:1.5;
+}
+.vip-stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  position:relative;z-index:1;
+}
+.vip-stat{
+  background:rgba(255,255,255,.12);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2);border-radius:12px;
+  padding:12px 10px;text-align:center;
+}
+.vip-stat-val{font-size:20px;font-weight:900;color:#fbbf24;}
+.vip-stat-lbl{font-size:10px;color:rgba(255,255,255,.65);font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+
+/* VIP quick-links row */
+.vip-links{
+  display:flex;gap:8px;flex-wrap:wrap;
+  padding:12px 16px 14px;
+  background:linear-gradient(135deg,rgba(15,118,110,.06),rgba(245,158,11,.06));
+  border-top:1px solid rgba(245,158,11,.2);
+}
+.vip-link-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border:none;border-radius:10px;
+  font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:all .2s;
+}
+.vip-link-btn:active{transform:scale(.94);}
+.vip-link-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+  box-shadow:0 3px 10px rgba(245,158,11,.3);}
+.vip-link-teal{background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;
+  box-shadow:0 3px 10px rgba(15,118,110,.25);}
+.vip-link-purple{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;
+  box-shadow:0 3px 10px rgba(124,58,237,.25);}
+
+/* ── SPLIT MEMBER CHECKBOXES ─────────────────────────────── */
+.split-grid{
+  display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px;
+}
+.split-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;
+  background:#f1f5f9;border:2px solid var(--border);
+  color:var(--txt);cursor:pointer;transition:all .15s;user-select:none;
+}
+.split-pill input[type=checkbox]{
+  width:14px;height:14px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;
+}
+.split-pill.checked{
+  background:var(--green-bg);border-color:#86efac;color:#15803d;
+}
+.split-pill.unchecked{
+  background:#fef2f2;border-color:#fca5a5;color:#dc2626;opacity:.75;
+}
+.split-preview{
+  font-size:12px;font-weight:700;color:var(--primary);
+  background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;
+  padding:6px 12px;margin-bottom:10px;text-align:center;
+}
+
+/* Stat cards — golden top bar for everyone */
+#pg-home .st::before{
+  background:linear-gradient(90deg,#f59e0b,#fbbf24,#14b8a6) !important;
+}
+#pg-home .sv{
+  background:linear-gradient(135deg,#0f766e,#f59e0b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+/* Sidebar active tab golden for everyone */
+.tab.on{
+  background:rgba(245,158,11,.18) !important;
+  border-left-color:#fbbf24 !important;
+}
 </style>
 </head>
 <body>
@@ -874,10 +1031,10 @@ body{
   </div>
   <div class="sb-nav">
     <div class="sb-section">Dashboard</div>
-    <button class="tab on" onclick="goTab('home',this)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></button>
+    <button class="tab" onclick="goTab('home',this)"><span class="tab-icon">🏠</span><span class="tab-label">Home</span></button>
     <button class="tab" onclick="goTab('spots',this)"><span class="tab-icon">🏔️</span><span class="tab-label">Spots</span></button>
     <button class="tab" onclick="goTab('resort',this)"><span class="tab-icon">🏨</span><span class="tab-label">Resort</span></button>
-    <button class="tab" onclick="goTab('itinerary',this)"><span class="tab-icon">📅</span><span class="tab-label">Plan</span></button>
+    <button class="tab on" onclick="goTab('itinerary',this)"><span class="tab-icon">📅</span><span class="tab-label">Plan</span></button>
 
     <div class="sb-section">Money</div>
     <button class="tab" onclick="goTab('expenses',this)"><span class="tab-icon">💸</span><span class="tab-label">Expenses</span></button>
@@ -952,7 +1109,11 @@ body{
 </div>
 
 <!-- ══ HOME ══════════════════════════════════════════════ -->
-<div id="pg-home" class="pg on">
+<div id="pg-home" class="pg">
+
+  <!-- VIP welcome card — injected by JS for Sreekanth & Pooja only -->
+  <div id="vipWelcome" style="display:none;"></div>
+
   <div class="sg">
     <div class="st"><div class="sv" id="sTotal">₹0</div><div class="sl">Total Spent</div></div>
     <div class="st"><div class="sv" id="sPer">₹0</div><div class="sl">Per Person</div></div>
@@ -973,7 +1134,19 @@ body{
           <option>🛒 Shopping</option><option>💊 Medical</option><option>📸 Misc</option>
         </select></div>
       </div>
-      <button class="btn btn-g" id="addExpBtn">Add &amp; Split ÷ <span id="splitN">13</span> members</button>
+      <!-- Split among -->
+      <div class="fg" style="margin-bottom:6px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Split Among</span>
+          <button type="button" id="splitAllBtn" style="font-size:11px;font-weight:700;color:var(--primary);background:none;border:none;cursor:pointer;padding:0;">Select All</button>
+        </label>
+        <div class="split-grid" id="splitGrid"></div>
+      </div>
+      <div class="split-preview" id="splitPreview">Select members &amp; enter amount to see split</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-g" id="addExpBtn" style="flex:1;">Add &amp; Split</button>
+        <button class="btn" onclick="goTab('balance',document.querySelector('[onclick*=balance]'))" style="background:var(--blue-bg);color:var(--blue);font-weight:700;white-space:nowrap;">⚖️ Balance</button>
+      </div>
     </div>
   </div>
 
@@ -992,21 +1165,6 @@ body{
     <div class="cb" id="activityList"><div class="loading">Loading…</div></div>
   </div>
 
-  <!-- Resort quick-link card -->
-  <div class="card" style="background:linear-gradient(135deg,#ecfdf5,#f0fdf4);border:2px solid #bbf7d0;cursor:pointer;" onclick="goTab('resort',document.createElement('button'))">
-    <div class="cb" style="display:flex;align-items:center;gap:14px;padding:14px 0 2px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🏨</div>
-      <div style="flex:1;">
-        <div style="font-weight:800;font-size:15px;color:#065f46;">Redwood Resort, Matheran</div>
-        <div style="font-size:12px;color:#059669;margin-top:2px;">Check-in 11 AM · Check-out 10 AM · View map →</div>
-      </div>
-      <a href="https://maps.app.goo.gl/6Biuq1uQdXVcEoXV6" target="_blank"
-        onclick="event.stopPropagation()"
-        style="flex-shrink:0;background:#0f766e;color:#fff;padding:7px 12px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">
-        📍 Maps
-      </a>
-    </div>
-  </div>
 </div>
 
 <!-- ══ SPOTS ═════════════════════════════════════════════ -->
@@ -1254,7 +1412,7 @@ body{
 </div>
 
 <!-- ══ ITINERARY ══════════════════════════════════════════ -->
-<div id="pg-itinerary" class="pg">
+<div id="pg-itinerary" class="pg on">
   <div id="itinerary-root"></div>
 </div>
 
@@ -1447,9 +1605,72 @@ var FOLDERS = [];
 var CURRENT_FOLDER = null;
 var CURRENT_USER = null; // {id, name}
 
+// ── WELCOME CARD ──────────────────────────────────────────
+function renderVipWelcome(){
+  var el = document.getElementById('vipWelcome');
+  if(!el || !CURRENT_USER) return;
+
+  var total = EXPENSES.reduce(function(s,e){return s+e.amount;},0);
+  var per   = MEMBERS.length > 0 ? total / MEMBERS.length : 0;
+  var firstName = CURRENT_USER.name.split(' ')[0];
+
+  el.innerHTML =
+    '<div class="vip-welcome">' +
+      '<div class="vip-welcome-inner">' +
+        '<span class="vip-crown">🏔️</span>' +
+        '<div class="vip-welcome-name">Hey, '+escHtml(firstName)+'! 👋</div>' +
+        '<div class="vip-welcome-sub">Matheran Trek 2026 · Gang of '+MEMBERS.length+' · Redwood Resort</div>' +
+        '<div class="vip-stats-row">' +
+          '<div class="vip-stat">' +
+            '<div class="vip-stat-val">'+MEMBERS.length+'</div>' +
+            '<div class="vip-stat-lbl">Travellers</div>' +
+          '</div>' +
+          '<div class="vip-stat">' +
+            '<div class="vip-stat-val">'+inr(total)+'</div>' +
+            '<div class="vip-stat-lbl">Total Spent</div>' +
+          '</div>' +
+          '<div class="vip-stat">' +
+            '<div class="vip-stat-val">'+inr(per.toFixed(0))+'</div>' +
+            '<div class="vip-stat-lbl">Per Person</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vip-links">' +
+        '<button class="vip-link-btn vip-link-gold" onclick="goTab(\'expenses\',document.querySelector(\'[onclick*=expenses]\'))">💸 Expenses</button>' +
+        '<button class="vip-link-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;box-shadow:0 3px 10px rgba(2,132,199,.25);" onclick="goTab(\'balance\',document.querySelector(\'[onclick*=balance]\'))">⚖️ Balance</button>' +
+        '<button class="vip-link-btn vip-link-teal" onclick="goTab(\'members\',document.querySelector(\'[onclick*=members]\'))">👥 Members</button>' +
+        '<button class="vip-link-btn vip-link-purple" onclick="goTab(\'gallery\',document.querySelector(\'[onclick*=gallery]\'))">📸 Photos</button>' +
+      '</div>' +
+    '</div>';
+  el.style.display = 'block';
+}
+
 // ── HELPERS ───────────────────────────────────────────────
-var PAL=['#0f766e','#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#0891b2','#be123c','#4338ca','#7e22ce'];
-function aColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%PAL.length;return PAL[h];}
+// Fixed colour map — Sreekanth & Pooja share the same colour, everyone else is unique
+var MEMBER_COLORS = {
+  'sreekanth': '#0f766e',
+  'pooja':     '#0f766e',
+  'sai':       '#2563eb',
+  'naresh':    '#7c3aed',
+  'prashant':  '#dc2626',
+  'vijay':     '#ea580c',
+  'sonal':     '#0891b2',
+  'divya':     '#be185d',
+  'shruti':    '#16a34a',
+  'suresh':    '#b45309',
+  'sohan':     '#4338ca',
+  'vinay':     '#0e7490',
+  'swapna':    '#9333ea'
+};
+var PAL_FALLBACK=['#0f766e','#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#0891b2','#be123c','#4338ca','#7e22ce'];
+function aColor(n){
+  if(!n) return PAL_FALLBACK[0];
+  var key = n.trim().toLowerCase();
+  if(MEMBER_COLORS[key]) return MEMBER_COLORS[key];
+  // fallback for any unlisted name — hash into fallback palette
+  var h=0; for(var i=0;i<key.length;i++) h=(h*31+key.charCodeAt(i))%PAL_FALLBACK.length;
+  return PAL_FALLBACK[h];
+}
 function aInit(n){return n.substring(0,2).toUpperCase();}
 function inr(v){return '₹'+Number(v).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2});}
 
@@ -1555,6 +1776,7 @@ function showApp(){
   document.getElementById('sbUserAv').textContent = aInit(u.name);
   document.getElementById('sbUserAv').style.background = aColor(u.name);
   document.getElementById('sbUserName').textContent = u.name;
+
   // show secret tab for Sreekanth always; for others check if they are the recipient
   if(u.name && u.name.toLowerCase() === 'sreekanth'){
     document.getElementById('secretTabBtn').style.display = 'flex';
@@ -1583,6 +1805,7 @@ async function boot(){
     ]);
     MEMBERS=members; EXPENSES=expenses; CHECKLIST=checklist; FOLDERS=folders; LOCATIONS=locs;
     renderAll();
+    renderItinerary();
     renderActivity();
     shareMyLocation();
     initChat();
@@ -1609,6 +1832,7 @@ function renderAll(){
   renderMembers();
   renderMemSummary();
   renderPacking();
+  renderVipWelcome();
 }
 
 // ── ACTIVITY ──────────────────────────────────────────────
@@ -1621,15 +1845,12 @@ var ACT_ICONS = {
 async function renderActivity(){
   var el = document.getElementById('activityList');
   if(!el) return;
-  var isSreekanth = CURRENT_USER && CURRENT_USER.name.toLowerCase() === 'sreekanth';
   try{
     var logs = await api('GET','/api/activity');
     if(!logs.length){ el.innerHTML='<div class="empty">No activity yet</div>'; return; }
     el.innerHTML = logs.map(function(l){
       var icon = ACT_ICONS[l.action] || '📝';
-      var delBtn = isSreekanth
-        ? '<button class="xbtn" data-act-del="'+l.id+'" title="Delete log" style="flex-shrink:0;margin-top:2px;">✕</button>'
-        : '';
+      var delBtn = '<button class="xbtn" data-act-del="'+l.id+'" title="Delete log" style="flex-shrink:0;margin-top:2px;">✕</button>';
       return '<div class="act-row" style="align-items:flex-start;">'+
         '<div class="act-av" style="background:'+aColor(l.user_name)+'">'+aInit(l.user_name)+'</div>'+
         '<div class="act-body">'+
@@ -1641,23 +1862,21 @@ async function renderActivity(){
         delBtn+
       '</div>';
     }).join('');
-    if(isSreekanth){
-      el.querySelectorAll('[data-act-del]').forEach(function(btn){
-        btn.addEventListener('click', async function(){
-          var id = +this.getAttribute('data-act-del');
-          if(!confirm('Delete this log entry?')) return;
-          try{
-            await api('DELETE','/api/activity/'+id,{requester:CURRENT_USER.name});
-            renderActivity();
-            toast('Log deleted');
-          }catch(e){ toast(e.message); }
-        });
+    el.querySelectorAll('[data-act-del]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = +this.getAttribute('data-act-del');
+        if(!confirm('Delete this log entry?')) return;
+        try{
+          await api('DELETE','/api/activity/'+id,{requester:CURRENT_USER.name});
+          renderActivity();
+          toast('Log deleted');
+        }catch(e){ toast(e.message); }
       });
-    }
+    });
   }catch(e){ el.innerHTML='<div class="empty">Could not load activity</div>'; }
 }
 
-// ── PAYER SELECTS ─────────────────────────────────────────
+// ── PAYER SELECTS + SPLIT GRID ────────────────────────────
 function fillPayerSelects(){
   var opts=MEMBERS.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
   ['qPayer','ePayer'].forEach(function(id){
@@ -1667,10 +1886,54 @@ function fillPayerSelects(){
     s.innerHTML=opts;
     if(cur) s.value=cur;
   });
-  document.getElementById('splitN').textContent=MEMBERS.length;
   document.getElementById('sMem').textContent=MEMBERS.length;
   document.getElementById('gangCount').textContent=MEMBERS.length;
   document.getElementById('gangCountMem').textContent=MEMBERS.length;
+  renderSplitGrid();
+}
+
+function renderSplitGrid(){
+  var grid=document.getElementById('splitGrid');
+  if(!grid) return;
+  // preserve current checked state
+  var checked={};
+  grid.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    checked[cb.value]=cb.checked;
+  });
+  grid.innerHTML=MEMBERS.map(function(m){
+    // default checked unless previously unchecked
+    var isChecked = checked[m.id] === false ? false : true;
+    return '<label class="split-pill '+(isChecked?'checked':'unchecked')+'" id="spill-'+m.id+'">'+
+      '<input type="checkbox" value="'+m.id+'" '+(isChecked?'checked':'')+' onchange="onSplitChange(this)"/>'+
+      escHtml(m.name)+
+    '</label>';
+  }).join('');
+  updateSplitPreview();
+}
+
+function onSplitChange(cb){
+  var pill=document.getElementById('spill-'+cb.value);
+  if(pill){ pill.className='split-pill '+(cb.checked?'checked':'unchecked'); }
+  updateSplitPreview();
+}
+
+function updateSplitPreview(){
+  var preview=document.getElementById('splitPreview');
+  if(!preview) return;
+  var amt=parseFloat(document.getElementById('qAmt').value)||0;
+  var n=getCheckedSplitIds().length;
+  if(!n){ preview.textContent='Select at least one member'; return; }
+  if(!amt){ preview.textContent='÷ '+n+' members — enter amount to see split'; return; }
+  var share=amt/n;
+  preview.textContent='÷ '+n+' members = '+inr(share.toFixed(2))+' / person';
+}
+
+function getCheckedSplitIds(){
+  var grid=document.getElementById('splitGrid');
+  if(!grid) return MEMBERS.map(function(m){return m.id;});
+  var ids=[];
+  grid.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){ ids.push(+cb.value); });
+  return ids;
 }
 
 // ── STATS ─────────────────────────────────────────────────
@@ -1703,17 +1966,26 @@ function renderCatChart(){
 
 // ── EXPENSE CARD HTML ─────────────────────────────────────
 function expCard(e,full){
-  var share=(e.amount/MEMBERS.length).toFixed(2);
+  // split_ids stored on expense (array of member IDs), fallback to all members
+  var splitIds = e.split_ids && e.split_ids.length ? e.split_ids : MEMBERS.map(function(m){return m.id;});
+  var n = splitIds.length;
+  var share = n > 0 ? (e.amount/n).toFixed(2) : e.amount.toFixed(2);
+  // names of who's included
+  var splitNames = MEMBERS.filter(function(m){return splitIds.indexOf(m.id)!==-1;}).map(function(m){return m.name;});
+  var splitLabel = splitNames.length===MEMBERS.length
+    ? 'All '+MEMBERS.length+' members'
+    : splitNames.join(', ');
   return '<div class="ei">'+
     '<div class="et">'+
-      '<div><div class="en">'+e.desc+'</div><div class="ec">'+e.category+' · '+e.created_at+'</div></div>'+
+      '<div><div class="en">'+escHtml(e.desc)+'</div><div class="ec">'+escHtml(e.category)+' · '+e.created_at+'</div></div>'+
       '<div class="ea">'+inr(e.amount)+'</div>'+
     '</div>'+
     '<div class="em">'+
       '<div class="av" style="background:'+aColor(e.payer_name)+';width:24px;height:24px;font-size:11px;">'+aInit(e.payer_name)+'</div>'+
-      '<span style="font-size:13px;color:var(--muted);"><strong>'+e.payer_name+'</strong> paid</span>'+
-      '<span class="pill">÷'+MEMBERS.length+' = '+inr(parseFloat(share))+'</span>'+
+      '<span style="font-size:13px;color:var(--muted);"><strong>'+escHtml(e.payer_name)+'</strong> paid</span>'+
+      '<span class="pill">÷'+n+' = '+inr(parseFloat(share))+'</span>'+
     '</div>'+
+    '<div style="font-size:11px;color:var(--muted-light);margin-top:5px;line-height:1.4;">👥 '+escHtml(splitLabel)+'</div>'+
     (full?'<div class="eact">'+
       '<button class="btn btn-e btn-sm" data-edit="'+e.id+'">✏️ Edit</button>'+
       '<button class="btn btn-d btn-sm" data-del="'+e.id+'">🗑️ Delete</button>'+
@@ -1734,7 +2006,8 @@ function renderRecentList(){
   var el=document.getElementById('recentList');
   var list=EXPENSES.slice(0,3);
   if(!list.length){el.innerHTML='<div class="empty">No expenses yet</div>';return;}
-  el.innerHTML=list.map(function(e){return expCard(e,false);}).join('');
+  el.innerHTML=list.map(function(e){return expCard(e,true);}).join('');
+  attachExpActions(el);
 }
 
 function renderAllExp(){
@@ -1750,17 +2023,37 @@ document.getElementById('addExpBtn').addEventListener('click',async function(){
   var desc=document.getElementById('qDesc').value.trim();
   var amount=parseFloat(document.getElementById('qAmt').value);
   var category=document.getElementById('qCat').value;
+  var split_ids=getCheckedSplitIds();
   if(!payer_id){toast('Select who paid');return;}
   if(!desc){toast('Enter a description');return;}
   if(!amount||amount<=0){toast('Enter a valid amount');return;}
+  if(!split_ids.length){toast('Select at least one member to split among');return;}
   try{
-    var row=await api('POST','/api/expenses',{payer_id,desc,amount,category,logged_by:CURRENT_USER?.name});
+    var row=await api('POST','/api/expenses',{payer_id,desc,amount,category,split_ids,logged_by:CURRENT_USER?.name});
+    // attach split_ids locally since API may not echo them back
+    if(!row.split_ids) row.split_ids=split_ids;
     EXPENSES.unshift(row);
     document.getElementById('qDesc').value='';
     document.getElementById('qAmt').value='';
+    updateSplitPreview();
     renderStats();renderCatChart();renderRecentList();renderAllExp();renderBalance();renderMemSummary();renderActivity();
-    toast('Added! '+inr(amount)+' split → '+inr((amount/MEMBERS.length).toFixed(2))+'/person');
+    toast('Added! '+inr(amount)+' ÷ '+split_ids.length+' = '+inr((amount/split_ids.length).toFixed(2))+'/person');
   }catch(e){toast(e.message);}
+});
+
+// ── SPLIT GRID — wire amount input for live preview ───────
+document.getElementById('qAmt').addEventListener('input', updateSplitPreview);
+
+// ── SPLIT ALL button ──────────────────────────────────────
+document.getElementById('splitAllBtn').addEventListener('click', function(){
+  var grid=document.getElementById('splitGrid');
+  var cbs=grid.querySelectorAll('input[type=checkbox]');
+  var allChecked=[].every.call(cbs,function(cb){return cb.checked;});
+  cbs.forEach(function(cb){
+    cb.checked=!allChecked;
+    onSplitChange(cb);
+  });
+  this.textContent=allChecked?'Select All':'Deselect All';
 });
 
 // ── EDIT EXPENSE ──────────────────────────────────────────
@@ -1808,20 +2101,28 @@ async function delExp(id){
 
 // ── BALANCE ───────────────────────────────────────────────
 function renderBalance(){
-  var total=EXPENSES.reduce(function(s,e){return s+e.amount;},0);
-  var share=MEMBERS.length>0?total/MEMBERS.length:0;
-  var paid={};MEMBERS.forEach(function(m){paid[m.id]=0;});
-  EXPENSES.forEach(function(e){if(paid[e.payer_id]!==undefined)paid[e.payer_id]+=e.amount;});
+  // Per-expense splits: each expense may have a custom split_ids array
+  var paid={};   // member_id → total paid out
+  var owed={};   // member_id → total share owed across all expenses
+  MEMBERS.forEach(function(m){ paid[m.id]=0; owed[m.id]=0; });
+
+  EXPENSES.forEach(function(e){
+    var ids = e.split_ids && e.split_ids.length ? e.split_ids : MEMBERS.map(function(m){return m.id;});
+    var share = ids.length > 0 ? e.amount / ids.length : 0;
+    if(paid[e.payer_id] !== undefined) paid[e.payer_id] += e.amount;
+    ids.forEach(function(id){ if(owed[id] !== undefined) owed[id] += share; });
+  });
 
   document.getElementById('balList').innerHTML=MEMBERS.map(function(m){
-    var bal=(paid[m.id]||0)-share;
+    var bal=(paid[m.id]||0)-(owed[m.id]||0);
     var cls=bal>0.01?'pos':bal<-0.01?'neg':'zero';
     var lbl=bal>0.01?'gets back '+inr(Math.abs(bal).toFixed(2)):bal<-0.01?'owes '+inr(Math.abs(bal).toFixed(2)):'settled ✓';
     return '<div class="br"><div class="bname"><div class="av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>'+m.name+'</div><span class="'+cls+'">'+lbl+'</span></div>';
   }).join('');
 
   // Settlements
-  var bmap={};MEMBERS.forEach(function(m){bmap[m.id]={name:m.name,bal:(paid[m.id]||0)-share};});
+  var bmap={};
+  MEMBERS.forEach(function(m){ bmap[m.id]={name:m.name,bal:(paid[m.id]||0)-(owed[m.id]||0)}; });
   var cred=Object.values(bmap).filter(function(x){return x.bal>0.01;}).sort(function(a,b){return b.bal-a.bal;});
   var debt=Object.values(bmap).filter(function(x){return x.bal<-0.01;}).sort(function(a,b){return a.bal-b.bal;});
   var c=cred.map(function(x){return{name:x.name,a:x.bal};});
@@ -1854,10 +2155,20 @@ function renderMembers(){
       locBtn = '<span class="mc-loc-btn" style="opacity:.4;cursor:default;">📍 —</span>';
     }
 
-    // phone
-    var callBtn = m.phone
-      ? '<a href="tel:'+escHtml(m.phone)+'" class="mc-call-btn">📞 Call</a>'
-      : '<button class="mc-call-btn" data-setphone="'+m.id+'" style="background:#f8fafc;color:var(--muted);border-color:var(--border);">📞 Add</button>';
+    // phone — Call + WhatsApp buttons
+    var phoneHtml;
+    if(m.phone){
+      // strip non-digits/+ for wa.me link, keep + prefix
+      var waNum = m.phone.replace(/[^\d+]/g,'');
+      if(waNum.charAt(0)!=='+') waNum='+91'+waNum; // default India if no country code
+      waNum = waNum.replace(/^\+/,''); // wa.me needs no +
+      phoneHtml =
+        '<a href="tel:'+escHtml(m.phone)+'" class="mc-call-btn">📞 Call</a>'+
+        '<a href="https://wa.me/'+waNum+'" target="_blank" class="mc-wa-btn">💬 WhatsApp</a>';
+    } else {
+      phoneHtml = '<button class="mc-call-btn" data-setphone="'+m.id+'" style="background:#f8fafc;color:var(--muted);border-color:var(--border);">📞 Add No.</button>';
+    }
+    var callBtn = phoneHtml;
 
     // is this the logged-in user?
     var isMe = CURRENT_USER && CURRENT_USER.id === m.id;
@@ -2853,11 +3164,11 @@ function openChatFull(){
 }
 function closeChatFull(){
   CHAT_FULL_OPEN = false;
-  // go back to home
+  // go back to plan (default page)
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
-  document.getElementById('pg-home').classList.add('on');
+  document.getElementById('pg-itinerary').classList.add('on');
   document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
-  document.querySelector('#sidebar .tab').classList.add('on');
+  document.querySelector('#sidebar .tab[onclick*=itinerary]').classList.add('on');
 }
 
 // ── wire popup input ───────────────────────────────────────

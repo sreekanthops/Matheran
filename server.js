@@ -51,7 +51,8 @@ async function openDB() {
       desc       TEXT NOT NULL,
       amount     REAL NOT NULL,
       category   TEXT NOT NULL DEFAULT 'Misc',
-      created_at TEXT NOT NULL DEFAULT (strftime('%d/%m/%Y', 'now'))
+      created_at TEXT NOT NULL DEFAULT (strftime('%d/%m/%Y', 'now')),
+      split_ids  TEXT NOT NULL DEFAULT ''
     );
     CREATE TABLE IF NOT EXISTS checklist (
       id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -88,6 +89,8 @@ async function openDB() {
   `);
   // Migrate: add phone column if not present
   try { db.run(`ALTER TABLE members ADD COLUMN phone TEXT NOT NULL DEFAULT ''`); save(); } catch(_) {}
+  // Migrate: add split_ids column if not present
+  try { db.run(`ALTER TABLE expenses ADD COLUMN split_ids TEXT NOT NULL DEFAULT ''`); save(); } catch(_) {}
 
   // Seed members
   if (get('SELECT COUNT(*) as c FROM members').c === 0) {
@@ -195,9 +198,6 @@ app.get('/api/activity', (_req, res) => {
 });
 
 app.delete('/api/activity/:id', (req, res) => {
-  const { requester } = req.body || {};
-  if (!requester || requester.toLowerCase() !== 'sreekanth')
-    return res.status(403).json({ error: 'Not allowed' });
   run('DELETE FROM activity_log WHERE id=?', [+req.params.id]);
   res.json({ ok: true });
 });
@@ -250,16 +250,23 @@ app.get('/api/locations', (_req, res) => {
 // ═══════════════════════════════════════════════════════════
 //  EXPENSES
 // ═══════════════════════════════════════════════════════════
-const EXP_SEL = `SELECT e.id,e.desc,e.amount,e.category,e.created_at,m.id as payer_id,m.name as payer_name FROM expenses e JOIN members m ON e.payer_id=m.id`;
+const EXP_SEL = `SELECT e.id,e.desc,e.amount,e.category,e.created_at,e.split_ids,m.id as payer_id,m.name as payer_name FROM expenses e JOIN members m ON e.payer_id=m.id`;
 
-app.get('/api/expenses', (_req, res) => res.json(all(EXP_SEL + ' ORDER BY e.id DESC')));
+function parseExpRow(row) {
+  if (!row) return row;
+  try { row.split_ids = row.split_ids ? JSON.parse(row.split_ids) : []; } catch(_) { row.split_ids = []; }
+  return row;
+}
+
+app.get('/api/expenses', (_req, res) => res.json(all(EXP_SEL + ' ORDER BY e.id DESC').map(parseExpRow)));
 
 app.post('/api/expenses', (req, res) => {
-  const { payer_id, desc, amount, category, logged_by } = req.body;
+  const { payer_id, desc, amount, category, split_ids, logged_by } = req.body;
   if (!payer_id || !desc || !amount) return res.status(400).json({ error: 'Missing fields' });
-  run('INSERT INTO expenses (payer_id,desc,amount,category,created_at) VALUES (?,?,?,?,?)',
-      [+payer_id, desc.trim(), parseFloat(amount), category || 'Misc', istDate()]);
-  const row = all(EXP_SEL + ' ORDER BY e.id DESC LIMIT 1')[0];
+  const splitJson = Array.isArray(split_ids) && split_ids.length ? JSON.stringify(split_ids.map(Number)) : '';
+  run('INSERT INTO expenses (payer_id,desc,amount,category,created_at,split_ids) VALUES (?,?,?,?,?,?)',
+      [+payer_id, desc.trim(), parseFloat(amount), category || 'Misc', istDate(), splitJson]);
+  const row = parseExpRow(all(EXP_SEL + ' ORDER BY e.id DESC LIMIT 1')[0]);
   if (logged_by) logActivity(logged_by, 'added expense', `${desc} ₹${amount}`);
   res.json(row);
 });
@@ -269,7 +276,7 @@ app.put('/api/expenses/:id', (req, res) => {
   run('UPDATE expenses SET payer_id=?,desc=?,amount=?,category=? WHERE id=?',
       [+payer_id, desc.trim(), parseFloat(amount), category, +req.params.id]);
   if (logged_by) logActivity(logged_by, 'edited expense', `${desc} ₹${amount}`);
-  res.json(get(EXP_SEL + ' WHERE e.id=?', [+req.params.id]));
+  res.json(parseExpRow(get(EXP_SEL + ' WHERE e.id=?', [+req.params.id])));
 });
 
 app.delete('/api/expenses/:id', (req, res) => {
