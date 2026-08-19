@@ -2961,6 +2961,37 @@ function shareMyLocation(){
   _locInterval = setInterval(doShare, 3 * 60 * 1000);
 }
 
+// ── CHAT NOTIFICATION SOUND ───────────────────────────────
+function playChatSound(){
+  try{
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // First tone — soft high note
+    var o1 = ctx.createOscillator();
+    var g1 = ctx.createGain();
+    o1.connect(g1); g1.connect(ctx.destination);
+    o1.type = 'sine';
+    o1.frequency.setValueAtTime(880, ctx.currentTime);
+    o1.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.08);
+    g1.gain.setValueAtTime(0, ctx.currentTime);
+    g1.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.01);
+    g1.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+    o1.start(ctx.currentTime);
+    o1.stop(ctx.currentTime + 0.22);
+    // Second tone — slightly lower, delayed
+    var o2 = ctx.createOscillator();
+    var g2 = ctx.createGain();
+    o2.connect(g2); g2.connect(ctx.destination);
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(660, ctx.currentTime + 0.12);
+    o2.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.20);
+    g2.gain.setValueAtTime(0, ctx.currentTime + 0.12);
+    g2.gain.linearRampToValueAtTime(0.14, ctx.currentTime + 0.14);
+    g2.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.38);
+    o2.start(ctx.currentTime + 0.12);
+    o2.stop(ctx.currentTime + 0.38);
+  } catch(_){}
+}
+
 // ── CHAT ─────────────────────────────────────────────────
 var CHAT_MSGS    = [];
 var CHAT_LAST_ID = 0;
@@ -3028,6 +3059,9 @@ async function chatPoll(){
     if(!newMsgs.length) return;
     newMsgs.forEach(function(m){ CHAT_MSGS.push(m); });
     CHAT_LAST_ID = newMsgs[newMsgs.length-1].id;
+    // play sound for messages from others
+    var fromOthers = newMsgs.filter(function(m){ return m.member_id !== (CURRENT_USER&&CURRENT_USER.id); });
+    if(fromOthers.length) playChatSound();
     if(CHAT_FULL_OPEN){
       renderMsgs('chatFullBody', true);
       chatMarkRead();
