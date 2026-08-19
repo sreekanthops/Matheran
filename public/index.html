@@ -522,16 +522,23 @@ body{
 /* ── USER BADGE in sidebar ───────────────────────────── */
 .sb-user{
   display:flex;align-items:center;gap:10px;
-  padding:12px 18px;border-top:1px solid rgba(255,255,255,.1);
+  padding:12px 18px;
+  border-top:1px solid rgba(255,255,255,.1);
   cursor:pointer;
+  position:sticky;bottom:0;
+  background:linear-gradient(135deg,rgba(10,46,43,.97),rgba(26,53,80,.97));
+  backdrop-filter:blur(8px);
+  transition:background .15s;
 }
+.sb-user:hover{background:rgba(239,68,68,.25);}
 .sb-user-av{
-  width:32px;height:32px;border-radius:50%;
+  width:34px;height:34px;border-radius:50%;
   color:#fff;font-size:13px;font-weight:800;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
 }
 .sb-user-name{font-size:13px;font-weight:700;color:#fff;flex:1;}
-.sb-user-out{font-size:11px;color:rgba(255,255,255,.5);}
+.sb-user-out{font-size:11px;color:rgba(255,100,100,.7);font-weight:600;}
 
 /* ── ACTIVITY LOG ────────────────────────────────────── */
 .act-row{
@@ -675,13 +682,13 @@ body{
 }
 .chat-msg.me .chat-reply-preview{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5);}
 .chat-del-btn{
-  position:absolute;top:-6px;right:-6px;
-  background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:50%;
-  width:17px;height:17px;font-size:8px;cursor:pointer;
-  display:none;align-items:center;justify-content:center;font-weight:900;
-  box-shadow:0 2px 6px rgba(239,68,68,.4);
+  background:none;border:none;color:var(--muted-light);
+  font-size:14px;cursor:pointer;padding:2px 4px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:6px;transition:all .15s;flex-shrink:0;
+  align-self:flex-end;margin-bottom:4px;
 }
-.chat-bubble:hover .chat-del-btn{display:flex;}
+.chat-del-btn:hover{color:#ef4444;background:rgba(239,68,68,.1);}
 /* full-page chat */
 .chat-full-page{display:flex;flex-direction:column;height:calc(100vh - 64px);}
 .chat-full-body{
@@ -3103,16 +3110,16 @@ function renderMsgs(containerId, scrollBottom){
       var orig = CHAT_MSGS.find(function(x){ return x.id === m.reply_to; });
       if(orig) replyHtml = '<div class="chat-reply-preview">↩ <strong>'+escHtml(orig.name)+'</strong>: '+escHtml(orig.msg.substring(0,50))+'</div>';
     }
-    var delBtn = isMe ? '<button class="chat-del-btn" data-del="'+m.id+'">✕</button>' : '';
+    var delBtn = isMe ? '<button class="chat-del-btn" data-del="'+m.id+'" title="Delete">🗑️</button>' : '';
     html +=
       '<div class="chat-msg'+(isMe?' me':'')+'" data-id="'+m.id+'">' +
         (isMe ? '' : '<div class="chat-av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>') +
         '<div class="chat-bubble" data-reply="'+m.id+'">' +
-          delBtn +
           '<div class="chat-name">'+escHtml(m.name)+'</div>' +
           replyHtml + escHtml(m.msg) +
           '<div class="chat-ts">'+(m.ts?m.ts.split(' ')[1]||'':'')+'</div>' +
         '</div>' +
+        delBtn +
         (isMe ? '<div class="chat-av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>' : '') +
       '</div>';
   });
