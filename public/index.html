@@ -4447,10 +4447,11 @@ renderMsgs = function(containerId, scrollBottom){
 };
 
 // ── PLAN UNIFIED NOTES ────────────────────────────────────
-var PLAN_NOTES_KEY = 'matheran_plan_notes_v2';
+var PLAN_NOTES_KEY = 'matheran_plan_notes_v3';
 
 // Flat list of notes, each with optional day label for grouping
 var PLAN_NOTES_DEFAULT = [
+  {id:8,  day:'⚠️ Alert', text:'🚂 TOY TRAIN SUSPENDED — Neral ↔ Matheran all train service is suspended from 15 Jun to 14 Oct 2026 due to monsoon. Only Matheran ↔ Amanlodge shuttle service is running. Plan travel via road (cab/auto from Neral).', color:'red'},
   {id:1,  day:'Day 1', text:'Carry extra cash — most Matheran stalls are cash only',            color:'amber'},
   {id:2,  day:'Day 1', text:'Download offline Google Maps before leaving home',                  color:'blue'},
   {id:3,  day:'Day 1', text:'Apply Odomos BEFORE starting any trail — leeches are active!',     color:'red'},
