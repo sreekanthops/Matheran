@@ -1686,6 +1686,66 @@ body{
       </div>
     </div>
   </div>
+  <!-- How to reach Matheran card -->
+  <div class="card" style="margin-bottom:18px;">
+    <div class="ch" style="cursor:pointer;user-select:none;" id="reachToggle">
+      🚆 How to Reach Matheran
+      <span id="reachChevron" style="margin-left:auto;font-size:13px;color:var(--muted);transition:transform .2s;">▼</span>
+    </div>
+    <div class="cb" id="reachBody" style="padding:0;display:none;">
+
+      <!-- Route summary pill -->
+      <div style="background:linear-gradient(135deg,#0f766e,#1a3550);color:#fff;border-radius:10px;padding:10px 14px;margin:12px 14px 4px;font-size:12px;font-weight:700;line-height:1.7;">
+        Neral Stn → Shared Taxi ₹100 → Dasturi Naka → Entry ₹50 → E-Rick ₹35–45 / Horse ₹300–600 / Walk (free) → <strong>Matheran</strong>
+      </div>
+
+      <!-- Step 1 -->
+      <div style="padding:12px 14px 0;">
+        <div style="font-size:12px;font-weight:900;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🚉 Step 1 — Neral Station</div>
+        <div class="tr"><div class="ti">📍</div><div class="tx">Get off at <strong>Neral Railway Station</strong>. If coming from Mumbai, <strong>Platform 2</strong> is convenient (Matheran side).</div></div>
+        <div class="tr"><div class="ti">🚪</div><div class="tx">Exit toward the <strong>Matheran taxi stand</strong>.</div></div>
+      </div>
+
+      <div class="divider" style="margin:8px 14px;"></div>
+
+      <!-- Step 2 -->
+      <div style="padding:0 14px;">
+        <div style="font-size:12px;font-weight:900;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🚕 Step 2 — Shared Taxi to Dasturi Naka</div>
+        <div class="tr"><div class="ti">💰</div><div class="tx"><strong>~₹100/person</strong> · 8–9 km · ~20–30 mins</div></div>
+        <div class="tr"><div class="ti">📍</div><div class="tx">Drops at <strong>Dasturi Naka / Car Park</strong> — vehicles cannot go beyond this point.</div></div>
+      </div>
+
+      <div class="divider" style="margin:8px 14px;"></div>
+
+      <!-- Step 3 -->
+      <div style="padding:0 14px;">
+        <div style="font-size:12px;font-weight:900;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🎟️ Step 3 — Matheran Entry Fee</div>
+        <div class="tr"><div class="ti">🎫</div><div class="tx"><strong>~₹50/person</strong> — pay at the gate before entering.</div></div>
+      </div>
+
+      <div class="divider" style="margin:8px 14px;"></div>
+
+      <!-- Step 4 -->
+      <div style="padding:0 14px 12px;">
+        <div style="font-size:12px;font-weight:900;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🏔️ Step 4 — Dasturi Naka → Matheran</div>
+        <div class="tr"><div class="ti">🛺</div><div class="tx"><strong>E-Rickshaw ~₹35–45/person</strong> — cheapest &amp; easiest.</div></div>
+        <div class="tr"><div class="ti">🐎</div><div class="tx"><strong>Horse ~₹300–600/person</strong> — confirm price before riding, can vary by season.</div></div>
+        <div class="tr"><div class="ti">🚶</div><div class="tx"><strong>Walk ~2.5–3 km</strong> · 30–40 mins · Free!</div></div>
+      </div>
+
+      <div class="divider" style="margin:0 14px;"></div>
+
+      <!-- Toy train note -->
+      <div style="padding:10px 14px 14px;background:#fef2f2;border-radius:0 0 var(--radius) var(--radius);">
+        <div style="font-size:12px;font-weight:900;color:#dc2626;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">🚂 Toy Train — Important Note</div>
+        <div style="font-size:13px;color:#7f1d1d;line-height:1.6;">
+          Neral ↔ Matheran toy train is <strong>suspended 15 Jun – 14 Oct 2026</strong> (monsoon). Only the <strong>Amanlodge ↔ Matheran</strong> shuttle runs. Plan via road.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Plan cover image zone -->
   <div id="plan-cover-zone" style="margin-bottom:18px;"></div>
   <!-- Unified Important Notes -->
@@ -4975,6 +5035,15 @@ function notesReset(){
   renderNotes();
   toast('Notes reset to default');
 }
+
+// ── HOW TO REACH TOGGLE ───────────────────────────────────
+document.getElementById('reachToggle').addEventListener('click', function(){
+  var body = document.getElementById('reachBody');
+  var chev = document.getElementById('reachChevron');
+  var open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  chev.style.transform = open ? 'rotate(180deg)' : '';
+});
 
 // ── KICK OFF ──────────────────────────────────────────────
 document.getElementById('loginBtn').addEventListener('click', doLogin);
