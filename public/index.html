@@ -5093,7 +5093,7 @@ function renderNotes(){
   var notes = notesGet();
   var filtered = NOTES_SEL_CAT === 'all' ? notes : notes.filter(function(n){return n.cat===NOTES_SEL_CAT;});
   var pinned = filtered.filter(function(n){return n.pinned;});
-  var rest = filtered.filter(function(n){return !n.pinned;});
+  var rest = filtered.filter(function(n){return !n.pinned;}).slice().reverse();
 
   // Stats
   var total = notes.length;
