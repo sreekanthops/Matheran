@@ -579,7 +579,7 @@ body{
 /* FAB bubble */
 @keyframes fabPulse{0%,100%{box-shadow:0 6px 24px rgba(15,118,110,.5),0 0 0 0 rgba(15,118,110,.4);}70%{box-shadow:0 6px 24px rgba(15,118,110,.5),0 0 0 10px rgba(15,118,110,.0);}}
 .chat-fab{
-  position:fixed;bottom:24px;right:20px;z-index:400;
+  position:fixed;bottom:82px;right:20px;z-index:500;
   width:60px;height:60px;border-radius:50%;
   background:linear-gradient(135deg,#0f766e,#14b8a6);
   color:#fff;font-size:26px;border:none;cursor:pointer;
@@ -598,7 +598,7 @@ body{
 }
 /* popup box */
 .chat-popup{
-  position:fixed;bottom:96px;right:20px;z-index:401;
+  position:fixed;bottom:154px;right:20px;z-index:501;
   width:350px;max-width:calc(100vw - 32px);
   background:#fff;border-radius:24px;
   box-shadow:0 20px 60px rgba(0,0,0,.2);
@@ -743,7 +743,7 @@ body{
 .chat-full-reply-txt{flex:1;color:var(--blue);font-weight:600;}
 /* toast-style new message banner (floats above FAB) */
 .chat-new-toast{
-  position:fixed;bottom:96px;right:20px;z-index:402;
+  position:fixed;bottom:154px;right:20px;z-index:502;
   background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;
   padding:11px 16px;border-radius:18px;font-size:12px;font-weight:600;
   box-shadow:0 6px 24px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
@@ -2021,6 +2021,10 @@ body{
 
 <!-- ── BOTTOM QUICK-NAV ── -->
 <nav class="bnav" id="bottomNav">
+  <button class="bnav-btn" data-bnav="home" onclick="navTo('home')">
+    <span class="bnav-icon">🏠</span>
+    <span class="bnav-lbl">Home</span>
+  </button>
   <button class="bnav-btn" data-bnav="itinerary" onclick="navTo('itinerary')">
     <span class="bnav-icon">📅</span>
     <span class="bnav-lbl">Plan</span>
@@ -2029,10 +2033,6 @@ body{
     <span class="bnav-icon">📸</span>
     <span class="bnav-lbl">Photos</span>
   </button>
-  <button class="bnav-btn" data-bnav="expenses" onclick="navTo('expenses')">
-    <span class="bnav-icon">💸</span>
-    <span class="bnav-lbl">Expenses</span>
-  </button>
   <button class="bnav-btn" data-bnav="notes" onclick="navTo('notes')">
     <span class="bnav-icon">📝</span>
     <span class="bnav-lbl">Notes</span>
@@ -2040,6 +2040,10 @@ body{
   <button class="bnav-btn" data-bnav="spots" onclick="navTo('spots')">
     <span class="bnav-icon">🏔️</span>
     <span class="bnav-lbl">Spots</span>
+  </button>
+  <button class="bnav-btn" data-bnav="packing" onclick="navTo('packing')">
+    <span class="bnav-icon">🎒</span>
+    <span class="bnav-lbl">Packing</span>
   </button>
 </nav>
 
