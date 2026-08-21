@@ -1104,6 +1104,49 @@ body{
 .plan-day-title{font-size:18px;font-weight:900;color:#fff;}
 .plan-day-sub{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px;}
 
+/* ── PLAN A/B TOGGLE ──────────────────────────────────────── */
+.plan-ab-bar{
+  background:#fff;border-radius:var(--radius);
+  border:2px solid var(--border);margin-bottom:14px;
+  padding:12px 14px;box-shadow:var(--shadow);
+}
+.plan-ab-label{
+  font-size:11px;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;
+}
+.plan-ab-btns{display:flex;gap:8px;}
+.plan-ab-btn{
+  flex:1;display:flex;align-items:center;gap:10px;
+  border:2px solid var(--border);border-radius:12px;
+  padding:10px 12px;background:#f8fafc;cursor:pointer;
+  transition:all .18s;text-align:left;
+}
+.plan-ab-btn:hover{border-color:var(--primary-light);background:#f0fdf4;}
+.plan-ab-active{
+  border-color:var(--primary)!important;
+  background:linear-gradient(135deg,#f0fdf4,#eff6ff)!important;
+  box-shadow:0 2px 10px rgba(15,118,110,.12);
+}
+.plan-ab-active-b{
+  border-color:#16a34a!important;
+  background:linear-gradient(135deg,#f0fdf4,#dcfce7)!important;
+  box-shadow:0 2px 10px rgba(22,163,74,.12)!important;
+}
+.plan-ab-pill{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  color:#fff;font-size:14px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+}
+.plan-ab-pill-b{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+}
+.plan-ab-btxt{
+  display:flex;flex-direction:column;gap:1px;flex:1;
+}
+.plan-ab-btxt strong{font-size:13px;color:var(--txt);}
+.plan-ab-sub{font-size:11px;color:var(--muted);font-weight:500;}
+
 /* ── PLAN HERO HEADER ─────────────────────────────────────── */
 .plan-hero{
   position:relative;border-radius:var(--radius-lg);overflow:hidden;
@@ -2836,7 +2879,11 @@ document.getElementById('addItemBtn').addEventListener('click',async function(){
 document.getElementById('newItem').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('addItemBtn').click();});
 
 // ── ITINERARY ─────────────────────────────────────────────
-var PLAN_KEY = 'matheran_plan_v1';
+var PLAN_KEY   = 'matheran_plan_v1';
+var PLAN_B_KEY = 'matheran_plan_b_v1';
+var ACTIVE_PLAN = localStorage.getItem('matheran_active_plan') || 'A';
+
+function getActivePlanKey(){ return ACTIVE_PLAN === 'B' ? PLAN_B_KEY : PLAN_KEY; }
 
 var PLAN_DEFAULT = [
   {
@@ -2884,14 +2931,61 @@ var PLAN_DEFAULT = [
   }
 ];
 
+var PLAN_B_DEFAULT = [
+  {
+    day: 'Day 1 — 29th August (Saturday)',
+    subtitle: 'Arrival + Major Viewpoints',
+    banner: {color:'#f0fdf4',border:'#16a34a',text:'#166534',msg:'🏔️ <b>Plan B</b> — Arrive early, check-in fast, hit the major viewpoints while energy is peak!'},
+    infoCards: [],
+    items: [
+      {time:'3:30 AM',  text:'🚂 Surat group arrives Kalyan — chai & rest, wait for Hyd group'},
+      {time:'~5:30 AM', text:'🚂 Hyderabad group arrives — Gang of 13 together! 🎉'},
+      {time:'6:00 AM',  text:'🚗 Depart for Neral — cabs/vehicles'},
+      {time:'~7:45 AM', text:'🚉 Reach Neral — head up to Matheran (e-rick / shuttle)'},
+      {time:'~10:00 AM',text:'🏔️ Arrive Matheran'},
+      {time:'11:00 AM', text:'🏨 CHECK-IN ✅ — drop bags, quick freshen up', highlight:'#2563eb'},
+      {time:'11:30 AM', text:'☕ Welcome tea & quick snack — fuel up before viewpoints!'},
+      {time:'12:00 PM', text:'🌄 Head to <b>Panorama Point</b> — 360° views of Sahyadri ranges. Best in clear weather!', highlight:'#16a34a'},
+      {time:'1:00 PM',  text:'🔊 <b>Echo Point</b> — shout & hear your echo from the valley 🎤'},
+      {time:'2:00 PM',  text:'🍽️ Lunch — resort buffet or pack lunch on the trail'},
+      {time:'3:30 PM',  text:'💙 <b>Charlotte Lake</b> — peaceful walk through red mud trails'},
+      {time:'4:30 PM',  text:'🌄 <b>Louisa Point</b> — stunning valley views, less crowded sunset spot'},
+      {time:'6:00 PM',  text:'🏨 Return to resort — freshen up & relax'},
+      {time:'8:00 PM',  text:'🌙 Dinner — Pure Veg spread'},
+      {time:'9:30 PM',  text:'🎵 Night DJ Party! 🎉 Pool-side dancing & fun'},
+      {time:'11:30 PM', text:'😴 Rest — big departure day tomorrow!'}
+    ]
+  },
+  {
+    day: 'Day 2 — 30th August (Sunday)',
+    subtitle: 'Pool, Games & Departure',
+    banner: null,
+    infoCards: [],
+    items: [
+      {time:'7:30 AM',  text:'☀️ Relaxed breakfast — no early trek today, you earned it!'},
+      {time:'9:00 AM',  text:'🏊 Pool session — swim & unwind before checkout'},
+      {time:'10:00 AM', text:'🚪 CHECK-OUT — vacate rooms, store luggage at reception', highlight:'#ea580c'},
+      {time:'10:30 AM', text:'🏸 Sports — Badminton · Cricket · Volleyball · Carrom'},
+      {time:'12:00 PM', text:'🦅 Optional: <b>One Tree Hill Point</b> or <b>Hart Point</b> — short easy walk for those who want more views'},
+      {time:'1:30 PM',  text:'🍽️ Final lunch together — last resort meal!'},
+      {time:'3:00 PM',  text:'😴 Rest / free time — nap, chat, enjoy the vibes'},
+      {time:'4:30 PM',  text:'☕ Evening tea · last group hangout'},
+      {time:'5:30 PM',  text:'📸 Group photos · souvenir shopping at Matheran market'},
+      {time:'7:30 PM',  text:'🚌 Collect luggage & depart Matheran'},
+      {time:'~9:00 PM', text:'🚉 Reach Neral — dinner at station / nearby restaurant'},
+      {time:'~10:00 PM',text:'🚂 All board return trains — safe journey! 🙏✨', highlight:'#0f172a'}
+    ]
+  }
+];
+
 function planLoad() {
-  try { return JSON.parse(localStorage.getItem(PLAN_KEY)) || null; } catch(e){ return null; }
+  try { return JSON.parse(localStorage.getItem(getActivePlanKey())) || null; } catch(e){ return null; }
 }
 function planSave(data) {
-  localStorage.setItem(PLAN_KEY, JSON.stringify(data));
+  localStorage.setItem(getActivePlanKey(), JSON.stringify(data));
 }
 function planGet() {
-  return planLoad() || JSON.parse(JSON.stringify(PLAN_DEFAULT));
+  return planLoad() || JSON.parse(JSON.stringify(ACTIVE_PLAN === 'B' ? PLAN_B_DEFAULT : PLAN_DEFAULT));
 }
 
 function renderItinerary() {
@@ -4727,7 +4821,23 @@ renderItinerary = function() {
   var plan = planGet();
   var root = document.getElementById('itinerary-root');
 
-  root.innerHTML = plan.map(function(day, di) {
+  // ── Plan A / B toggle header ─────────────────────────────
+  var toggleHtml =
+    '<div class="plan-ab-bar">' +
+      '<div class="plan-ab-label">Switch Plan:</div>' +
+      '<div class="plan-ab-btns">' +
+        '<button class="plan-ab-btn'+(ACTIVE_PLAN==='A'?' plan-ab-active':'')+'" id="planBtnA">' +
+          '<span class="plan-ab-pill">A</span>' +
+          '<span class="plan-ab-btxt"><strong>Plan A</strong><span class="plan-ab-sub">Arrive & Settle — trek Day 2</span></span>' +
+        '</button>' +
+        '<button class="plan-ab-btn'+(ACTIVE_PLAN==='B'?' plan-ab-active plan-ab-active-b':'')+'" id="planBtnB">' +
+          '<span class="plan-ab-pill plan-ab-pill-b">B</span>' +
+          '<span class="plan-ab-btxt"><strong>Plan B</strong><span class="plan-ab-sub">Hit viewpoints Day 1 — relax Day 2</span></span>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+
+  root.innerHTML = toggleHtml + plan.map(function(day, di) {
     // banner
     var bannerHtml = '';
     if (day.banner) {
@@ -4833,6 +4943,24 @@ renderItinerary = function() {
       if(inputs.length) inputs[inputs.length-1].focus();
       toast('Step added');
     });
+  });
+
+  // Plan A / B switch buttons
+  var btnA = root.querySelector('#planBtnA');
+  var btnB = root.querySelector('#planBtnB');
+  if(btnA) btnA.addEventListener('click', function(){
+    if(ACTIVE_PLAN==='A') return;
+    ACTIVE_PLAN='A';
+    localStorage.setItem('matheran_active_plan','A');
+    renderItinerary();
+    toast('Switched to Plan A 📋');
+  });
+  if(btnB) btnB.addEventListener('click', function(){
+    if(ACTIVE_PLAN==='B') return;
+    ACTIVE_PLAN='B';
+    localStorage.setItem('matheran_active_plan','B');
+    renderItinerary();
+    toast('Switched to Plan B 🏔️');
   });
 
 };
