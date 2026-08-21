@@ -120,7 +120,7 @@ body{
 
 /* MAIN CONTENT */
 .main{flex:1;min-width:0;display:flex;flex-direction:column;}
-.main-body{flex:1;padding:20px 22px 40px;max-width:860px;width:100%;}
+.main-body{flex:1;padding:20px 22px 96px;max-width:860px;width:100%;}
 
 /* PAGES */
 .pg{display:none;}
@@ -160,8 +160,35 @@ body{
 
   /* Push content right only when sidebar is open */
   .main{width:100%;}
-  .main-body{padding:14px 12px 40px;padding-top:64px;}
+  .main-body{padding:14px 12px 96px;padding-top:64px;}
 }
+
+/* ── BOTTOM QUICK-NAV ──────────────────────────────────────── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:400;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(14px);
+  border-top:1px solid var(--border);
+  display:none; /* hidden until login */
+  flex-direction:row;align-items:stretch;
+  box-shadow:0 -4px 20px rgba(0,0,0,.08);
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.bnav.show{display:flex;}
+.bnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:8px 0 7px;border:none;background:none;
+  cursor:pointer;transition:all .15s;position:relative;
+}
+.bnav-btn::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:0;height:3px;border-radius:0 0 4px 4px;
+  background:var(--primary);transition:width .2s;
+}
+.bnav-btn.on::before{width:28px;}
+.bnav-btn.on .bnav-icon{transform:scale(1.18);}
+.bnav-btn.on .bnav-lbl{color:var(--primary);font-weight:800;}
+.bnav-icon{font-size:20px;line-height:1;transition:transform .15s;}
+.bnav-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.2px;}
 
 /* CARD */
 .card{
@@ -1991,6 +2018,31 @@ body{
 
 </div><!-- /main-body -->
 </div><!-- /main -->
+
+<!-- ── BOTTOM QUICK-NAV ── -->
+<nav class="bnav" id="bottomNav">
+  <button class="bnav-btn" data-bnav="itinerary" onclick="navTo('itinerary')">
+    <span class="bnav-icon">📅</span>
+    <span class="bnav-lbl">Plan</span>
+  </button>
+  <button class="bnav-btn" data-bnav="gallery" onclick="navTo('gallery')">
+    <span class="bnav-icon">📸</span>
+    <span class="bnav-lbl">Photos</span>
+  </button>
+  <button class="bnav-btn" data-bnav="expenses" onclick="navTo('expenses')">
+    <span class="bnav-icon">💸</span>
+    <span class="bnav-lbl">Expenses</span>
+  </button>
+  <button class="bnav-btn" data-bnav="notes" onclick="navTo('notes')">
+    <span class="bnav-icon">📝</span>
+    <span class="bnav-lbl">Notes</span>
+  </button>
+  <button class="bnav-btn" data-bnav="spots" onclick="navTo('spots')">
+    <span class="bnav-icon">🏔️</span>
+    <span class="bnav-lbl">Spots</span>
+  </button>
+</nav>
+
 </div><!-- /layout -->
 
 <!-- ══ FLOATING CHAT WIDGET (outside layout) ════════════════ -->
@@ -2213,6 +2265,11 @@ function doLogout(){
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appLayout').style.display='flex';
+  bnavShow();
+  // highlight the default active tab in bottom nav
+  document.querySelectorAll('.bnav-btn').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-bnav') === 'itinerary');
+  });
   // update sidebar badge
   var u = CURRENT_USER;
   document.getElementById('sbUserAv').textContent = aInit(u.name);
@@ -4979,7 +5036,16 @@ goTab = function(id, el){
   if(id==='chat'){ chatMarkRead(); renderMsgs('chatFullBody', true); }
   if(id==='secret') spInit();
   if(window.innerWidth<=768) closeSidebar();
+  // update bottom nav highlight
+  document.querySelectorAll('.bnav-btn').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-bnav') === id);
+  });
 };
+
+// show bottom nav after login
+function bnavShow(){
+  document.getElementById('bottomNav').classList.add('show');
+}
 
 // ── NOTES PAGE ────────────────────────────────────────────
 var NOTES_KEY = 'matheran_notes_v2';
