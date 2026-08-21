@@ -985,6 +985,331 @@ body{
   background:rgba(245,158,11,.18) !important;
   border-left-color:#fbbf24 !important;
 }
+
+/* ── PLAN COVER SLIDER ────────────────────────────────────── */
+.plan-slider-wrap{
+  position:relative;border-radius:var(--radius-lg);overflow:hidden;
+  background:linear-gradient(135deg,#0f4c45,#1a3550);
+  box-shadow:var(--shadow-lg);margin-bottom:4px;
+  user-select:none;
+}
+.plan-slider-track{
+  display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.plan-slider-slide{
+  min-width:100%;position:relative;
+}
+.plan-slider-slide img{
+  width:100%;display:block;object-fit:contain;
+  background:#000;cursor:zoom-in;
+  border-radius:0;max-height:340px;
+}
+.plan-slider-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(0,0,0,.62));
+  padding:14px 16px 10px;
+  pointer-events:none;
+}
+.plan-slider-caption{
+  font-size:12px;color:rgba(255,255,255,.85);font-weight:600;
+}
+/* top-right action bar */
+.plan-slider-actions{
+  position:absolute;top:9px;right:9px;display:flex;gap:5px;z-index:4;
+}
+.plan-slider-btn{
+  background:rgba(0,0,0,.48);backdrop-filter:blur(8px);
+  color:#fff;border:1px solid rgba(255,255,255,.22);
+  border-radius:8px;padding:5px 9px;font-size:11px;font-weight:700;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.plan-slider-btn:hover{background:rgba(0,0,0,.68);}
+.plan-slider-del{background:rgba(200,30,30,.52);}
+.plan-slider-del:hover{background:rgba(200,30,30,.82);}
+/* prev / next arrows */
+.plan-slider-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(0,0,0,.42);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.2);color:#fff;
+  font-size:16px;cursor:pointer;z-index:4;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.plan-slider-arrow:hover{background:rgba(0,0,0,.65);}
+.plan-slider-prev{left:9px;}
+.plan-slider-next{right:9px;}
+/* dot indicators */
+.plan-slider-dots{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  display:flex;gap:5px;z-index:4;
+}
+.plan-slider-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,.45);cursor:pointer;
+  transition:all .2s;border:none;padding:0;
+}
+.plan-slider-dot.on{
+  background:#fff;width:18px;border-radius:4px;
+}
+/* counter badge */
+.plan-slider-counter{
+  position:absolute;top:9px;left:9px;z-index:4;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+  color:#fff;border-radius:20px;padding:3px 10px;
+  font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.18);
+}
+/* add button below slider */
+.plan-slider-add-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 12px 6px;background:rgba(255,255,255,.07);
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.plan-slider-add-btn{
+  flex:1;background:rgba(255,255,255,.12);border:1.5px dashed rgba(255,255,255,.35);
+  color:rgba(255,255,255,.9);border-radius:8px;padding:7px 14px;
+  font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center;
+}
+.plan-slider-add-btn:hover{background:rgba(255,255,255,.22);border-color:#fff;}
+/* empty cover placeholder */
+.plan-cover-empty{
+  border-radius:var(--radius-lg);
+  border:2.5px dashed #cbd5e1;
+  padding:32px 20px;text-align:center;
+  background:linear-gradient(135deg,#f8fafc,#f0fdf4);
+  cursor:pointer;transition:all .2s;
+}
+.plan-cover-empty:hover{border-color:var(--primary);background:#f0fdf4;}
+.plan-cover-empty-icon{font-size:38px;margin-bottom:8px;}
+.plan-cover-empty-txt{font-size:14px;font-weight:700;color:var(--muted);}
+.plan-cover-empty-sub{font-size:12px;color:var(--muted-light);margin-top:4px;}
+
+/* ── PLAN PAGE BEAUTIFUL ──────────────────────────────────── */
+.plan-day-header{
+  background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 60%,#1a3550 100%);
+  color:#fff;border-radius:var(--radius) var(--radius) 0 0;
+  padding:18px 20px 14px;position:relative;overflow:hidden;
+}
+.plan-day-header::before{
+  content:'';position:absolute;top:-40%;right:-10%;
+  width:120px;height:120px;
+  background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);
+  border-radius:50%;
+}
+.plan-day-num{
+  font-size:11px;font-weight:900;color:rgba(255,255,255,.6);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+}
+.plan-day-title{font-size:18px;font-weight:900;color:#fff;}
+.plan-day-sub{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px;}
+
+/* ── PLAN HERO HEADER ─────────────────────────────────────── */
+.plan-hero{
+  position:relative;border-radius:var(--radius-lg);overflow:hidden;
+  background:linear-gradient(135deg,var(--primary-dark) 0%,#1a3a5c 50%,var(--primary) 100%);
+  padding:22px 20px 18px;margin-bottom:18px;
+  box-shadow:var(--shadow-lg);
+}
+.plan-hero-bg{
+  position:absolute;top:-30%;right:-8%;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.plan-hero-content{position:relative;z-index:1;}
+.plan-hero-badge{
+  display:inline-block;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);
+  color:rgba(255,255,255,.92);border-radius:20px;padding:3px 12px;
+  font-size:11px;font-weight:800;letter-spacing:.5px;margin-bottom:8px;
+  border:1px solid rgba(255,255,255,.2);
+}
+.plan-hero-title{font-size:22px;font-weight:900;color:#fff;line-height:1.2;text-shadow:0 2px 8px rgba(0,0,0,.25);}
+.plan-hero-sub{font-size:12px;color:rgba(255,255,255,.78);margin-top:5px;font-weight:500;}
+.plan-hero-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
+.plan-hero-btn{
+  border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:800;
+  cursor:pointer;transition:all .15s;backdrop-filter:blur(6px);
+  box-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+.plan-hero-btn-members{background:rgba(255,255,255,.22);color:#fff;border:1px solid rgba(255,255,255,.3);}
+.plan-hero-btn-members:hover{background:rgba(255,255,255,.35);}
+.plan-hero-btn-expenses{background:rgba(245,158,11,.35);color:#fef3c7;border:1px solid rgba(245,158,11,.4);}
+.plan-hero-btn-expenses:hover{background:rgba(245,158,11,.55);}
+.plan-hero-btn-balance{background:rgba(37,99,235,.35);color:#dbeafe;border:1px solid rgba(37,99,235,.4);}
+.plan-hero-btn-balance:hover{background:rgba(37,99,235,.55);}
+.plan-hero-btn-spots{background:rgba(22,163,74,.3);color:#dcfce7;border:1px solid rgba(22,163,74,.35);}
+.plan-hero-btn-spots:hover{background:rgba(22,163,74,.5);}
+
+/* ── SPOT INLINE EDIT OVERLAY ─────────────────────────────── */
+.spot-edit-overlay{
+  position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.spot-edit-modal{
+  background:#fff;border-radius:var(--radius-lg);padding:22px 20px 18px;
+  width:100%;max-width:420px;box-shadow:var(--shadow-lg);
+}
+.spot-edit-modal-title{font-size:16px;font-weight:900;color:var(--txt);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.spot-edit-modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);padding:0;}
+.spot-edit-field{margin-bottom:11px;}
+.spot-edit-field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.spot-edit-field input,.spot-edit-field textarea{
+  width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:10px;
+  font-size:14px;font-family:inherit;outline:none;color:var(--txt);
+  transition:border-color .15s;resize:none;
+}
+.spot-edit-field input:focus,.spot-edit-field textarea:focus{border-color:var(--primary);}
+.spot-edit-save{
+  width:100%;padding:10px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  color:#fff;font-size:14px;font-weight:800;cursor:pointer;margin-top:4px;
+}
+
+/* ── SPOTS PAGE ───────────────────────────────────────────── */
+.spot-card{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 16px;border-bottom:1px solid #f1f5f9;
+  transition:background .15s;
+}
+.spot-card:last-child{border-bottom:none;}
+.spot-card:hover{background:#f8fafc;}
+.spot-icon-wrap{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+  border:1.5px solid #bbf7d0;
+}
+.spot-body{flex:1;min-width:0;}
+.spot-name{font-size:15px;font-weight:800;color:var(--txt);margin-bottom:3px;}
+.spot-desc{font-size:13px;color:var(--muted);line-height:1.5;}
+.spot-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.spot-edit-btn{
+  background:var(--blue-bg);color:var(--blue);border:1.5px solid #bfdbfe;
+  border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+}
+.spot-del-btn{
+  background:var(--red-bg);color:var(--red);border:1.5px solid #fca5a5;
+  border-radius:8px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;
+}
+
+/* ── CHAT IMAGE ───────────────────────────────────────────── */
+.chat-img{
+  max-width:220px;max-height:200px;border-radius:10px;
+  display:block;margin-top:6px;cursor:pointer;
+  object-fit:cover;
+}
+.chat-img-preview{
+  position:relative;display:inline-block;
+  border-radius:10px;overflow:hidden;border:2px solid var(--border);
+}
+.chat-img-preview img{max-height:80px;max-width:200px;display:block;object-fit:cover;}
+.chat-img-preview-del{
+  position:absolute;top:4px;right:4px;
+  background:rgba(220,38,38,.85);color:#fff;border:none;
+  border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;cursor:pointer;
+}
+
+/* ── NOTES PAGE ───────────────────────────────────────────── */
+.notes-hero{
+  background:linear-gradient(135deg,#1e3a5f 0%,#1a6b5e 50%,#0f4c45 100%);
+  border-radius:var(--radius-lg);padding:24px 20px 20px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+.notes-hero::before{
+  content:'';position:absolute;top:-30%;right:-10%;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(245,158,11,.25),transparent 70%);
+  border-radius:50%;
+}
+.notes-hero-icon{font-size:40px;display:block;margin-bottom:10px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));}
+.notes-hero-title{
+  font-size:22px;font-weight:900;color:#fff;
+  letter-spacing:-.3px;margin-bottom:4px;
+}
+.notes-hero-sub{font-size:13px;color:rgba(255,255,255,.7);}
+.notes-hero-stats{
+  display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;
+}
+.notes-hero-stat{
+  background:rgba(255,255,255,.14);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.2);border-radius:10px;
+  padding:8px 14px;text-align:center;min-width:70px;
+}
+.notes-hero-stat-val{font-size:18px;font-weight:900;color:#fbbf24;}
+.notes-hero-stat-lbl{font-size:10px;color:rgba(255,255,255,.65);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px;}
+
+/* note cards */
+.note-card{
+  border-radius:14px;padding:16px 16px 12px;
+  margin-bottom:12px;position:relative;
+  transition:all .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.note-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.note-card-top{display:flex;align-items:flex-start;gap:10px;}
+.note-card-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.note-card-body{flex:1;min-width:0;}
+.note-card-title{
+  font-size:14px;font-weight:800;margin-bottom:4px;cursor:pointer;
+  border:1.5px solid transparent;border-radius:6px;padding:2px 4px;
+  outline:none;
+}
+.note-card-title:focus{border-color:rgba(0,0,0,.2);background:rgba(255,255,255,.5);}
+.note-card-text{
+  font-size:13px;line-height:1.6;cursor:pointer;
+  border:1.5px solid transparent;border-radius:6px;padding:2px 4px;
+  outline:none;
+}
+.note-card-text:focus{border-color:rgba(0,0,0,.15);background:rgba(255,255,255,.5);}
+.note-card-meta{
+  font-size:11px;margin-top:8px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;opacity:.6;
+}
+.note-card-actions{display:flex;gap:6px;margin-top:10px;}
+.note-card-del{
+  background:rgba(0,0,0,.08);border:none;border-radius:8px;
+  padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .15s;
+}
+.note-card-del:hover{background:rgba(220,38,38,.18);color:#dc2626;}
+.note-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-right:4px;
+}
+/* add note form */
+.note-add-form{
+  background:var(--white);border:2px solid var(--border);
+  border-radius:var(--radius);padding:18px;margin-bottom:18px;
+  box-shadow:var(--shadow);
+}
+.note-add-form-title{
+  font-size:14px;font-weight:800;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.note-color-picker{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;
+}
+.note-color-dot{
+  width:22px;height:22px;border-radius:50%;cursor:pointer;
+  border:2.5px solid transparent;transition:all .15s;
+  flex-shrink:0;
+}
+.note-color-dot.sel{border-color:#374151;transform:scale(1.2);}
+/* category tabs */
+.note-cat-tabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;
+}
+.note-cat-tab{
+  padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;
+  border:1.5px solid var(--border);background:#f8fafc;color:var(--muted);
+  cursor:pointer;transition:all .15s;
+}
+.note-cat-tab.on{
+  background:var(--primary);color:#fff;border-color:var(--primary);
+}
 </style>
 </head>
 <body>
@@ -1032,6 +1357,7 @@ body{
     <button class="tab" onclick="goTab('members',this)"><span class="tab-icon">👥</span><span class="tab-label">Members</span></button>
 
     <div class="sb-section">Trip</div>
+    <button class="tab" onclick="goTab('notes',this)"><span class="tab-icon">📝</span><span class="tab-label">Notes</span></button>
     <button class="tab" onclick="goTab('gallery',this)"><span class="tab-icon">📸</span><span class="tab-label">Photos</span></button>
     <button class="tab" onclick="goTab('packing',this)"><span class="tab-icon">🎒</span><span class="tab-label">Packing</span></button>
     <button class="tab" onclick="goTab('medical',this)"><span class="tab-icon">🩹</span><span class="tab-label">Medical</span></button>
@@ -1159,63 +1485,7 @@ body{
 
 <!-- ══ SPOTS ═════════════════════════════════════════════ -->
 <div id="pg-spots" class="pg">
-  <div class="card">
-    <div class="ch">🏔️ Must-Visit Spots</div>
-    <div class="cb">
-      <div class="tr">
-        <div class="ti">🌅</div>
-        <div class="tx">
-          <strong>Panorama Point</strong> — Best spot for sunrise &amp; 360° panoramic views of the Sahyadri ranges. A must-do early morning walk.
-        </div>
-      </div>
-      <div class="tr">
-        <div class="ti">🔊</div>
-        <div class="tx">
-          <strong>Echo Point</strong> — Stand at the edge and shout — your voice echoes back from the valley! A fun &amp; thrilling experience.
-        </div>
-      </div>
-      <div class="tr">
-        <div class="ti">💙</div>
-        <div class="tx">
-          <strong>Charlotte Lake</strong> — Matheran's main water reservoir. Serene early-morning walk through red mud trails surrounded by forest.
-        </div>
-      </div>
-      <div class="tr">
-        <div class="ti">🌄</div>
-        <div class="tx">
-          <strong>Louisa Point</strong> — Stunning sunset viewpoint, less crowded than Panorama. Overlooks the Prabal &amp; Matheran valley.
-        </div>
-      </div>
-      <div class="tr">
-        <div class="ti">🦅</div>
-        <div class="tx">
-          <strong>One Tree Hill Point</strong> — Short easy trek, great valley views. Named after the lone tree standing at the hilltop.
-        </div>
-      </div>
-      <div class="tr">
-        <div class="ti">🌿</div>
-        <div class="tx">
-          <strong>Hart Point</strong> — Quiet &amp; offbeat viewpoint with sweeping views. Best in early morning with light mist.
-        </div>
-      </div>
-      <div class="tr">
-        <div class="ti">🏞️</div>
-        <div class="tx">
-          <strong>Alexander Point</strong> — Great for photography, overlooks the valley with lush green cover during monsoon.
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="ch">🚶 Trek Tips for Spots</div>
-    <div class="cb">
-      <div class="tr"><div class="ti">⏰</div><div class="tx">Start treks by <strong>6–7 AM</strong> — cooler, misty &amp; less crowded. Sunset spots best by 5:30 PM.</div></div>
-      <div class="tr"><div class="ti">👟</div><div class="tx">Wear <strong>trekking shoes</strong> — red mud trails get very slippery in monsoon.</div></div>
-      <div class="tr"><div class="ti">💧</div><div class="tx">Carry <strong>water &amp; energy snacks</strong> — no stalls midway on most trails.</div></div>
-      <div class="tr"><div class="ti">🧂</div><div class="tx">Keep <strong>salt handy</strong> — leeches are active on all forest trails in August.</div></div>
-      <div class="tr"><div class="ti">📵</div><div class="tx"><strong>No signal</strong> on most trails — download offline maps before leaving resort.</div></div>
-    </div>
-  </div>
+  <div id="spots-root"></div>
 </div>
 
 <!-- ══ EXPENSES ══════════════════════════════════════════ -->
@@ -1401,6 +1671,25 @@ body{
 
 <!-- ══ ITINERARY ══════════════════════════════════════════ -->
 <div id="pg-itinerary" class="pg on">
+  <!-- Plan hero header -->
+  <div class="plan-hero">
+    <div class="plan-hero-bg"></div>
+    <div class="plan-hero-content">
+      <div class="plan-hero-badge">📅 Trip Plan</div>
+      <div class="plan-hero-title">Matheran Trek 2026</div>
+      <div class="plan-hero-sub">Gang of 13 · Redwood Resort · 29–30 August 2026</div>
+      <div class="plan-hero-links">
+        <button class="plan-hero-btn plan-hero-btn-members" onclick="navTo('members')">👥 Members</button>
+        <button class="plan-hero-btn plan-hero-btn-expenses" onclick="navTo('expenses')">💸 Expenses</button>
+        <button class="plan-hero-btn plan-hero-btn-balance" onclick="navTo('balance')">⚖️ Balance</button>
+        <button class="plan-hero-btn plan-hero-btn-spots" onclick="navTo('spots')">🏔️ Spots</button>
+      </div>
+    </div>
+  </div>
+  <!-- Plan cover image zone -->
+  <div id="plan-cover-zone" style="margin-bottom:18px;"></div>
+  <!-- Unified Important Notes -->
+  <div id="plan-notes-unified" style="margin-bottom:18px;"></div>
   <div id="itinerary-root"></div>
 </div>
 
@@ -1410,6 +1699,11 @@ body{
 </div>
 
 <!-- ══ TIPS ═══════════════════════════════════════════════ -->
+<!-- ══ NOTES ═════════════════════════════════════════════ -->
+<div id="pg-notes" class="pg">
+  <div id="notes-root"></div>
+</div>
+
 <div id="pg-tips" class="pg">
   <div class="card">
     <div class="ch">🌤️ Essential Tips</div>
@@ -1541,7 +1835,11 @@ body{
       <button onclick="cancelReply(true)" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);">✕</button>
     </div>
     <div class="chat-full-body" id="chatFullBody"></div>
+    <div id="chatFullImgPreview" style="display:none;padding:8px 16px 4px;background:#fff;border-top:1px solid var(--border);"></div>
     <div class="chat-full-input-row">
+      <label style="cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#f1f5f9;border:2px solid var(--border);font-size:18px;" title="Send image">
+        📷<input type="file" id="chatFullImgInput" accept="image/*" style="display:none;"/>
+      </label>
       <textarea class="chat-full-textarea" id="chatFullInput" placeholder="Message the gang… (Enter to send)" rows="1"></textarea>
       <button class="chat-full-send-btn" id="chatFullSendBtn">➤</button>
     </div>
@@ -1578,7 +1876,11 @@ body{
     <button onclick="cancelReply(false)" style="background:none;border:none;font-size:14px;cursor:pointer;color:var(--muted);padding:0;">✕</button>
   </div>
   <div class="cp-body" id="chatPopupBody"><div class="loading" style="font-size:12px;padding:20px;">Loading…</div></div>
+  <div id="chatPopupImgPreview" style="display:none;padding:6px 12px 2px;border-top:1px solid var(--border);background:#fff;"></div>
   <div class="cp-input-row">
+    <label style="cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#f1f5f9;border:1.5px solid var(--border);font-size:14px;" title="Send image">
+      📷<input type="file" id="chatPopupImgInput" accept="image/*" style="display:none;"/>
+    </label>
     <textarea class="cp-textarea" id="chatPopupInput" placeholder="Message the gang…" rows="1"></textarea>
     <button class="cp-send-btn" id="chatPopupSendBtn">➤</button>
   </div>
@@ -1624,10 +1926,11 @@ function renderVipWelcome(){
         '</div>' +
       '</div>' +
       '<div class="vip-links">' +
-        '<button class="vip-link-btn vip-link-gold" onclick="goTab(\'expenses\',document.querySelector(\'[onclick*=expenses]\'))">💸 Expenses</button>' +
-        '<button class="vip-link-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;box-shadow:0 3px 10px rgba(2,132,199,.25);" onclick="goTab(\'balance\',document.querySelector(\'[onclick*=balance]\'))">⚖️ Balance</button>' +
-        '<button class="vip-link-btn vip-link-teal" onclick="goTab(\'members\',document.querySelector(\'[onclick*=members]\'))">👥 Members</button>' +
-        '<button class="vip-link-btn vip-link-purple" onclick="goTab(\'gallery\',document.querySelector(\'[onclick*=gallery]\'))">📸 Photos</button>' +
+        '<button class="vip-link-btn vip-link-gold" onclick="navTo(\'expenses\')">💸 Expenses</button>' +
+        '<button class="vip-link-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;box-shadow:0 3px 10px rgba(2,132,199,.25);" onclick="navTo(\'balance\')">⚖️ Balance</button>' +
+        '<button class="vip-link-btn vip-link-teal" onclick="navTo(\'members\')">👥 Members</button>' +
+        '<button class="vip-link-btn vip-link-purple" onclick="navTo(\'gallery\')">📸 Photos</button>' +
+        '<button class="vip-link-btn" style="background:linear-gradient(135deg,#14b8a6,#0f766e);color:#fff;box-shadow:0 3px 10px rgba(15,118,110,.25);" onclick="navTo(\'itinerary\')">📅 Plan</button>' +
       '</div>' +
     '</div>';
   el.style.display = 'block';
@@ -1684,11 +1987,22 @@ function closeSidebar(){
   document.getElementById('sbToggle').textContent='☰';
 }
 
+// navTo: navigate by page id, auto-finds the matching sidebar tab
+function navTo(id){
+  var tabs = document.querySelectorAll('#sidebar .tab');
+  var el = null;
+  tabs.forEach(function(t){
+    var oc = t.getAttribute('onclick') || '';
+    if(oc.indexOf("'"+id+"'") !== -1 || oc.indexOf('"'+id+'"') !== -1) el = t;
+  });
+  goTab(id, el || tabs[0]);
+}
+
 function goTab(id,el){
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
   document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('pg-'+id).classList.add('on');
-  el.classList.add('on');
+  if(el) el.classList.add('on');
   if(id==='gallery') renderFolders();
   if(id==='itinerary') renderItinerary();
   if(id==='medical') renderMedical();
@@ -2429,10 +2743,7 @@ var PLAN_DEFAULT = [
     day: 'Day 1 — 29th August (Saturday)',
     subtitle: 'Arrival & Explore',
     banner: {color:'#eff6ff',border:'#2563eb',text:'#1e40af',msg:'🕐 Check-in at <b>11:00 AM</b> — full gang departs together once Hyd group arrives ~5:30 AM'},
-    infoCards: [
-      {bg:'#f0fdf4',border:'#bbf7d0',label:'🚂 Surat Group · 10 members',labelColor:'#16a34a',body:'Train arrives <b>3:30 AM</b><br>Chai break & rest till Hyd group joins',bodyColor:'#166534'},
-      {bg:'#faf5ff',border:'#e9d5ff',label:'🚂 Hyderabad Group · 3 members',labelColor:'#7c3aed',body:'Train arrives <b>~5:30 AM</b><br>Full gang of 13 assembles & departs',bodyColor:'#6d28d9'}
-    ],
+    infoCards: [],
     items: [
       {time:'3:30 AM',  text:'🚂 Surat group (10 members) arrives — grab chai, rest nearby & wait for Hyd group'},
       {time:'~5:30 AM', text:'🚂 Hyderabad group (3 members) arrives — full gang of 13 together! 🎉'},
@@ -2455,10 +2766,7 @@ var PLAN_DEFAULT = [
     day: 'Day 2 — 30th August (Sunday)',
     subtitle: 'Trek, Games & Departure',
     banner: null,
-    infoCards: [
-      {bg:'#fff7ed',border:'#fed7aa',label:'🚪 Check-out',labelColor:'#ea580c',body:'<b>10:00 AM</b>',bodyColor:'#9a3412'},
-      {bg:'#0f172a',border:'#334155',label:'🚂 Return Trains',labelColor:'#94a3b8',body:'<b>~10:00 PM</b>',bodyColor:'#f8fafc'}
-    ],
+    infoCards: [],
     items: [
       {time:'7:00 AM',  text:'☀️ Wake up & morning breakfast'},
       {time:'8:00 AM',  text:'🥾 Morning trek — Charlotte Lake / Echo Point / Louisa Point'},
@@ -2487,75 +2795,34 @@ function planGet() {
 }
 
 function renderItinerary() {
+  // This original function is overridden at bottom by the beautiful version
+  // Keep as no-op; override handles everything
+}
+function _renderItineraryOriginal() {
   var plan = planGet();
   var root = document.getElementById('itinerary-root');
-
-  // Reset button
-  var resetHtml = '<div style="text-align:right;margin-bottom:10px;">'
-    + '<button onclick="planReset()" class="btn btn-sm btn-ghost" style="font-size:12px;">↺ Reset to default</button>'
-    + '</div>';
-
-  root.innerHTML = resetHtml + plan.map(function(day, di) {
-    // info cards
-    var infoHtml = '';
-    if (day.infoCards && day.infoCards.length) {
-      infoHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">'
-        + day.infoCards.map(function(c) {
-          return '<div style="background:'+c.bg+';border:2px solid '+c.border+';border-radius:10px;padding:11px 12px;">'
-            + '<div style="font-size:11px;font-weight:800;color:'+c.labelColor+';text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">'+c.label+'</div>'
-            + '<div style="font-size:13px;color:'+c.bodyColor+';">'+c.body+'</div>'
-            + '</div>';
-        }).join('') + '</div>';
-    }
-
-    // banner
+  root.innerHTML = plan.map(function(day, di) {
     var bannerHtml = '';
     if (day.banner) {
       bannerHtml = '<div style="background:'+day.banner.color+';border-left:4px solid '+day.banner.border
         +';border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:'+day.banner.text+';font-weight:600;">'
         + day.banner.msg + '</div>';
     }
-
-    // timeline rows
     var itemsHtml = day.items.map(function(item, ii) {
-      var dotStyle = item.highlight
-        ? 'background:'+item.highlight+';box-shadow:0 0 0 2px '+item.highlight+';'
-        : '';
+      var dotStyle = item.highlight ? 'background:'+item.highlight+';box-shadow:0 0 0 2px '+item.highlight+';' : '';
       var timeStyle = item.highlight ? 'color:'+item.highlight+';font-weight:900;' : '';
       return '<div class="tli" data-day="'+di+'" data-item="'+ii+'">'
         + '<div class="tld" style="'+dotStyle+'"></div>'
         + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
         +   '<input class="plan-time" data-day="'+di+'" data-item="'+ii+'" value="'+escHtml(item.time)+'"'
-        +     ' style="'+timeStyle+'width:88px;border:1.5px solid transparent;border-radius:6px;'
-        +     'padding:3px 7px;font-size:12px;font-weight:800;font-family:inherit;background:transparent;'
-        +     'text-transform:uppercase;letter-spacing:.3px;cursor:pointer;color:'+(item.highlight||'var(--primary)')+';outline:none;" />'
-        +   '<button class="plan-del" data-day="'+di+'" data-item="'+ii+'"'
-        +     ' style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;flex-shrink:0;" title="Delete">✕</button>'
+        +     ' style="'+timeStyle+'width:88px;border:1.5px solid transparent;border-radius:6px;padding:3px 7px;font-size:12px;font-weight:800;font-family:inherit;background:transparent;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;color:'+(item.highlight||'var(--primary)')+';outline:none;" />'
+        +   '<button class="plan-del" data-day="'+di+'" data-item="'+ii+'" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;flex-shrink:0;" title="Delete">✕</button>'
         + '</div>'
-        + '<div contenteditable="true" class="plan-text" data-day="'+di+'" data-item="'+ii+'"'
-        +   ' style="font-size:14px;color:#4a5568;line-height:1.5;outline:none;border:1.5px solid transparent;'
-        +   'border-radius:6px;padding:3px 6px;min-height:22px;cursor:text;">'
-        +   escHtml(item.text)
-        + '</div>'
+        + '<div contenteditable="true" class="plan-text" data-day="'+di+'" data-item="'+ii+'" style="font-size:14px;color:#4a5568;line-height:1.5;outline:none;border:1.5px solid transparent;border-radius:6px;padding:3px 6px;min-height:22px;cursor:text;">'+escHtml(item.text)+'</div>'
         + '</div>';
     }).join('');
-
-    // add row button
-    var addHtml = '<div style="padding:10px 0 4px 32px;">'
-      + '<button class="plan-add" data-day="'+di+'"'
-      + ' style="background:var(--green-bg);color:var(--green);border:2px dashed #86efac;border-radius:8px;'
-      + 'padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">+ Add step</button>'
-      + '</div>';
-
-    return '<div class="card">'
-      + '<div class="ch">📅 '+escHtml(day.day)+' <span style="font-weight:500;color:var(--muted);font-size:13px;">— '+escHtml(day.subtitle)+'</span></div>'
-      + '<div class="cb">'
-      +   bannerHtml
-      +   infoHtml
-      +   '<div class="tl">' + itemsHtml + '</div>'
-      +   addHtml
-      + '</div>'
-      + '</div>';
+    var addHtml = '<div style="padding:10px 0 4px 32px;"><button class="plan-add" data-day="'+di+'" style="background:var(--green-bg);color:var(--green);border:2px dashed #86efac;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%;">+ Add step</button></div>';
+    return '<div class="card"><div class="ch">📅 '+escHtml(day.day)+'</div><div class="cb">'+bannerHtml+'<div class="tl">'+itemsHtml+'</div>'+addHtml+'</div></div>';
   }).join('');
 
   // attach events
@@ -2727,9 +2994,8 @@ function renderMedical() {
 
   root.innerHTML =
     '<div class="card">' +
-      '<div class="ch" style="display:flex;align-items:center;justify-content:space-between;">' +
+      '<div class="ch">' +
         '<span>🩹 First Aid Kit</span>' +
-        '<button class="xbtn" onclick="medReset()" style="background:#fef2f2;color:#dc2626;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;width:auto;border:1px solid #fca5a5;">↺ Reset</button>' +
       '</div>' +
       '<div class="cb" id="fa-list">'+faHtml+'</div>' +
     '</div>' +
@@ -3565,13 +3831,1152 @@ document.getElementById('spPwInput').addEventListener('keydown', function(e){
   if(e.key==='Enter') spUnlock();
 });
 
+// ── FULLSCREEN IMAGE VIEWER ───────────────────────────────
+function openImgFullscreen(url){
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+  var img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;display:block;';
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;background:rgba(255,255,255,.18);border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+  ov.appendChild(img);
+  ov.appendChild(closeBtn);
+  document.body.appendChild(ov);
+  function close(){ document.body.removeChild(ov); }
+  ov.addEventListener('click', function(e){ if(e.target===ov||e.target===closeBtn) close(); });
+  document.addEventListener('keydown', function onKey(e){ if(e.key==='Escape'){ close(); document.removeEventListener('keydown',onKey); } });
+}
+
+// ── PLAN COVER SLIDER ─────────────────────────────────────
+var _pcSliderIdx = 0;
+var _pcSliderImages = [];
+var _pcSliderTimer = null;
+var _pcMultiInput = (function(){
+  var inp = document.createElement('input');
+  inp.type='file'; inp.accept='image/*'; inp.multiple=true; inp.style.display='none';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', function(){
+    if(!inp.files.length) return;
+    _pcUploadImages(Array.from(inp.files));
+    inp.value='';
+  });
+  return inp;
+})();
+
+async function renderPlanCover(){
+  var zone = document.getElementById('plan-cover-zone');
+  if(!zone) return;
+  try{
+    var r = await fetch('/api/plan-cover');
+    var imgs = await r.json(); // [{id, url, orig_name}]
+    _pcSliderImages = imgs;
+    if(!imgs.length){
+      _pcStopAuto();
+      zone.innerHTML =
+        '<div class="plan-cover-empty" id="pcEmpty">' +
+          '<div class="plan-cover-empty-icon">🖼️</div>' +
+          '<div class="plan-cover-empty-txt">Upload cover photos for your trip</div>' +
+          '<div class="plan-cover-empty-sub">Tap to choose images — JPG, PNG (max 20MB each)</div>' +
+        '</div>';
+      document.getElementById('pcEmpty').addEventListener('click', function(){ _pcMultiInput.click(); });
+      return;
+    }
+    if(_pcSliderIdx >= imgs.length) _pcSliderIdx = imgs.length - 1;
+    var idx = _pcSliderIdx;
+
+    var slidesHtml = imgs.map(function(img, i){
+      return '<div class="plan-slider-slide">' +
+        '<img src="'+img.url+'?t='+Date.now()+'" alt="Cover '+(i+1)+'" data-slide-idx="'+i+'"/>' +
+        '<div class="plan-slider-overlay">' +
+          '<div class="plan-slider-caption">🏔️ Matheran Trek 2026 &nbsp;·&nbsp; '+(i+1)+' / '+imgs.length+'</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    var dotsHtml = imgs.length > 1 ? imgs.map(function(_,i){
+      return '<button class="plan-slider-dot'+(i===idx?' on':'')+'" data-dot="'+i+'"></button>';
+    }).join('') : '';
+
+    var arrowsHtml = imgs.length > 1
+      ? '<button class="plan-slider-arrow plan-slider-prev" id="pcPrev">&#8249;</button>' +
+        '<button class="plan-slider-arrow plan-slider-next" id="pcNext">&#8250;</button>'
+      : '';
+
+    zone.innerHTML =
+      '<div class="plan-slider-wrap" id="pcWrap">' +
+        (imgs.length > 1 ? '<div class="plan-slider-counter" id="pcCounter">'+(idx+1)+' / '+imgs.length+'</div>' : '') +
+        '<div class="plan-slider-track" id="pcTrack" style="transform:translateX(-'+idx*100+'%)">' +
+          slidesHtml +
+        '</div>' +
+        arrowsHtml +
+        (dotsHtml ? '<div class="plan-slider-dots" id="pcDots">'+dotsHtml+'</div>' : '') +
+        '<div class="plan-slider-actions">' +
+          '<button class="plan-slider-btn plan-slider-del" id="pcDelBtn">🗑️ Delete</button>' +
+        '</div>' +
+        '<div class="plan-slider-add-bar">' +
+          '<button class="plan-slider-add-btn" id="pcAddBtn">＋ Add Photos</button>' +
+        '</div>' +
+      '</div>';
+
+    zone.querySelectorAll('.plan-slider-slide img').forEach(function(img){
+      img.addEventListener('click', function(){
+        _pcOpenFullscreen(_pcSliderImages, _pcSliderIdx);
+      });
+    });
+
+    var prevBtn = document.getElementById('pcPrev');
+    var nextBtn = document.getElementById('pcNext');
+    if(prevBtn) prevBtn.addEventListener('click', function(){ _pcGo(_pcSliderIdx - 1); });
+    if(nextBtn) nextBtn.addEventListener('click', function(){ _pcGo(_pcSliderIdx + 1); });
+
+    zone.querySelectorAll('[data-dot]').forEach(function(dot){
+      dot.addEventListener('click', function(){ _pcGo(+this.getAttribute('data-dot')); });
+    });
+
+    document.getElementById('pcDelBtn').addEventListener('click', function(){
+      var img = _pcSliderImages[_pcSliderIdx];
+      if(!img) return;
+      if(!confirm('Delete this photo?')) return;
+      _pcDeleteImage(img.id);
+    });
+
+    document.getElementById('pcAddBtn').addEventListener('click', function(){ _pcMultiInput.click(); });
+
+    var wrap = document.getElementById('pcWrap');
+    wrap.addEventListener('mouseenter', _pcStopAuto);
+    wrap.addEventListener('mouseleave', function(){ if(_pcSliderImages.length > 1) _pcStartAuto(); });
+
+    _pcStopAuto();
+    if(imgs.length > 1) _pcStartAuto();
+
+  } catch(e){ console.error('renderPlanCover:', e); }
+}
+
+function _pcGo(i){
+  var n = _pcSliderImages.length;
+  if(!n) return;
+  _pcSliderIdx = ((i % n) + n) % n;
+  var track = document.getElementById('pcTrack');
+  if(track) track.style.transform = 'translateX(-'+(_pcSliderIdx*100)+'%)';
+  var counter = document.getElementById('pcCounter');
+  if(counter) counter.textContent = (_pcSliderIdx+1)+' / '+n;
+  document.querySelectorAll('#plan-cover-zone [data-dot]').forEach(function(d){
+    d.classList.toggle('on', +d.getAttribute('data-dot') === _pcSliderIdx);
+  });
+}
+
+function _pcStartAuto(){
+  _pcStopAuto();
+  _pcSliderTimer = setInterval(function(){ _pcGo(_pcSliderIdx + 1); }, 5000);
+}
+function _pcStopAuto(){
+  if(_pcSliderTimer){ clearInterval(_pcSliderTimer); _pcSliderTimer = null; }
+}
+
+async function _pcUploadImages(files){
+  toast('Uploading '+files.length+' photo'+(files.length>1?'s':'')+'…');
+  var fd = new FormData();
+  files.forEach(function(f){ fd.append('images', f); });
+  try{
+    var r = await fetch('/api/plan-cover', {method:'POST', body:fd});
+    if(!r.ok) throw new Error('Upload failed');
+    toast('Photos saved! 🖼️');
+    _pcSliderIdx = _pcSliderImages.length;
+    renderPlanCover();
+  } catch(e){ toast('Upload failed: '+e.message); }
+}
+
+async function _pcDeleteImage(id){
+  try{
+    await fetch('/api/plan-cover/'+id, {method:'DELETE'});
+    toast('Photo removed');
+    if(_pcSliderIdx > 0) _pcSliderIdx--;
+    renderPlanCover();
+  } catch(e){ toast(e.message); }
+}
+
+function _pcOpenFullscreen(imgs, startIdx){
+  var cur = startIdx;
+  var ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;';
+  function render(){
+    var img = imgs[cur];
+    ov.innerHTML =
+      '<img src="'+img.url+'" style="max-width:96%;max-height:92vh;object-fit:contain;border-radius:6px;display:block;" />' +
+      '<button style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.15);border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;" id="fsClose">✕</button>' +
+      (imgs.length > 1 ?
+        '<button style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:24px;cursor:pointer;" id="fsPrev">&#8249;</button>' +
+        '<button style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:24px;cursor:pointer;" id="fsNext">&#8250;</button>' +
+        '<div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.7);font-size:12px;font-weight:700;">'+(cur+1)+' / '+imgs.length+'</div>'
+      : '');
+    document.getElementById('fsClose').addEventListener('click', close);
+    var fp=document.getElementById('fsPrev'), fn=document.getElementById('fsNext');
+    if(fp) fp.addEventListener('click', function(){ cur=((cur-1)+imgs.length)%imgs.length; render(); });
+    if(fn) fn.addEventListener('click', function(){ cur=(cur+1)%imgs.length; render(); });
+  }
+  render();
+  document.body.appendChild(ov);
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  function close(){ _pcSliderIdx=cur; document.body.removeChild(ov); }
+  document.addEventListener('keydown', function onKey(e){
+    if(e.key==='Escape'){ close(); document.removeEventListener('keydown',onKey); }
+    if(e.key==='ArrowRight'){ cur=(cur+1)%imgs.length; render(); }
+    if(e.key==='ArrowLeft'){ cur=((cur-1)+imgs.length)%imgs.length; render(); }
+  });
+}
+
+// ── SPOTS ─────────────────────────────────────────────────
+var SPOTS_KEY = 'matheran_spots_v1';
+var SPOTS_TIPS_KEY = 'matheran_spots_tips_v1';
+
+var SPOTS_DEFAULT = [
+  {id:1, icon:'🌅', name:'Panorama Point', desc:'Best spot for sunrise & 360° panoramic views of the Sahyadri ranges. A must-do early morning walk.'},
+  {id:2, icon:'🔊', name:'Echo Point', desc:'Stand at the edge and shout — your voice echoes back from the valley! A fun & thrilling experience.'},
+  {id:3, icon:'💙', name:'Charlotte Lake', desc:'Matheran\'s main water reservoir. Serene early-morning walk through red mud trails surrounded by forest.'},
+  {id:4, icon:'🌄', name:'Louisa Point', desc:'Stunning sunset viewpoint, less crowded than Panorama. Overlooks the Prabal & Matheran valley.'},
+  {id:5, icon:'🦅', name:'One Tree Hill Point', desc:'Short easy trek, great valley views. Named after the lone tree standing at the hilltop.'},
+  {id:6, icon:'🌿', name:'Hart Point', desc:'Quiet & offbeat viewpoint with sweeping views. Best in early morning with light mist.'},
+  {id:7, icon:'🏞️', name:'Alexander Point', desc:'Great for photography, overlooks the valley with lush green cover during monsoon.'}
+];
+
+var SPOTS_TIPS_DEFAULT = [
+  {id:1, icon:'⏰', text:'Start treks by 6–7 AM — cooler, misty & less crowded. Sunset spots best by 5:30 PM.'},
+  {id:2, icon:'👟', text:'Wear trekking shoes — red mud trails get very slippery in monsoon.'},
+  {id:3, icon:'💧', text:'Carry water & energy snacks — no stalls midway on most trails.'},
+  {id:4, icon:'🧂', text:'Keep salt handy — leeches are active on all forest trails in August.'},
+  {id:5, icon:'📵', text:'No signal on most trails — download offline maps before leaving resort.'}
+];
+
+function spotsGet(){ try{ var d=JSON.parse(localStorage.getItem(SPOTS_KEY)); if(d) return d; }catch(_){} return JSON.parse(JSON.stringify(SPOTS_DEFAULT)); }
+function spotsSave(d){ localStorage.setItem(SPOTS_KEY, JSON.stringify(d)); }
+function spotsTipsGet(){ try{ var d=JSON.parse(localStorage.getItem(SPOTS_TIPS_KEY)); if(d) return d; }catch(_){} return JSON.parse(JSON.stringify(SPOTS_TIPS_DEFAULT)); }
+function spotsTipsSave(d){ localStorage.setItem(SPOTS_TIPS_KEY, JSON.stringify(d)); }
+
+
+// Shared confirm modal (replaces browser confirm dialogs)
+function openConfirmModal(msg, onYes){
+  var ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML =
+    '<div style="background:#fff;border-radius:16px;padding:22px 20px 18px;width:100%;max-width:320px;box-shadow:0 12px 40px rgba(0,0,0,.18);">' +
+      '<div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:16px;">'+msg+'</div>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button id="_cmCancel" style="flex:1;padding:9px;border:2px solid #e2e8f0;border-radius:10px;background:#f8fafc;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>' +
+        '<button id="_cmOk" style="flex:1;padding:9px;border:none;border-radius:10px;background:#dc2626;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">Delete</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  function close(){ document.body.removeChild(ov); }
+  ov.querySelector('#_cmCancel').addEventListener('click', close);
+  ov.querySelector('#_cmOk').addEventListener('click', function(){ close(); onYes(); });
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+}
+
+// Spot edit modal
+function openSpotEditModal(s, onSave){
+  var ov = document.createElement('div');
+  ov.className = 'spot-edit-overlay';
+  ov.innerHTML =
+    '<div class="spot-edit-modal">' +
+      '<div class="spot-edit-modal-title">' +
+        '<span>✏️ Edit Spot</span>' +
+        '<button class="spot-edit-modal-close" id="_seClose">✕</button>' +
+      '</div>' +
+      '<div class="spot-edit-field"><label>Icon (emoji)</label><input id="_seIcon" value="'+escHtml(s.icon)+'" maxlength="4" style="text-align:center;font-size:20px;width:70px;"/></div>' +
+      '<div class="spot-edit-field"><label>Name</label><input id="_seName" value="'+escHtml(s.name)+'"/></div>' +
+      '<div class="spot-edit-field"><label>Description</label><textarea id="_seDesc" rows="3">'+escHtml(s.desc)+'</textarea></div>' +
+      '<button class="spot-edit-save" id="_seSave">💾 Save Changes</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  function close(){ document.body.removeChild(ov); }
+  document.getElementById('_seClose').addEventListener('click', close);
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  document.getElementById('_seSave').addEventListener('click', function(){
+    var icon = document.getElementById('_seIcon').value.trim();
+    var name = document.getElementById('_seName').value.trim();
+    var desc = document.getElementById('_seDesc').value.trim();
+    if(!name){ toast('Name cannot be empty'); return; }
+    close();
+    onSave({icon:icon, name:name, desc:desc});
+  });
+}
+
+// Tip edit modal
+function openTipEditModal(t, onSave){
+  var ov = document.createElement('div');
+  ov.className = 'spot-edit-overlay';
+  ov.innerHTML =
+    '<div class="spot-edit-modal">' +
+      '<div class="spot-edit-modal-title">' +
+        '<span>✏️ Edit Tip</span>' +
+        '<button class="spot-edit-modal-close" id="_teClose">✕</button>' +
+      '</div>' +
+      '<div class="spot-edit-field"><label>Icon (emoji)</label><input id="_teIcon" value="'+escHtml(t.icon)+'" maxlength="4" style="text-align:center;font-size:20px;width:70px;"/></div>' +
+      '<div class="spot-edit-field"><label>Tip text</label><textarea id="_teText" rows="3">'+escHtml(t.text)+'</textarea></div>' +
+      '<button class="spot-edit-save" id="_teSave">💾 Save Changes</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  function close(){ document.body.removeChild(ov); }
+  document.getElementById('_teClose').addEventListener('click', close);
+  ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+  document.getElementById('_teSave').addEventListener('click', function(){
+    var icon = document.getElementById('_teIcon').value.trim();
+    var text = document.getElementById('_teText').value.trim();
+    if(!text){ toast('Tip text cannot be empty'); return; }
+    close();
+    onSave({icon:icon, text:text});
+  });
+}
+
+
+function renderSpots(){
+  var root = document.getElementById('spots-root');
+  if(!root) return;
+  var spots = spotsGet();
+  var tips = spotsTipsGet();
+
+  // Spots list
+  var spotsHtml = spots.map(function(s){
+    return '<div class="spot-card">' +
+      '<div class="spot-icon-wrap">'+escHtml(s.icon)+'</div>' +
+      '<div class="spot-body">' +
+        '<div class="spot-name">'+escHtml(s.name)+'</div>' +
+        '<div class="spot-desc">'+escHtml(s.desc)+'</div>' +
+      '</div>' +
+      '<div class="spot-actions">' +
+        '<button class="spot-edit-btn" data-spot-edit="'+s.id+'" title="Edit">✏️</button>' +
+        '<button class="spot-del-btn" data-spot-del="'+s.id+'" title="Delete">✕</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Tips list
+  var tipsHtml = tips.map(function(t){
+    return '<div class="tr" style="align-items:flex-start;">' +
+      '<div class="ti" style="flex-shrink:0;">'+escHtml(t.icon)+'</div>' +
+      '<div class="tx" style="flex:1;cursor:pointer;" data-tip-edit="'+t.id+'" title="Click to edit">'+escHtml(t.text)+'</div>' +
+      '<button class="xbtn" data-tip-del="'+t.id+'" style="flex-shrink:0;margin-top:2px;" title="Delete">✕</button>' +
+    '</div>';
+  }).join('');
+
+  root.innerHTML =
+    '<div class="card">' +
+      '<div class="ch">' +
+        '<span>🏔️ Must-Visit Spots</span>' +
+      '</div>' +
+      '<div class="cb" style="padding:0;">' +
+        '<div id="spots-list">'+spotsHtml+'</div>' +
+        '<div style="padding:14px 16px;border-top:1px solid #f1f5f9;">' +
+          '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">➕ Add New Spot</div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+            '<input id="spotNewIcon" placeholder="Icon" style="width:56px;padding:8px;border:2px solid var(--border);border-radius:8px;font-size:14px;text-align:center;outline:none;font-family:inherit;" maxlength="4"/>' +
+            '<input id="spotNewName" placeholder="Spot name…" style="flex:1;min-width:120px;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit;"/>' +
+            '<input id="spotNewDesc" placeholder="Description…" style="width:100%;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit;margin-top:4px;"/>' +
+            '<button id="spotAddBtn" class="btn btn-primary btn-sm" style="width:100%;margin-top:4px;">+ Add Spot</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="ch">🚶 Trek Tips for Spots</div>' +
+      '<div class="cb" id="spots-tips-list">'+tipsHtml+'</div>' +
+      '<div style="padding:0 18px 16px;display:flex;gap:8px;flex-wrap:wrap;">' +
+        '<input id="tipNewIcon" placeholder="Icon" style="width:56px;padding:8px;border:2px solid var(--border);border-radius:8px;font-size:14px;text-align:center;outline:none;font-family:inherit;" maxlength="4"/>' +
+        '<input id="tipNewText" placeholder="Tip text…" style="flex:1;min-width:160px;padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit;"/>' +
+        '<button id="tipAddBtn" class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1.5px solid #bbf7d0;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;width:100%;border-radius:8px;">+ Add Tip</button>' +
+      '</div>' +
+    '</div>';
+
+  // wire spot edit — beautiful modal
+  root.querySelectorAll('[data-spot-edit]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = +this.getAttribute('data-spot-edit');
+      var spots = spotsGet();
+      var s = spots.find(function(x){return x.id===id;});
+      if(!s) return;
+      openSpotEditModal(s, function(updated){
+        s.icon = updated.icon || s.icon;
+        s.name = updated.name || s.name;
+        s.desc = updated.desc;
+        spotsSave(spots);
+        renderSpots();
+        toast('Spot updated ✅');
+      });
+    });
+  });
+
+  // wire spot delete
+  root.querySelectorAll('[data-spot-del]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = +this.getAttribute('data-spot-del');
+      openConfirmModal('Delete this spot?', function(){
+        var spots = spotsGet();
+        spots = spots.filter(function(x){return x.id!==id;});
+        spotsSave(spots);
+        renderSpots();
+        toast('Spot removed');
+      });
+    });
+  });
+
+  // wire tip edit — beautiful modal
+  root.querySelectorAll('[data-tip-edit]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var id = +this.getAttribute('data-tip-edit');
+      var tips = spotsTipsGet();
+      var t = tips.find(function(x){return x.id===id;});
+      if(!t) return;
+      openTipEditModal(t, function(updated){
+        t.icon = updated.icon || t.icon;
+        t.text = updated.text || t.text;
+        spotsTipsSave(tips);
+        renderSpots();
+        toast('Tip updated ✅');
+      });
+    });
+  });
+
+  // wire tip delete
+  root.querySelectorAll('[data-tip-del]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = +this.getAttribute('data-tip-del');
+      openConfirmModal('Delete this tip?', function(){
+        var tips = spotsTipsGet();
+        tips = tips.filter(function(x){return x.id!==id;});
+        spotsTipsSave(tips);
+        renderSpots();
+        toast('Tip removed');
+      });
+    });
+  });
+
+  // wire spot add
+  root.querySelector('#spotAddBtn').addEventListener('click', function(){
+    var icon = document.getElementById('spotNewIcon').value.trim() || '📍';
+    var name = document.getElementById('spotNewName').value.trim();
+    var desc = document.getElementById('spotNewDesc').value.trim();
+    if(!name){ toast('Enter spot name'); return; }
+    var spots = spotsGet();
+    var maxId = spots.reduce(function(m,x){return x.id>m?x.id:m;},0);
+    spots.push({id:maxId+1, icon:icon, name:name, desc:desc});
+    spotsSave(spots);
+    document.getElementById('spotNewIcon').value='';
+    document.getElementById('spotNewName').value='';
+    document.getElementById('spotNewDesc').value='';
+    renderSpots();
+    toast('Spot added ✅');
+  });
+  root.querySelector('#spotNewName').addEventListener('keydown', function(e){ if(e.key==='Enter') root.querySelector('#spotAddBtn').click(); });
+
+  // wire tip add
+  root.querySelector('#tipAddBtn').addEventListener('click', function(){
+    var icon = document.getElementById('tipNewIcon').value.trim() || '💡';
+    var text = document.getElementById('tipNewText').value.trim();
+    if(!text){ toast('Enter tip text'); return; }
+    var tips = spotsTipsGet();
+    var maxId = tips.reduce(function(m,x){return x.id>m?x.id:m;},0);
+    tips.push({id:maxId+1, icon:icon, text:text});
+    spotsTipsSave(tips);
+    document.getElementById('tipNewIcon').value='';
+    document.getElementById('tipNewText').value='';
+    renderSpots();
+    toast('Tip added ✅');
+  });
+  root.querySelector('#tipNewText').addEventListener('keydown', function(e){ if(e.key==='Enter') root.querySelector('#tipAddBtn').click(); });
+}
+
+function spotsReset(){
+  if(!confirm('Reset spots to default? All edits will be lost.')) return;
+  localStorage.removeItem(SPOTS_KEY);
+  localStorage.removeItem(SPOTS_TIPS_KEY);
+  renderSpots();
+  toast('Spots reset to default');
+}
+
+// ── CHAT IMAGE UPLOAD ─────────────────────────────────────
+var CHAT_PENDING_IMG = null; // {url, previewId}
+
+function setChatPendingImg(url, previewEl, previewId){
+  CHAT_PENDING_IMG = {url: url};
+  var preview = document.getElementById(previewId);
+  if(!preview) return;
+  preview.style.display = 'block';
+  preview.innerHTML =
+    '<div class="chat-img-preview">' +
+      '<img src="'+url+'" alt="preview"/>' +
+      '<button class="chat-img-preview-del" data-clear-img="'+previewId+'" title="Remove">✕</button>' +
+    '</div>';
+  preview.querySelector('[data-clear-img]').addEventListener('click', function(){
+    CHAT_PENDING_IMG = null;
+    preview.style.display = 'none';
+    preview.innerHTML = '';
+  });
+}
+
+async function uploadChatImg(file, previewId){
+  toast('Uploading image…');
+  var fd = new FormData();
+  fd.append('image', file);
+  try{
+    var r = await fetch('/api/chat/upload-image', {method:'POST', body:fd});
+    var json = await r.json();
+    if(!r.ok) throw new Error(json.error || 'Upload failed');
+    setChatPendingImg(json.url, null, previewId);
+  } catch(e){ toast('Image upload failed: '+e.message); }
+}
+
+// wire chat image inputs
+document.getElementById('chatFullImgInput').addEventListener('change', function(){
+  if(!this.files.length) return;
+  uploadChatImg(this.files[0], 'chatFullImgPreview');
+  this.value = '';
+});
+document.getElementById('chatPopupImgInput').addEventListener('change', function(){
+  if(!this.files.length) return;
+  uploadChatImg(this.files[0], 'chatPopupImgPreview');
+  this.value = '';
+});
+
+// ── OVERRIDE doSend to support images ─────────────────────
+var _origDoSend = doSend;
+doSend = async function(inputId, bodyId){
+  if(!CURRENT_USER){ toast('Please log in'); return; }
+  var inp = document.getElementById(inputId);
+  var msg = inp.value.trim();
+  var imgUrl = CHAT_PENDING_IMG ? CHAT_PENDING_IMG.url : null;
+  if(!msg && !imgUrl) return;
+  var sendBtnId = inputId === 'chatPopupInput' ? 'chatPopupSendBtn' : 'chatFullSendBtn';
+  var btn = document.getElementById(sendBtnId);
+  btn.disabled = true;
+  try{
+    var payload = {member_id:CURRENT_USER.id, name:CURRENT_USER.name, msg:msg||' '};
+    if(CHAT_REPLY) payload.reply_to = CHAT_REPLY.id;
+    if(imgUrl) payload.img_url = imgUrl;
+    var row = await api('POST','/api/chat', payload);
+    CHAT_MSGS.push(row);
+    CHAT_LAST_ID = row.id;
+    inp.value = ''; inp.style.height = 'auto';
+    // clear image preview
+    CHAT_PENDING_IMG = null;
+    var previewId = inputId === 'chatPopupInput' ? 'chatPopupImgPreview' : 'chatFullImgPreview';
+    var previewEl = document.getElementById(previewId);
+    if(previewEl){ previewEl.style.display='none'; previewEl.innerHTML=''; }
+    cancelReply();
+    chatMarkRead();
+    renderMsgs(bodyId, true);
+  } catch(e){ toast(e.message); }
+  btn.disabled = false;
+  inp.focus();
+};
+
+// ── OVERRIDE renderMsgs to support image messages ─────────
+var _origRenderMsgs = renderMsgs;
+renderMsgs = function(containerId, scrollBottom){
+  var body = document.getElementById(containerId);
+  if(!body) return;
+  if(!CHAT_MSGS.length){
+    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 10px;font-size:13px;">No messages yet — say hi! 👋</div>';
+    return;
+  }
+  var scrollPos = body.scrollTop;
+  var atBottom = body.scrollHeight - body.clientHeight - scrollPos < 60;
+  var html = '';
+  var lastDay = '';
+  CHAT_MSGS.forEach(function(m){
+    var isMe = CURRENT_USER && m.member_id === CURRENT_USER.id;
+    var day = m.ts ? m.ts.split(' ')[0] : '';
+    if(day !== lastDay){ html += '<div class="chat-day-sep">'+escHtml(day)+'</div>'; lastDay = day; }
+    var replyHtml = '';
+    if(m.reply_to){
+      var orig = CHAT_MSGS.find(function(x){ return x.id === m.reply_to; });
+      if(orig) replyHtml = '<div class="chat-reply-preview">↩ <strong>'+escHtml(orig.name)+'</strong>: '+escHtml((orig.msg||'').substring(0,50))+'</div>';
+    }
+    var delBtn = isMe ? '<button class="chat-del-btn" data-del="'+m.id+'" title="Delete">🗑️</button>' : '';
+    var msgText = (m.msg && m.msg.trim() && m.msg.trim() !== ' ') ? escHtml(m.msg) : '';
+    var imgHtml = m.img_url ? '<img class="chat-img" src="'+m.img_url+'" alt="image" onclick="window.open(this.src,\'_blank\')"/>' : '';
+    html +=
+      '<div class="chat-msg'+(isMe?' me':'')+'" data-id="'+m.id+'">' +
+        (isMe ? '' : '<div class="chat-av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>') +
+        '<div class="chat-bubble" data-reply="'+m.id+'">' +
+          '<div class="chat-name">'+escHtml(m.name)+'</div>' +
+          replyHtml + msgText + imgHtml +
+          '<div class="chat-ts">'+(m.ts?m.ts.split(' ')[1]||'':'')+'</div>' +
+        '</div>' +
+        delBtn +
+        (isMe ? '<div class="chat-av" style="background:'+aColor(m.name)+'">'+aInit(m.name)+'</div>' : '') +
+      '</div>';
+  });
+  body.innerHTML = html;
+  if(scrollBottom || atBottom) body.scrollTop = body.scrollHeight;
+
+  // delete buttons
+  body.querySelectorAll('[data-del]').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var id = +this.getAttribute('data-del');
+      if(!confirm('Delete this message?')) return;
+      api('DELETE','/api/chat/'+id,{member_id:CURRENT_USER.id}).then(function(){
+        CHAT_MSGS = CHAT_MSGS.filter(function(m){ return m.id !== id; });
+        renderMsgs(containerId, false);
+        toast('Deleted');
+      }).catch(function(e){ toast(e.message); });
+    });
+  });
+
+  // reply on bubble tap
+  body.querySelectorAll('.chat-bubble[data-reply]').forEach(function(bubble){
+    bubble.addEventListener('click', function(e){
+      if(e.target.closest('[data-del]')) return;
+      if(e.target.classList.contains('chat-img')) return;
+      var id = +this.getAttribute('data-reply');
+      var m = CHAT_MSGS.find(function(x){ return x.id === id; });
+      if(!m) return;
+      setReply(m);
+    });
+  });
+};
+
+// ── PLAN UNIFIED NOTES ────────────────────────────────────
+var PLAN_NOTES_KEY = 'matheran_plan_notes_v2';
+
+// Flat list of notes, each with optional day label for grouping
+var PLAN_NOTES_DEFAULT = [
+  {id:1,  day:'Day 1', text:'Carry extra cash — most Matheran stalls are cash only',            color:'amber'},
+  {id:2,  day:'Day 1', text:'Download offline Google Maps before leaving home',                  color:'blue'},
+  {id:3,  day:'Day 1', text:'Apply Odomos BEFORE starting any trail — leeches are active!',     color:'red'},
+  {id:4,  day:'Day 1', text:'Keep resort contact number saved in your phone',                    color:'green'},
+  {id:5,  day:'Day 2', text:'Check-out by 10 AM sharp — vacate rooms, luggage at reception',    color:'orange'},
+  {id:6,  day:'Day 2', text:'Carry your packing list — don\'t leave anything behind',           color:'red'},
+  {id:7,  day:'Day 2', text:'Last photo opportunity at resort before leaving!',                  color:'purple'}
+];
+
+var NOTE_COLORS = {
+  amber:  {bg:'#fef3c7', border:'#f59e0b', text:'#92400e', dot:'#f59e0b'},
+  blue:   {bg:'#eff6ff', border:'#3b82f6', text:'#1e40af', dot:'#3b82f6'},
+  red:    {bg:'#fef2f2', border:'#ef4444', text:'#991b1b', dot:'#ef4444'},
+  green:  {bg:'#f0fdf4', border:'#22c55e', text:'#166534', dot:'#22c55e'},
+  orange: {bg:'#fff7ed', border:'#f97316', text:'#9a3412', dot:'#f97316'},
+  purple: {bg:'#faf5ff', border:'#a855f7', text:'#6b21a8', dot:'#a855f7'},
+  teal:   {bg:'#f0fdfa', border:'#14b8a6', text:'#134e4a', dot:'#14b8a6'}
+};
+var NOTE_COLOR_NAMES = Object.keys(NOTE_COLORS);
+
+function planNotesGet() {
+  try { var d = JSON.parse(localStorage.getItem(PLAN_NOTES_KEY)); if(d && d.length) return d; } catch(_) {}
+  return JSON.parse(JSON.stringify(PLAN_NOTES_DEFAULT));
+}
+function planNotesSave(d) { localStorage.setItem(PLAN_NOTES_KEY, JSON.stringify(d)); }
+
+// Selected color state for the add form
+var _planNoteSelColor = 'amber';
+
+function renderPlanNotesUnified() {
+  var container = document.getElementById('plan-notes-unified');
+  if(!container) return;
+  var notes = planNotesGet();
+  var c = NOTE_COLORS;
+
+  // Collect unique day labels in order
+  var days = [];
+  notes.forEach(function(n){ if(days.indexOf(n.day) === -1) days.push(n.day); });
+
+  // Build notes grouped by day with a slim separator label
+  var listHtml = '';
+  days.forEach(function(dayLabel) {
+    var group = notes.filter(function(n){ return n.day === dayLabel; });
+    listHtml +=
+      '<div style="font-size:11px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.7px;'
+      + 'margin:10px 0 6px;display:flex;align-items:center;gap:6px;">'
+      + '<div style="flex:1;height:1px;background:#fcd34d;opacity:.6;"></div>'
+      + '<span>📅 '+escHtml(dayLabel)+'</span>'
+      + '<div style="flex:1;height:1px;background:#fcd34d;opacity:.6;"></div>'
+      + '</div>';
+    group.forEach(function(n) {
+      var col = c[n.color] || c.amber;
+      listHtml +=
+        '<div class="pn-item" data-pnid="'+n.id+'" style="background:'+col.bg+';border:1.5px solid '+col.border+';border-radius:10px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:7px;">'
+        + '<div style="width:8px;height:8px;border-radius:50%;background:'+col.dot+';flex-shrink:0;margin-top:5px;"></div>'
+        + '<div class="pn-text" data-pnid="'+n.id+'" contenteditable="true" '
+        +   'style="flex:1;font-size:13px;color:'+col.text+';font-weight:600;line-height:1.5;outline:none;min-height:18px;cursor:text;'
+        +   'border:1.5px solid transparent;border-radius:6px;padding:1px 4px;transition:border-color .15s;">'
+        +   escHtml(n.text)
+        + '</div>'
+        + '<button class="pn-del" data-pnid="'+n.id+'" '
+        +   'style="background:none;border:none;color:'+col.border+';opacity:.55;cursor:pointer;font-size:15px;flex-shrink:0;padding:0 2px;line-height:1;" title="Delete">✕</button>'
+        + '</div>';
+    });
+  });
+
+  if(!notes.length) {
+    listHtml = '<div style="font-size:13px;color:var(--muted-light);padding:6px 0 4px;">No notes yet — add one below</div>';
+  }
+
+  // Color picker dots
+  var colorPills = NOTE_COLOR_NAMES.map(function(name) {
+    var col = c[name];
+    var sel = name === _planNoteSelColor;
+    return '<button class="pn-color-btn" data-color="'+name+'" '
+      + 'style="width:18px;height:18px;border-radius:50%;background:'+col.dot+';'
+      + 'border:2.5px solid '+(sel?'#374151':'transparent')+';'
+      + 'transform:'+(sel?'scale(1.25)':'scale(1)')+';'
+      + 'cursor:pointer;padding:0;flex-shrink:0;transition:all .15s;" title="'+name+'"></button>';
+  }).join('');
+
+  // Day selector for new note
+  var dayOpts = ['Day 1','Day 2','General'].map(function(d){
+    return '<option value="'+d+'">'+d+'</option>';
+  }).join('');
+
+  container.innerHTML =
+    '<div class="card" style="overflow:hidden;">'
+    + '<div style="background:linear-gradient(135deg,#78350f,#b45309,#d97706);color:#fff;padding:14px 18px 12px;display:flex;align-items:center;gap:10px;">'
+    +   '<span style="font-size:20px;">📌</span>'
+    +   '<div style="flex:1;">'
+    +     '<div style="font-size:15px;font-weight:900;letter-spacing:-.2px;">Important Notes</div>'
+    +     '<div style="font-size:11px;opacity:.8;margin-top:2px;">Tap any note to edit inline · each point is separate</div>'
+    +   '</div>'
+    +   '<div style="background:rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800;">'+notes.length+' notes</div>'
+    + '</div>'
+    + '<div style="padding:14px 16px 4px;" id="pn-list">'
+    +   listHtml
+    + '</div>'
+    + '<div style="padding:10px 16px 16px;border-top:1px solid #fde68a;background:#fffbeb;">'
+    +   '<div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">➕ Add Note</div>'
+    +   '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">'
+    +     '<select id="pn-day-sel" style="padding:6px 10px;border:1.5px solid #fcd34d;border-radius:8px;font-size:12px;font-family:inherit;outline:none;background:#fff;color:#78350f;font-weight:700;">'+dayOpts+'</select>'
+    +     '<div style="display:flex;gap:4px;align-items:center;">'+colorPills+'</div>'
+    +     '<input id="pn-input" placeholder="Add a note…" style="flex:1;min-width:140px;padding:7px 10px;border:1.5px solid #fcd34d;border-radius:8px;font-size:13px;outline:none;font-family:inherit;background:#fff;"/>'
+    +     '<button id="pn-add-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">+ Add</button>'
+    +   '</div>'
+    + '</div>'
+    + '</div>';
+
+  // wire color picker
+  container.querySelectorAll('.pn-color-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      _planNoteSelColor = this.getAttribute('data-color');
+      container.querySelectorAll('.pn-color-btn').forEach(function(x){
+        var s = x.getAttribute('data-color') === _planNoteSelColor;
+        x.style.border = '2.5px solid ' + (s ? '#374151' : 'transparent');
+        x.style.transform = s ? 'scale(1.25)' : 'scale(1)';
+      });
+    });
+  });
+
+  // wire add
+  var addBtn = container.querySelector('#pn-add-btn');
+  var addInp = container.querySelector('#pn-input');
+  function doAddNote(){
+    var text = addInp.value.trim();
+    var day  = container.querySelector('#pn-day-sel').value;
+    if(!text){ toast('Enter a note'); return; }
+    var notes = planNotesGet();
+    var maxId = notes.reduce(function(m,x){return x.id>m?x.id:m;},0);
+    notes.push({id:maxId+1, day:day, text:text, color:_planNoteSelColor});
+    planNotesSave(notes);
+    addInp.value = '';
+    renderPlanNotesUnified();
+    toast('Note added 📌');
+  }
+  addBtn.addEventListener('click', doAddNote);
+  addInp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doAddNote(); } });
+
+  // wire delete
+  container.querySelectorAll('.pn-del').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var nid = +this.getAttribute('data-pnid');
+      var notes = planNotesGet();
+      notes = notes.filter(function(x){return x.id!==nid;});
+      planNotesSave(notes);
+      renderPlanNotesUnified();
+      toast('Note removed');
+    });
+  });
+
+  // wire inline edit — show border on focus, save on blur
+  container.querySelectorAll('.pn-text').forEach(function(div){
+    div.addEventListener('focus', function(){
+      this.style.borderColor = NOTE_COLORS[planNotesGet().find(function(x){return x.id===+div.getAttribute('data-pnid');})||{color:'amber'}].border || '#f59e0b';
+      this.style.background = 'rgba(255,255,255,.7)';
+    });
+    div.addEventListener('blur', function(){
+      this.style.borderColor = 'transparent';
+      this.style.background = 'transparent';
+      var nid = +this.getAttribute('data-pnid');
+      var notes = planNotesGet();
+      var n = notes.find(function(x){return x.id===nid;});
+      if(n){ n.text = this.innerText.trim()||n.text; planNotesSave(notes); }
+    });
+    div.addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.blur();} });
+  });
+}
+
+// ── OVERRIDE renderItinerary for beautiful plan page ───────
+renderItinerary = function() {
+  var plan = planGet();
+  var root = document.getElementById('itinerary-root');
+
+  root.innerHTML = plan.map(function(day, di) {
+    // banner
+    var bannerHtml = '';
+    if (day.banner) {
+      bannerHtml = '<div style="background:'+day.banner.color+';border-left:4px solid '+day.banner.border
+        +';border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:'+day.banner.text+';font-weight:600;">'
+        + day.banner.msg + '</div>';
+    }
+
+    // timeline rows
+    var itemsHtml = day.items.map(function(item, ii) {
+      var dotStyle = item.highlight
+        ? 'background:'+item.highlight+';box-shadow:0 0 0 2px '+item.highlight+';'
+        : '';
+      var timeStyle = item.highlight ? 'color:'+item.highlight+';font-weight:900;' : '';
+      var rowBg = item.highlight ? 'background:'+item.highlight+'14;border-radius:8px;padding:8px 8px 8px 0;' : '';
+      return '<div class="tli" data-day="'+di+'" data-item="'+ii+'" style="'+rowBg+'">'
+        + '<div class="tld" style="'+dotStyle+'"></div>'
+        + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
+        +   '<input class="plan-time" data-day="'+di+'" data-item="'+ii+'" value="'+escHtml(item.time)+'"'
+        +     ' style="'+timeStyle+'width:88px;border:1.5px solid transparent;border-radius:6px;'
+        +     'padding:3px 7px;font-size:12px;font-weight:800;font-family:inherit;background:transparent;'
+        +     'text-transform:uppercase;letter-spacing:.3px;cursor:pointer;color:'+(item.highlight||'var(--primary)')+';outline:none;" />'
+        +   '<button class="plan-del" data-day="'+di+'" data-item="'+ii+'"'
+        +     ' style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;flex-shrink:0;" title="Delete">✕</button>'
+        + '</div>'
+        + '<div contenteditable="true" class="plan-text" data-day="'+di+'" data-item="'+ii+'"'
+        +   ' style="font-size:14px;color:#374151;line-height:1.6;outline:none;border:1.5px solid transparent;'
+        +   'border-radius:6px;padding:3px 6px;min-height:22px;cursor:text;">'
+        +   escHtml(item.text)
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    // add row button
+    var addHtml = '<div style="padding:10px 0 4px 32px;">'
+      + '<button class="plan-add" data-day="'+di+'"'
+      + ' style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:var(--green);border:2px dashed #86efac;border-radius:8px;'
+      + 'padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;">+ Add step</button>'
+      + '</div>';
+
+    // beautiful day header
+    var dayColors = [
+      'linear-gradient(135deg,#0f4c45 0%,#0f766e 60%,#1a3550 100%)',
+      'linear-gradient(135deg,#1a3550 0%,#1e40af 60%,#0f4c45 100%)'
+    ];
+    var headerBg = dayColors[di % dayColors.length];
+
+    return '<div class="card" style="overflow:hidden;">'
+      + '<div class="plan-day-header" style="background:'+headerBg+';">'
+      +   '<div class="plan-day-num">📅 Day '+(di+1)+' of 2</div>'
+      +   '<div class="plan-day-title">'+escHtml(day.day.replace(/Day \d+ — /,''))+'</div>'
+      +   '<div class="plan-day-sub">'+escHtml(day.subtitle)+'</div>'
+      + '</div>'
+      + '<div class="cb">'
+      +   bannerHtml
+      +   '<div class="tl">' + itemsHtml + '</div>'
+      +   addHtml
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  // attach events (same as original)
+  root.querySelectorAll('.plan-time').forEach(function(inp) {
+    inp.addEventListener('focus', function() { this.style.borderColor='var(--primary)'; this.style.background='#fff'; });
+    inp.addEventListener('blur', function() {
+      this.style.borderColor='transparent'; this.style.background='transparent';
+      planUpdateItem(+this.dataset.day, +this.dataset.item, 'time', this.value);
+    });
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); this.blur(); } });
+  });
+
+  root.querySelectorAll('.plan-text').forEach(function(div) {
+    div.addEventListener('focus', function() { this.style.borderColor='var(--border)'; this.style.background='#f8fafc'; });
+    div.addEventListener('blur', function() {
+      this.style.borderColor='transparent'; this.style.background='transparent';
+      planUpdateItem(+this.dataset.day, +this.dataset.item, 'text', this.innerText.trim());
+    });
+    div.addEventListener('keydown', function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); this.blur(); } });
+  });
+
+  root.querySelectorAll('.plan-del').forEach(function(btn) {
+    btn.addEventListener('mouseenter', function(){ this.style.color='var(--red)'; });
+    btn.addEventListener('mouseleave', function(){ this.style.color='#cbd5e1'; });
+    btn.addEventListener('click', function() {
+      var di = +this.dataset.day, ii = +this.dataset.item;
+      var plan = planGet();
+      if(plan[di].items.length <= 1){ toast('Need at least one step'); return; }
+      plan[di].items.splice(ii, 1);
+      planSave(plan);
+      renderItinerary();
+      toast('Step removed');
+    });
+  });
+
+  root.querySelectorAll('.plan-add').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var di = +this.dataset.day;
+      var plan = planGet();
+      plan[di].items.push({time:'--:-- --', text:'New step — tap to edit'});
+      planSave(plan);
+      renderItinerary();
+      var inputs = root.querySelectorAll('.plan-time[data-day="'+di+'"]');
+      if(inputs.length) inputs[inputs.length-1].focus();
+      toast('Step added');
+    });
+  });
+
+};
+
+// ── OVERRIDE goTab to trigger spots + notes render ─────────
+goTab = function(id, el){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('#sidebar .tab').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('pg-'+id).classList.add('on');
+  if(el) el.classList.add('on');
+  if(id==='gallery') renderFolders();
+  if(id==='itinerary'){ renderItinerary(); renderPlanCover(); renderPlanNotesUnified(); }
+  if(id==='medical') renderMedical();
+  if(id==='spots') renderSpots();
+  if(id==='notes') renderNotes();
+  if(id==='chat'){ chatMarkRead(); renderMsgs('chatFullBody', true); }
+  if(id==='secret') spInit();
+  if(window.innerWidth<=768) closeSidebar();
+};
+
+// ── NOTES PAGE ────────────────────────────────────────────
+var NOTES_KEY = 'matheran_notes_v2';
+var NOTES_SEL_CAT = 'all';
+
+var NOTES_CATEGORIES = [
+  {id:'general',   label:'General',    icon:'📝'},
+  {id:'transport', label:'Transport',  icon:'🚗'},
+  {id:'stay',      label:'Stay',       icon:'🏨'},
+  {id:'food',      label:'Food',       icon:'🍽️'},
+  {id:'packing',   label:'Packing',    icon:'🎒'},
+  {id:'money',     label:'Money',      icon:'💰'},
+  {id:'urgent',    label:'Urgent',     icon:'🚨'}
+];
+
+var NOTES_DEFAULT_DATA = [
+  {id:1, cat:'transport', color:'blue',   icon:'🚗', title:'Cab to Neral', text:'Book Ola/Uber in advance from CSMT — demand is high on weekends. Keep Neral station address saved.', pinned:true},
+  {id:2, cat:'stay',      color:'green',  icon:'🏨', title:'Resort Check-In', text:'Check-in 11 AM · Check-out 10 AM · Redwood Resort, Matheran. Keep booking confirmation screenshot handy.', pinned:true},
+  {id:3, cat:'packing',   color:'amber',  icon:'🎒', title:'Don\'t Forget!', text:'Salt for leeches · Odomos insect repellent · Rain poncho · ORS sachets · Power bank fully charged · Offline maps downloaded', pinned:true},
+  {id:4, cat:'money',     color:'orange', icon:'💰', title:'Cash Required', text:'₹2000–3000 per person. Most Matheran stalls, horse rides & snack shops are CASH ONLY. ATM availability is very limited.', pinned:false},
+  {id:5, cat:'general',   color:'teal',   icon:'📵', title:'No Network Alert', text:'Mobile signal is weak/absent on most trails. Download offline maps, save contacts & download OTT content BEFORE leaving.', pinned:false},
+  {id:6, cat:'urgent',    color:'red',    icon:'🚨', title:'Leech Season!', text:'August = peak leech season. Wear full pants on trails. Keep salt packet in pocket. DON\'T pull leeches — use salt or lemon.', pinned:true}
+];
+
+var NOTES_COLOR_MAP = {
+  amber:  {bg:'#fef3c7', border:'#f59e0b', text:'#78350f', dot:'#f59e0b', tag:'#fef3c7', tagText:'#92400e'},
+  blue:   {bg:'#eff6ff', border:'#3b82f6', text:'#1e3a8a', dot:'#3b82f6', tag:'#dbeafe', tagText:'#1e40af'},
+  red:    {bg:'#fff1f2', border:'#f43f5e', text:'#881337', dot:'#f43f5e', tag:'#ffe4e6', tagText:'#9f1239'},
+  green:  {bg:'#f0fdf4', border:'#22c55e', text:'#14532d', dot:'#22c55e', tag:'#dcfce7', tagText:'#166534'},
+  orange: {bg:'#fff7ed', border:'#f97316', text:'#7c2d12', dot:'#f97316', tag:'#fed7aa', tagText:'#9a3412'},
+  purple: {bg:'#faf5ff', border:'#a855f7', text:'#581c87', dot:'#a855f7', tag:'#f3e8ff', tagText:'#6b21a8'},
+  teal:   {bg:'#f0fdfa', border:'#14b8a6', text:'#134e4a', dot:'#14b8a6', tag:'#ccfbf1', tagText:'#0f766e'}
+};
+
+function notesGet(){ try{ var d=JSON.parse(localStorage.getItem(NOTES_KEY)); if(d&&d.length) return d; }catch(_){} return JSON.parse(JSON.stringify(NOTES_DEFAULT_DATA)); }
+function notesSave(d){ localStorage.setItem(NOTES_KEY, JSON.stringify(d)); }
+
+function renderNotes(){
+  var root = document.getElementById('notes-root');
+  if(!root) return;
+  var notes = notesGet();
+  var filtered = NOTES_SEL_CAT === 'all' ? notes : notes.filter(function(n){return n.cat===NOTES_SEL_CAT;});
+  var pinned = filtered.filter(function(n){return n.pinned;});
+  var rest = filtered.filter(function(n){return !n.pinned;});
+
+  // Stats
+  var total = notes.length;
+  var pinnedCount = notes.filter(function(n){return n.pinned;}).length;
+  var catCount = {};
+  notes.forEach(function(n){ catCount[n.cat]=(catCount[n.cat]||0)+1; });
+
+  // Hero header
+  var heroHtml =
+    '<div class="notes-hero">' +
+      '<span class="notes-hero-icon">📝</span>' +
+      '<div class="notes-hero-title">Trip Notes</div>' +
+      '<div class="notes-hero-sub">Important reminders, don\'t-forget items & key info</div>' +
+      '<div class="notes-hero-stats">' +
+        '<div class="notes-hero-stat"><div class="notes-hero-stat-val">'+total+'</div><div class="notes-hero-stat-lbl">Notes</div></div>' +
+        '<div class="notes-hero-stat"><div class="notes-hero-stat-val">'+pinnedCount+'</div><div class="notes-hero-stat-lbl">Pinned</div></div>' +
+        '<div class="notes-hero-stat"><div class="notes-hero-stat-val">'+Object.keys(catCount).length+'</div><div class="notes-hero-stat-lbl">Topics</div></div>' +
+      '</div>' +
+    '</div>';
+
+  // Category filter tabs
+  var catTabsHtml = '<div class="note-cat-tabs" id="noteCatTabs">' +
+    '<button class="note-cat-tab'+(NOTES_SEL_CAT==='all'?' on':'')+'" data-cat="all">🗂️ All ('+total+')</button>' +
+    NOTES_CATEGORIES.map(function(c){
+      var cnt = catCount[c.id]||0;
+      if(!cnt) return '';
+      return '<button class="note-cat-tab'+(NOTES_SEL_CAT===c.id?' on':'')+'" data-cat="'+c.id+'">'+c.icon+' '+c.label+' ('+cnt+')</button>';
+    }).join('') +
+  '</div>';
+
+  // Build note card HTML
+  function noteCardHtml(n){
+    var col = NOTES_COLOR_MAP[n.color] || NOTES_COLOR_MAP.amber;
+    var catInfo = NOTES_CATEGORIES.find(function(c){return c.id===n.cat;}) || NOTES_CATEGORIES[0];
+    return '<div class="note-card" data-nid="'+n.id+'" style="background:'+col.bg+';border:2px solid '+col.border+';">' +
+      '<div class="note-card-top">' +
+        '<div class="note-card-icon">'+escHtml(n.icon)+'</div>' +
+        '<div class="note-card-body">' +
+          (n.pinned ? '<span style="background:#fef3c7;color:#92400e;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;margin-bottom:5px;display:inline-block;border:1px solid #fcd34d;">📌 PINNED</span>' : '') +
+          '<div class="note-card-title" data-nid="'+n.id+'" contenteditable="true" spellcheck="false" style="color:'+col.text+';">'+escHtml(n.title)+'</div>' +
+          '<div class="note-card-text" data-nid="'+n.id+'" contenteditable="true" spellcheck="false" style="color:'+col.text+';">'+escHtml(n.text)+'</div>' +
+          '<div class="note-card-meta" style="color:'+col.dot+';">'+catInfo.icon+' '+catInfo.label+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="note-card-actions">' +
+        '<button class="note-card-del" data-nid="'+n.id+'" style="color:'+col.text+';">🗑️ Delete</button>' +
+        '<button class="note-pin-btn" data-nid="'+n.id+'" style="background:rgba(0,0,0,.08);border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:'+col.text+';">'+(n.pinned?'📌 Unpin':'📌 Pin')+'</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  var pinnedHtml = pinned.length ?
+    '<div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">📌 Pinned</div>' +
+    pinned.map(noteCardHtml).join('') : '';
+
+  var restHtml = rest.length ?
+    (pinned.length ? '<div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px;">Other Notes</div>' : '') +
+    rest.map(noteCardHtml).join('') : '';
+
+  var emptyHtml = (!pinned.length && !rest.length) ?
+    '<div style="text-align:center;padding:30px 20px;color:var(--muted);font-size:14px;">No notes in this category yet.<br><span style="font-size:24px;display:block;margin:10px 0;">📝</span>Add one below!</div>' : '';
+
+  // Add note form
+  var addFormHtml =
+    '<div class="note-add-form">' +
+      '<div class="note-add-form-title"><span style="font-size:18px;">➕</span> Add New Note</div>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+        '<input id="noteNewIcon" placeholder="Icon" maxlength="4" style="width:52px;padding:8px;border:2px solid var(--border);border-radius:8px;font-size:14px;text-align:center;outline:none;font-family:inherit;"/>' +
+        '<input id="noteNewTitle" placeholder="Title (e.g. Carry raincoat)" style="flex:1;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit;"/>' +
+      '</div>' +
+      '<textarea id="noteNewText" placeholder="Details (optional)…" rows="2" style="width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:none;margin-bottom:10px;"></textarea>' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">' +
+        '<select id="noteNewCat" style="padding:8px 12px;border:2px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;background:#fff;">' +
+          NOTES_CATEGORIES.map(function(c){ return '<option value="'+c.id+'">'+c.icon+' '+c.label+'</option>'; }).join('') +
+        '</select>' +
+        '<label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;cursor:pointer;"><input type="checkbox" id="noteNewPin" style="accent-color:var(--primary);width:15px;height:15px;"/> Pin this note</label>' +
+      '</div>' +
+      '<div class="note-color-picker" id="noteColorPicker">' +
+        Object.keys(NOTES_COLOR_MAP).map(function(name){
+          return '<div class="note-color-dot'+(name==='amber'?' sel':'')+'" data-ncolor="'+name+'" style="background:'+NOTES_COLOR_MAP[name].dot+';" title="'+name+'"></div>';
+        }).join('') +
+      '</div>' +
+      '<button id="noteAddBtn" class="btn btn-g" style="width:100%;margin-top:4px;">📝 Add Note</button>' +
+    '</div>';
+
+  root.innerHTML = heroHtml + catTabsHtml + addFormHtml + '<div id="notes-list">' + pinnedHtml + restHtml + emptyHtml + '</div>';
+
+  // wire category tabs
+  root.querySelectorAll('.note-cat-tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      NOTES_SEL_CAT = this.getAttribute('data-cat');
+      renderNotes();
+    });
+  });
+
+  // color picker selection
+  var selColor = 'amber';
+  root.querySelectorAll('.note-color-dot').forEach(function(dot){
+    dot.addEventListener('click', function(){
+      root.querySelectorAll('.note-color-dot').forEach(function(d){ d.classList.remove('sel'); });
+      this.classList.add('sel');
+      selColor = this.getAttribute('data-ncolor');
+    });
+  });
+
+  // wire add note
+  root.querySelector('#noteAddBtn').addEventListener('click', function(){
+    var icon  = document.getElementById('noteNewIcon').value.trim() || '📝';
+    var title = document.getElementById('noteNewTitle').value.trim();
+    var text  = document.getElementById('noteNewText').value.trim();
+    var cat   = document.getElementById('noteNewCat').value;
+    var pin   = document.getElementById('noteNewPin').checked;
+    if(!title){ toast('Enter a title'); return; }
+    var notes = notesGet();
+    var maxId = notes.reduce(function(m,x){return x.id>m?x.id:m;},0);
+    notes.push({id:maxId+1, cat:cat, color:selColor, icon:icon, title:title, text:text, pinned:pin});
+    notesSave(notes);
+    document.getElementById('noteNewIcon').value='';
+    document.getElementById('noteNewTitle').value='';
+    document.getElementById('noteNewText').value='';
+    document.getElementById('noteNewPin').checked=false;
+    renderNotes();
+    toast('Note added! 📝');
+  });
+  root.querySelector('#noteNewTitle').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); root.querySelector('#noteAddBtn').click(); } });
+
+  // wire delete
+  root.querySelectorAll('.note-card-del').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var nid = +this.getAttribute('data-nid');
+      if(!confirm('Delete this note?')) return;
+      var notes = notesGet();
+      notes = notes.filter(function(x){return x.id!==nid;});
+      notesSave(notes);
+      renderNotes();
+      toast('Note deleted');
+    });
+  });
+
+  // wire pin toggle
+  root.querySelectorAll('.note-pin-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var nid = +this.getAttribute('data-nid');
+      var notes = notesGet();
+      var n = notes.find(function(x){return x.id===nid;});
+      if(n){ n.pinned = !n.pinned; notesSave(notes); renderNotes(); }
+    });
+  });
+
+  // inline edit title
+  root.querySelectorAll('.note-card-title[contenteditable]').forEach(function(div){
+    div.addEventListener('blur', function(){
+      var nid = +this.getAttribute('data-nid');
+      var notes = notesGet();
+      var n = notes.find(function(x){return x.id===nid;});
+      if(n){ n.title = this.innerText.trim()||n.title; notesSave(notes); }
+    });
+    div.addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.blur();} });
+  });
+
+  // inline edit text
+  root.querySelectorAll('.note-card-text[contenteditable]').forEach(function(div){
+    div.addEventListener('blur', function(){
+      var nid = +this.getAttribute('data-nid');
+      var notes = notesGet();
+      var n = notes.find(function(x){return x.id===nid;});
+      if(n){ n.text = this.innerText.trim(); notesSave(notes); }
+    });
+    div.addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.blur();} });
+  });
+}
+
+function notesReset(){
+  if(!confirm('Reset notes to defaults? All your notes will be removed.')) return;
+  localStorage.removeItem(NOTES_KEY);
+  NOTES_SEL_CAT = 'all';
+  renderNotes();
+  toast('Notes reset to default');
+}
+
 // ── KICK OFF ──────────────────────────────────────────────
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
 
 initLogin();
 renderItinerary();
+renderPlanCover();
+renderPlanNotesUnified();
 renderMedical();
+renderSpots();
 </script>
 </body>
 </html>

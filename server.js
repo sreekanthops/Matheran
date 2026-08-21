@@ -430,6 +430,69 @@ app.delete('/api/folders/:folderId/photos', (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════
+//  PLAN COVER IMAGES  (multiple)
+// ═══════════════════════════════════════════════════════════
+const planCoverDir = path.join(UPLOADS_DIR, '__plan_cover__');
+if (!fs.existsSync(planCoverDir)) fs.mkdirSync(planCoverDir, { recursive: true });
+
+const planCoverUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, planCoverDir),
+    filename: (_req, file, cb) => {
+      const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      cb(null, Date.now() + '_' + safe);
+    }
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }
+});
+
+function ensurePlanCoverImages() {
+  db.run(`CREATE TABLE IF NOT EXISTS plan_cover_images (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    filename  TEXT NOT NULL,
+    orig_name TEXT NOT NULL DEFAULT '',
+    sort_order INTEGER NOT NULL DEFAULT 0
+  );`);
+  try { save(); } catch(_) {}
+}
+
+// GET all images (ordered)
+app.get('/api/plan-cover', (_req, res) => {
+  ensurePlanCoverImages();
+  const rows = all('SELECT * FROM plan_cover_images ORDER BY sort_order ASC, id ASC');
+  res.json(rows.map(r => ({ id: r.id, url: '/uploads/__plan_cover__/' + r.filename, orig_name: r.orig_name })));
+});
+
+// POST upload multiple images
+app.post('/api/plan-cover', (req, res, next) => {
+  planCoverUpload.array('images', 20)(req, res, err => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.files || !req.files.length) return res.status(400).json({ error: 'No files' });
+    ensurePlanCoverImages();
+    const maxOrder = get('SELECT MAX(sort_order) as m FROM plan_cover_images')?.m || 0;
+    const inserted = [];
+    req.files.forEach((f, i) => {
+      run('INSERT INTO plan_cover_images (filename, orig_name, sort_order) VALUES (?,?,?)',
+          [f.filename, f.originalname, maxOrder + i + 1]);
+      inserted.push(all('SELECT * FROM plan_cover_images ORDER BY id DESC LIMIT 1')[0]);
+    });
+    res.json(inserted.map(r => ({ id: r.id, url: '/uploads/__plan_cover__/' + r.filename })));
+  });
+});
+
+// DELETE one image by id
+app.delete('/api/plan-cover/:id', (req, res) => {
+  ensurePlanCoverImages();
+  const row = get('SELECT * FROM plan_cover_images WHERE id=?', [+req.params.id]);
+  if (row) {
+    const fp = path.join(planCoverDir, row.filename);
+    if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    run('DELETE FROM plan_cover_images WHERE id=?', [+req.params.id]);
+  }
+  res.json({ ok: true });
+});
+
+// ═══════════════════════════════════════════════════════════
 //  CHAT
 // ═══════════════════════════════════════════════════════════
 
@@ -441,8 +504,10 @@ function ensureChat() {
     name       TEXT NOT NULL,
     msg        TEXT NOT NULL,
     ts         TEXT NOT NULL,
-    reply_to   INTEGER DEFAULT NULL
+    reply_to   INTEGER DEFAULT NULL,
+    img_url    TEXT NOT NULL DEFAULT ''
   );`);
+  try { db.run(`ALTER TABLE chat_messages ADD COLUMN img_url TEXT NOT NULL DEFAULT ''`); save(); } catch(_) {}
   try { save(); } catch(_) {}
 }
 
@@ -458,25 +523,53 @@ app.get('/api/chat', (req, res) => {
   res.json({ messages: rows, total });
 });
 
-// POST /api/chat  — send a message
+// POST /api/chat  — send a message (text or img_url)
 app.post('/api/chat', (req, res) => {
   ensureChat();
-  const { member_id, name, msg, reply_to } = req.body;
-  if (!member_id || !name || !msg?.trim()) return res.status(400).json({ error: 'Missing fields' });
+  const { member_id, name, msg, reply_to, img_url } = req.body;
+  if (!member_id || !name) return res.status(400).json({ error: 'Missing fields' });
+  if (!msg?.trim() && !img_url) return res.status(400).json({ error: 'Missing fields' });
   run(
-    'INSERT INTO chat_messages (member_id, name, msg, ts, reply_to) VALUES (?,?,?,?,?)',
-    [+member_id, name, msg.trim(), istNow(), reply_to || null]
+    'INSERT INTO chat_messages (member_id, name, msg, ts, reply_to, img_url) VALUES (?,?,?,?,?,?)',
+    [+member_id, name, (msg||'').trim(), istNow(), reply_to || null, img_url || '']
   );
   const row = all('SELECT * FROM chat_messages ORDER BY id DESC LIMIT 1')[0];
   res.json(row);
 });
 
-// DELETE /api/chat/:id  — delete own message
+// POST /api/chat/upload-image  — upload image for chat
+const chatImgDir = path.join(UPLOADS_DIR, '__chat__');
+if (!fs.existsSync(chatImgDir)) fs.mkdirSync(chatImgDir, { recursive: true });
+const chatImgUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, chatImgDir),
+    filename: (_req, file, cb) => {
+      const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      cb(null, Date.now() + '_' + safe);
+    }
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }
+});
+app.post('/api/chat/upload-image', (req, res, next) => {
+  chatImgUpload.single('image')(req, res, err => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'No file' });
+    res.json({ url: '/uploads/__chat__/' + req.file.filename });
+  });
+});
+
+// DELETE /api/chat/:id  — delete own message (also removes image file if any)
 app.delete('/api/chat/:id', (req, res) => {
   const { member_id } = req.body || {};
   const m = get('SELECT * FROM chat_messages WHERE id=?', [+req.params.id]);
   if (!m) return res.status(404).json({ error: 'Not found' });
   if (m.member_id !== +member_id) return res.status(403).json({ error: 'Not your message' });
+  // remove chat image if present
+  if (m.img_url) {
+    const fname = m.img_url.split('/').pop();
+    const fp = path.join(chatImgDir, fname);
+    if (fs.existsSync(fp)) fs.unlinkSync(fp);
+  }
   run('DELETE FROM chat_messages WHERE id=?', [+req.params.id]);
   res.json({ ok: true });
 });
